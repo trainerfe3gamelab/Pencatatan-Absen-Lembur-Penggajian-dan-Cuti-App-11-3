@@ -1,5 +1,7 @@
 "use strict";
 const bcrypt = require("bcrypt");
+const { v4: uuidv4 } = require("uuid");
+const moment = require("moment");
 
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -17,6 +19,10 @@ module.exports = {
         profile_picture:
           "https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png",
         position_id: "tes",
+        creation_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
+        update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
+        create_id: uuidv4(),
+        update_id: uuidv4(),
       },
     ]);
   },
