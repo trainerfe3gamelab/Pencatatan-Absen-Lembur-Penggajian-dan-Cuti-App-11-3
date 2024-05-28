@@ -24,9 +24,7 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: false,
       },
       creation_time: DataTypes.DATE,
-      create_id: DataTypes.INTEGER,
       update_time: DataTypes.DATE,
-      update_id: DataTypes.INTEGER,
     },
     {
       timestamps: true,

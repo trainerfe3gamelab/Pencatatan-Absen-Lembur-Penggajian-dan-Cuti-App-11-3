@@ -16,11 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       type: {
-        type: DataTypes.UUID,
-        references: {
-          model: "SalaryCut",
-          key: "id",
-        },
+        type: DataTypes.STRING,
         allowNull: false,
       },
       reasoning: {
@@ -44,16 +40,8 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW,
         allowNull: false,
       },
-      create_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
       update_time: {
         type: DataTypes.DATE,
-        allowNull: true,
-      },
-      update_id: {
-        type: DataTypes.UUID,
         allowNull: true,
       },
     },
@@ -64,11 +52,6 @@ module.exports = (sequelize, DataTypes) => {
       updatedAt: "update_time",
     }
   );
-
-  Leave.associate = function (models) {
-    Leave.belongsTo(models.User, { foreignKey: "user_id" });
-    Leave.belongsTo(models.SalaryCut, { foreignKey: "type" });
-  };
 
   return Leave;
 };

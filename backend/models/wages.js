@@ -35,7 +35,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      time_off: {
+      cuts: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      net_salary: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
@@ -48,16 +52,8 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW,
         allowNull: false,
       },
-      create_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
       update_time: {
         type: DataTypes.DATE,
-        allowNull: true,
-      },
-      update_id: {
-        type: DataTypes.UUID,
         allowNull: true,
       },
     },

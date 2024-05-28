@@ -21,7 +21,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      is_verified: {
+      expired: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
+      used: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
@@ -37,14 +41,6 @@ module.exports = (sequelize, DataTypes) => {
       update_time: {
         type: DataTypes.DATE,
         allowNull: true,
-      },
-      update_id: {
-        type: DataTypes.UUID,
-        allowNull: true,
-      },
-      create_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
       },
     },
     {

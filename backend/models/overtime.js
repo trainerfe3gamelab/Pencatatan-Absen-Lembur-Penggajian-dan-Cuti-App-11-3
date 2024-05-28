@@ -36,16 +36,8 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: DataTypes.NOW,
         allowNull: false,
       },
-      create_id: {
-        type: DataTypes.UUID,
-        allowNull: false,
-      },
       update_time: {
         type: DataTypes.DATE,
-        allowNull: true,
-      },
-      update_id: {
-        type: DataTypes.UUID,
         allowNull: true,
       },
     },
