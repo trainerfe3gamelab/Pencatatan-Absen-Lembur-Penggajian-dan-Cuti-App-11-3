@@ -43,12 +43,18 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TIME,
         allowNull: false,
       },
+      update_id: {
+        type: DataTypes.UUID,
+        allowNull: true,
+      },
+      create_id: {
+        type: DataTypes.UUID,
+        allowNull: false,
+      },
     },
     {
       tableName: "tbl_leaves",
-      timestamps: true,
-      createdAt: "creation_time",
-      updatedAt: "update_time",
+      timestamps: false,
     }
   );
 
