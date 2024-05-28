@@ -23,7 +23,6 @@ const positionController = {
         create_id: uuidv4(),
         update_id: uuidv4(),
       });
-      console.log(data);
       res.status(201).json({
         status: "sukses",
         data: data,
@@ -156,7 +155,7 @@ const positionController = {
       }
       res.status(200).json({
         status: "sukses",
-        message: "Posisi berhasil diperbarui",
+        message: "Posisi berhasil dihapus",
       });
     } catch (error) {
       res.status(500).json({
