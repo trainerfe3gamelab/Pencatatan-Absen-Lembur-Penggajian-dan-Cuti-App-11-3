@@ -1,97 +1,165 @@
 const { Position } = require("../models"); // Adjust the path as necessary to your models' index.js
+const positionValidator = require("../utils/validator/positionValidator");
+const moment = require("moment");
 
 const positionController = {
   // Create a new position
   create: async (req, res) => {
     try {
-      const {
-        position_name,
-        description,
-        base_salary,
-        transport_allowance,
-        meal_allowance,
-      } = req.body;
-      const newPosition = await Position.create({
-        position_name,
-        description,
-        base_salary,
-        transport_allowance,
-        meal_allowance,
-        create_id: 1,
+      const { error, value } = positionValidator.validate(req.body);
+      if (error) {
+        return res.status(400).json({
+          status: "gagal",
+          message: error.details[0].message,
+        });
+      }
+
+      const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
+      const data = await Position.create({
+        ...value,
+        creation_time: now,
+        update_time: now,
       });
-      res.status(201).send(newPosition);
+      console.log(data);
+      res.status(201).json({
+        status: "sukses",
+        data: data,
+      });
     } catch (error) {
-      res.status(400).send(error);
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
     }
   },
 
   // Retrieve all positions
   findAll: async (req, res) => {
     try {
-      const positions = await Position.findAll();
-      res.status(200).send(positions);
+      const data = await Position.findAll({ where: { archived: false } });
+      res.status(200).json({
+        status: "sukses",
+        data: data,
+      });
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+      return;
     }
   },
 
   // Retrieve a single position by ID
   findOne: async (req, res) => {
     try {
-      const position = await Position.findByPk(req.params.id);
-      if (position) {
-        res.status(200).send(position);
-      } else {
-        res.status(404).send({ message: "Position not found." });
+      const data = await Position.findOne({
+        where: { archived: false, id: req.params.id },
+      });
+      if (data == null) {
+        res.status(404).json({
+          status: "gagal",
+          message: "Posisi tidak ditemukan",
+        });
+        return;
       }
+      res.status(200).json({
+        status: "sukses",
+        data: data,
+      });
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+      return;
     }
   },
 
   // Update a position
   update: async (req, res) => {
     try {
-      const id = req.params.id;
-      const updateData = await Position.update(req.body, {
-        where: { id: id },
-      });
-      if (updateData == 1) {
-        res.send({
-          message: "Position updated successfully.",
+      const optionalpositionValidator = positionValidator.fork(
+        [
+          "position_name",
+          "description",
+          "base_salary",
+          "transport_allowance",
+          "meal_allowance",
+        ],
+        (schema) => schema.optional()
+      );
+      const { error, value } = optionalpositionValidator.validate(req.body);
+      if (error) {
+        res.status(400).json({
+          status: "gagal",
+          message: error.details[0].message,
         });
-      } else {
-        res.send({
-          message: `Cannot update Position with id=${id}. Maybe Position was not found or req.body is empty!`,
-        });
+        return;
       }
-    } catch (error) {
-      res.status(500).send({
-        message: "Error updating Position with id=" + id,
+      const data = await Position.update(
+        {
+          ...value,
+          update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
+        },
+        {
+          where: {
+            id: req.params.id,
+            archived: false,
+          },
+        }
+      );
+      if (data[0] == 0) {
+        res.status(404).json({
+          status: "gagal",
+          message: "Posisi tidak ditemukan",
+        });
+        return;
+      }
+      res.status(200).json({
+        status: "sukses",
+        message: "Posisi berhasil diperbarui",
       });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+      return;
     }
   },
 
   // Delete a position
   delete: async (req, res) => {
     try {
-      const id = req.params.id;
-      const deleteData = await Position.destroy({
-        where: { id: id },
-      });
-      if (deleteData == 1) {
-        res.send({
-          message: "Position was deleted successfully!",
+      const data = await Position.update(
+        {
+          archived: true,
+        },
+        {
+          where: {
+            id: req.params.id,
+            archived: false,
+          },
+        }
+      );
+      if (data[0] == 0) {
+        res.status(404).json({
+          status: "gagal",
+          message: "Posisi tidak ditemukan",
         });
-      } else {
-        res.send({
-          message: `Cannot delete Position with id=${id}. Maybe Position was not found!`,
-        });
+        return;
       }
-    } catch (error) {
-      res.status(500).send({
-        message: "Could not delete Position with id=" + id,
+      res.status(200).json({
+        status: "sukses",
+        message: "Posisi berhasil diperbarui",
       });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+      return;
     }
   },
 };
