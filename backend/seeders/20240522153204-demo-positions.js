@@ -11,7 +11,6 @@ module.exports = {
         base_salary: 6000000,
         transport_allowance: 300000,
         meal_allowance: 250000,
-        create_id: "1",
       },
       {
         id: "tes1",
@@ -20,7 +19,6 @@ module.exports = {
         base_salary: 70000000,
         transport_allowance: 300000,
         meal_allowance: 250000,
-        create_id: "1",
       },
     ]);
   },
