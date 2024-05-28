@@ -1,6 +1,7 @@
 const { Position } = require("../models"); // Adjust the path as necessary to your models' index.js
 const positionValidator = require("../utils/validator/positionValidator");
 const moment = require("moment");
+const { v4: uuidv4 } = require("uuid");
 
 const positionController = {
   // Create a new position
@@ -19,6 +20,8 @@ const positionController = {
         ...value,
         creation_time: now,
         update_time: now,
+        create_id: uuidv4(),
+        update_id: uuidv4(),
       });
       console.log(data);
       res.status(201).json({
@@ -101,6 +104,7 @@ const positionController = {
         {
           ...value,
           update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
+          update_id: uuidv4(),
         },
         {
           where: {
