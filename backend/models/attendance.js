@@ -2,13 +2,23 @@ module.exports = (sequelize, DataTypes) => {
   const Attendance = sequelize.define(
     "Attendance",
     {
+      id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4,
+        primaryKey: true,
+      },
       user_id: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.UUID,
         references: { model: "User", key: "id" },
+        allowNull: false,
       },
       date: DataTypes.DATEONLY,
+      status: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
       time_in: DataTypes.TIME,
-      photo_proof: DataTypes.STRING,
+      time_out: DataTypes.TIME,
       archived: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
