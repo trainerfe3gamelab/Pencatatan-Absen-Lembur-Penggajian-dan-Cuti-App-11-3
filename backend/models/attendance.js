@@ -1,3 +1,4 @@
+const moment = require("moment");
 module.exports = (sequelize, DataTypes) => {
   const Attendance = sequelize.define(
     "Attendance",
@@ -23,8 +24,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
       },
-      creation_time: DataTypes.DATE,
-      update_time: DataTypes.DATE,
+      creation_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
+      update_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
     },
     {
       timestamps: true,
