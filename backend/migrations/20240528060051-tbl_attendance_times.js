@@ -2,18 +2,22 @@
 
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("tbl_time", {
+    await queryInterface.createTable("tbl_attendance_times", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
-      time_in: {
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      start_time: {
         type: Sequelize.TIME,
         allowNull: false,
       },
-      time_off: {
+      end_time: {
         type: Sequelize.TIME,
         allowNull: false,
       },
@@ -24,18 +28,12 @@ module.exports = {
       creation_time: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-      },
-      create_id: {
-        type: Sequelize.UUID,
         allowNull: false,
       },
       update_time: {
         type: Sequelize.DATE,
-        allowNull: true,
-      },
-      update_id: {
-        type: Sequelize.UUID,
-        allowNull: true,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        allowNull: false,
       },
     });
   },

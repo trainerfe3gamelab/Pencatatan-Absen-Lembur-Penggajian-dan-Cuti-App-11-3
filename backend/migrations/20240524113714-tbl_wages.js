@@ -35,17 +35,17 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      time_off: {
+      cuts: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      net_salary: {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
       archived: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
-      },
-      create_id: {
-        type: Sequelize.UUID,
-        allowNull: false,
       },
       creation_time: {
         allowNull: false,
@@ -56,10 +56,6 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-      },
-      update_id: {
-        type: Sequelize.UUID,
-        allowNull: true,
       },
     });
   },

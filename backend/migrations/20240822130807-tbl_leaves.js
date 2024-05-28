@@ -16,10 +16,9 @@ module.exports = {
         onDelete: "SET NULL",
       },
       type: {
-        type: Sequelize.UUID,
-        references: { model: "tbl_salary_cuts", key: "id" },
-        onUpdate: "CASCADE",
-        onDelete: "SET NULL",
+        type: Sequelize.ENUM,
+        values: ["sakit", "izin"],
+        allowNull: false,
       },
       reasoning: {
         type: Sequelize.STRING,
@@ -40,18 +39,12 @@ module.exports = {
       creation_time: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-      },
-      create_id: {
-        type: Sequelize.UUID,
         allowNull: false,
       },
       update_time: {
         type: Sequelize.DATE,
-        allowNull: true,
-      },
-      update_id: {
-        type: Sequelize.UUID,
-        allowNull: true,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        allowNull: false,
       },
     });
   },

@@ -24,7 +24,7 @@ module.exports = {
       status: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: "'tidak hadir'",
+        defaultValue: "'alpha'",
       },
       time_in: {
         type: Sequelize.TIME,
@@ -41,18 +41,12 @@ module.exports = {
       creation_time: {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-      },
-      create_id: {
-        type: Sequelize.UUID,
         allowNull: false,
       },
       update_time: {
         type: Sequelize.DATE,
-        allowNull: true,
-      },
-      update_id: {
-        type: Sequelize.UUID,
-        allowNull: true,
+        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+        allowNull: false,
       },
     });
   },
