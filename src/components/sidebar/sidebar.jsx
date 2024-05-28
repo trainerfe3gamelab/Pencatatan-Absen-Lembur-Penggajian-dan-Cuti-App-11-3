@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import logo from '../../image/lg-kecil.png';
 
 const Sidebar = ({ isOpen }) => {
   const navigate = useNavigate();
@@ -8,6 +9,7 @@ const Sidebar = ({ isOpen }) => {
   const [menuState, setMenuState] = useState({
     dataMaster: false,
     chat: false,
+    recap: false,
     setting: false
   });
 
@@ -22,17 +24,17 @@ const Sidebar = ({ isOpen }) => {
     <div className={`sidebar ${isOpen ? '' : 'close'}`}>
       <div className="logo-details mt-3">
         <i className="text-white">
-          <img src="/assets/imgs/lgposyandu.svg" width="50px" height="50px" alt="" />
+          <img src={logo} width="50px" height="50px" alt="" />
         </i>
-        <span className="logo_name">E-Posyandu</span>
+        <span className="logo_name">ShiftMaster</span>
       </div>
       <ul className="nav-links">
         <li>
         
-         <a href="" onClick={() => navigate('/admin/dashboard')}>
+        <Link to="/admin/dashboard">
             <i className='bx bx-grid-alt'></i>
             <span className="link_name">Dashboard</span>
-            </a>
+        </Link>
             
           <ul className="sub-menu blank">
             <li><a className="link_name" href="#">Dashboard</a></li>
@@ -55,33 +57,89 @@ const Sidebar = ({ isOpen }) => {
             <li><a className="link_name" href="#">Data Master</a></li>
             <li>
               <div className="bg-down">
-                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>Data anak</a>
+                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>pegawai</a>
               </div>
             </li>
             <li>
               <div className="bg-down">
-                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>Data anak</a>
+                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>jabatan</a>
               </div>
             </li>
+            <li>
+              <div className="bg-down">
+                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>potongan gaji</a>
+              </div>
+            </li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="#">
+            <i className='bx bx-conversation'></i>
+            <span className="link_name">Absensi</span>
+          </a>
+          <ul className="sub-menu blank">
+            <li><a className="link_name" href="#">Absensi</a></li>
           </ul>
         </li>
         <li>
           <a href="#">
             <i className='bx bx-conversation'></i>
-            <span className="link_name">Recap</span>
+            <span className="link_name">Gaji</span>
           </a>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">Recap</a></li>
+            <li><a className="link_name" href="#">Gaji</a></li>
           </ul>
         </li>
         <li>
+          <a href="#">
+            <i className='bx bx-conversation'></i>
+            <span className="link_name">Lembur</span>
+          </a>
+          <ul className="sub-menu blank">
+            <li><a className="link_name" href="#">Lembur</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="#">
+            <i className='bx bx-conversation'></i>
+            <span className="link_name">Cuti</span>
+          </a>
+          <ul className="sub-menu blank">
+            <li><a className="link_name" href="#">cuti</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="#">
+            <i className='bx bx-conversation'></i>
+            <span className="link_name">Recap absensi</span>
+          </a>
+          <ul className="sub-menu blank">
+            <li><a className="link_name" href="#">Recap absensi</a></li>
+          </ul>
+        </li>
+        
+        <li>
+          <a href="#">
+            <i className='bx bx-conversation'></i>
+            <span className="link_name">Recap gaji</span>
+          </a>
+          <ul className="sub-menu blank">
+            <li><a className="link_name" href="#"></a>Recap gaji</li>
+          </ul>
+        </li>
+
+
+        <li>
        
-         <a href="" onClick={() => navigate('/admin/pengaturan')}>
+        <Link to="/admin/pengaturan">
             <i className='bx bx-cog'></i>
             <span className="link_name">Setting</span>
-            </a>
+            </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#" onClick={() => navigate('/admin/pengaturan')}>Setting</a></li>
+            <li><a className="link_name" onClick={() => navigate('/admin/pengaturan')}>Setting</a></li>
           </ul>
           
         </li>
