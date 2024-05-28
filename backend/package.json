@@ -26,6 +26,7 @@
     "mysql2": "^3.9.7",
     "nodemailer": "^6.9.13",
     "sequelize": "^6.37.0",
-    "sequelize-cli": "^6.6.2"
+    "sequelize-cli": "^6.6.2",
+    "uuid": "^9.0.1"
   }
 }
