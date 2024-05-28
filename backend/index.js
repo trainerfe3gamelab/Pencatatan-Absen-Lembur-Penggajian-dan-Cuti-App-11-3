@@ -1,10 +1,12 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 require("dotenv").config();
 const positionRoutes = require("./routes/positionRoutes");
 const app = express();
 
 // Middleware
+app.use(cors({ origin: "*" }));
 app.use(express.json({ extended: false }));
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
