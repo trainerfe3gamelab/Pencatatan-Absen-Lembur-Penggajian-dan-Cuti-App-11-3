@@ -1,35 +1,12 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import logo from '../../image/lg-kecil.png';
+import React from 'react'
 
-const Sidebar = ({ isOpen }) => {
-  const navigate = useNavigate();
-
-  const [menuState, setMenuState] = useState({
-    dataMaster: false,
-    chat: false,
-    recap: false,
-    setting: false
-  });
-
-  const toggleMenu = (menu) => {
-    setMenuState(prevState => ({
-      ...prevState,
-      [menu]: !prevState[menu]
-    }));
-  };
-
-  return (
-    
-    <div className={`sidebar ${isOpen ? '' : 'close'}`}>
-      <div className="logo-details mt-3">
-        <i className="text-white">
-          <img src={logo} width="50px" height="50px" alt="" />
-        </i>
-        <span className="logo_name">ShiftMaster</span>
-      </div>
-      <ul className="nav-links">
+const mobile_sidebar = () => {
+    return (
+        <div className={`mobile-menu ${isOpen ? "active" : ""}`} onClick={toggleMenu}>
+            <div className='mobile-menu-container'>
+                <div>
+                <ul className="nav-links">
         <li>
         
         <Link to="/admin/dashboard">
@@ -155,8 +132,10 @@ const Sidebar = ({ isOpen }) => {
           
         </li>
       </ul>
-    </div>
-  );
+                </div>
+            </div>
+        </div>
+    )
 }
 
-export default Sidebar;
+export default mobile_sidebar

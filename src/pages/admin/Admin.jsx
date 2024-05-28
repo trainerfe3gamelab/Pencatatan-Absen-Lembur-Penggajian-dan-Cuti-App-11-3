@@ -6,7 +6,7 @@ import Dashboard from '../dashboard/Dashboard';
 import Pengaturan from '../pengaturan/Pengaturan';
 
 const Admin = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(true);
+  const [isSidebarOpen, setSidebarOpen] = useState(false); // Mengubah default menjadi false
 
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -14,8 +14,8 @@ const Admin = () => {
 
   return (
     <div>
-      <Sidebar isOpen={isSidebarOpen} />
-      <section className={`home-section ${isSidebarOpen ? '' : 'expanded'}`}>
+      <Sidebar isOpen={isSidebarOpen} /> {/* Melewatkan status isSidebarOpen ke Sidebar */}
+      <section className={`home-section ${isSidebarOpen ? 'expanded' : ''}`}> {/* Mengubah kelas berdasarkan isSidebarOpen */}
         <div className="home-content">
           <div className="topbar">
             <div className="topbar2">

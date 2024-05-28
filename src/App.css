@@ -489,3 +489,34 @@
   width: 100%;
   height: 100%;
 }
+
+.card-chart{
+background: #afe7be44;
+}
+
+@media (max-width: 769px) {
+  /* .menu-btn{
+      display: block;
+  } */
+  .sidebar{
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 260px;
+    background: linear-gradient(#18C89E,#5AC9C3, #007991,#064C56);
+    /* z-index: 100; */
+    transition: all 0.5s ease;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    display: none;
+  }
+  
+
+
+  .sidebar.close ~ .home-section{
+    left: 0;
+    width: calc(100% - 78px);
+  }
+  
+}

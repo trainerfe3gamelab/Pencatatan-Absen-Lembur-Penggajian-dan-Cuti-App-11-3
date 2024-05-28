@@ -22,13 +22,12 @@ const Login = () => {
           <form action="">
             <h1>Login</h1>
             <div className="input-box">
-              <input type="text" placeholder="masukan email anda        @gmail.com" required />
+              <input type="text" placeholder="masukan email anda        @gmail.com" autoComplete="email" required />
             </div>
             <div className="input-box">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                
+                placeholder="Password"  autoComplete="current-password"
               />
               <i className="bx" onClick={togglePasswordVisibility}>
                 {showPassword ? (
