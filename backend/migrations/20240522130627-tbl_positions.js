@@ -35,13 +35,21 @@ module.exports = {
       },
       creation_time: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
         allowNull: false,
       },
       update_time: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
         allowNull: false,
+      },
+      create_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        defaultValue: Sequelize.UUIDV4,
+      },
+      update_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        defaultValue: Sequelize.UUIDV4,
       },
     });
   },
