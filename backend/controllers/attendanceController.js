@@ -113,6 +113,7 @@ const attendanceController = {
       //cek jika waktu saat ini adalah waktu absensi masuk
       const currentTime = moment().locale("id").format("HH:mm:ss");
       const { start_time, end_time } = attendanceTime;
+      console.log(start_time);
       if (currentTime < start_time) {
         return res.status(400).json({
           status: "gagal",
@@ -123,6 +124,14 @@ const attendanceController = {
         value["time_out"] = null;
         value["date"] = currentDate;
         value["status"] = "hadir";
+      } else if (
+        currentTime >
+        moment(end_time, "HH:mm:ss").add(2, "hour").format("HH:mm:ss")
+      ) {
+        value["time_in"] = currentTime;
+        value["time_out"] = null;
+        value["date"] = currentDate;
+        value["status"] = "alpha";
       } else if (currentTime > end_time) {
         value["time_in"] = currentTime;
         value["time_out"] = null;
@@ -171,8 +180,8 @@ const attendanceController = {
           date: currentDate,
         },
       });
-      console.log(attendanceCheck);
-      if (attendanceCheck != null && attendanceCheck["time_out"] != null) {
+
+      if (attendanceCheck != null && attendanceCheck.time_out != null) {
         res.status(400).json({
           status: "gagal",
           message: "Sudah melakukan presensi keluar hari ini",
@@ -224,7 +233,7 @@ const attendanceController = {
         });
       }
 
-      //cek jika waktu saat ini adalah waktu absensi masuk
+      //cek jika waktu saat ini adalah waktu absensi keluar
       const currentTime = moment().locale("id").format("HH:mm:ss");
       const { start_time, end_time } = attendanceTime;
       if (currentTime < start_time) {
@@ -241,23 +250,31 @@ const attendanceController = {
         (currentTime >= start_time && currentTime <= end_time) ||
         currentTime > end_time
       ) {
-        value["time_in"] = currentTime;
-        value["time_out"] = null;
+        value["time_in"] =
+          attendanceCheck && attendanceCheck.time_in
+            ? attendanceCheck.time_in
+            : null;
+        value["time_out"] = currentTime;
         value["date"] = currentDate;
-        value["status"] = "hadir";
+        value["status"] = attendanceCheck.status == "alpha" ? "alpha" : "hadir";
       }
 
       const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
-      const data = await Attendance.create({
-        ...value,
-        creation_time: now,
-        update_time: now,
-        create_id: uuidv4(),
-        update_id: uuidv4(),
-      });
+
+      const data = await Attendance.upsert(
+        {
+          ...value,
+          id: attendanceCheck ? attendanceCheck.id : uuidv4(),
+          creation_time: now,
+          update_time: now,
+          create_id: uuidv4(),
+          update_id: uuidv4(),
+        },
+        { returning: true }
+      );
       res.status(201).json({
         status: "sukses",
-        data: data,
+        data: data[0],
       });
     } catch (error) {
       res.status(500).json({
