@@ -5,6 +5,7 @@ import Dashboard from '../dashboard/Dashboard';
 import Pengaturan from '../pengaturan/Pengaturan';
 import MobileSidebar from '../../components/sidebar/mobile_sidebar';
 import Pegawai from '../pegawai/pegawai';
+import Jabatan from '../jabatan/jabatan';
 
 const Admin = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -58,6 +59,7 @@ const Admin = () => {
             <Routes>
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="pegawai" element={<Pegawai />} />
+              <Route path="Jabatan" element={<Jabatan />} />
               <Route path="pengaturan" element={<Pengaturan />} />
               <Route path="*" element={<Dashboard />} /> 
             </Routes>

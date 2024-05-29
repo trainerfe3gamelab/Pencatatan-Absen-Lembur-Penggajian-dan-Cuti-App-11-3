@@ -63,7 +63,7 @@ const Sidebar = ({ isOpen }) => {
             </li>
             <li>
               <div className="bg-down">
-              <Link to="/admin/dashboard">
+              <Link to="/admin/Jabatan">
                 <span href="#" className="klik-down" style={{ paddingLeft: '10px' }}>jabatan</span>
                 </Link>
               </div>
