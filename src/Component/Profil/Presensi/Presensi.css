@@ -1,0 +1,73 @@
+.card-presensi {
+  width: 845px; /* Mengatur lebar kartu */
+  margin-left: 350px;
+  height: 100px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Menambahkan bayangan untuk memberikan efek tiga dimensi */
+  border-radius: 5px; /* Menambahkan sudut melengkung */
+  background-color: white; /* Mengatur warna latar belakang kartu */
+  display: flex; /* Mengatur tampilan sebagai flexbox */
+  flex-direction: column; /* Menyusun elemen anak secara vertikal */
+  justify-content: space-between; /* Menyelaraskan konten secara vertikal ke tengah */
+  position: relative; /* Mengatur posisi relatif untuk penggunaan properti top */
+  top: -445px; /* Mengatur posisi kartu naik sedikit */
+}
+
+.card-body {
+  padding: 20px; /* Menambahkan padding di dalam body kartu */
+  display: flex; /* Aktifkan flexbox */
+  justify-content: space-between;
+}
+
+.card-text {
+  text-align: left; 
+  padding-left: 40px;
+  margin-top: 20px;
+  
+}
+
+.card-text span{
+  color: #004E5E;
+  font-weight: bold;
+  font-size: large;
+  
+}
+
+.card-text div {
+  margin-bottom: 0px; /* Menambahkan sedikit margin bawah antara div */
+}
+
+.card-button {
+  display: flex; /* Mengaktifkan flexbox */
+  justify-content: flex-end; /* Mengatur penempatan item secara horizontal ke kanan */
+  margin-right: 60px;
+  margin-top: 40px;
+}
+
+.card-button h6{
+  position: relative; /* Atur posisi relatif untuk memungkinkan penyesuaian lebih lanjut */
+  top: -25px; /* Geser ke bawah sejauh 20px dari posisi normal */
+  left: 170px;
+}
+
+.button {
+  /* Gaya tombol tetap sama */
+  background: linear-gradient(135deg, #0CAD7F, #5AC9C3); /* Gradient warna latar belakang */
+  border: none;
+  color: white;
+  padding: 4px 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  font-weight: bolder;
+  margin: 8px 8px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.button:hover {
+  background: #d9d9d9;
+  color: #004E5E;
+}
+
+
