@@ -28,6 +28,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    return queryInterface.bulkDelete("tbl_users", null, {});
+    return queryInterface.bulkDelete("tbl_attendance_times", null, {});
   },
 };
