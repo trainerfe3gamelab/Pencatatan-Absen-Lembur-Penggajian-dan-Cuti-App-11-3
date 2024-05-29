@@ -21,8 +21,8 @@ const Sidebar = ({ isOpen }) => {
   };
 
   return (
-    
-    <div className={`sidebar ${isOpen ? '' : 'close'}`}>
+
+    <div className={`sidebar ${isOpen ? '' : 'close'} background`}>
       <div className="logo-details mt-3">
         <i className="text-white">
           <img src={logo} width="50px" height="50px" alt="" />
@@ -57,13 +57,15 @@ const Sidebar = ({ isOpen }) => {
           <ul className={`sub-menu ${menuState.dataMaster ? 'showMenu' : ''}`}>
             <li><a className="link_name" href="#">Data Master</a></li>
             <li>
-              <div className="bg-down">
-                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>pegawai</a>
-              </div>
+            <Link to="/admin/pegawai">
+                <span href="#" className="klik-down a" style={{ paddingLeft: '10px' }}>pegawai</span>
+                </Link>
             </li>
             <li>
               <div className="bg-down">
-                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>jabatan</a>
+              <Link to="/admin/dashboard">
+                <span href="#" className="klik-down" style={{ paddingLeft: '10px' }}>jabatan</span>
+                </Link>
               </div>
             </li>
             <li>
@@ -156,6 +158,7 @@ const Sidebar = ({ isOpen }) => {
         </li>
       </ul>
     </div>
+
   );
 }
 

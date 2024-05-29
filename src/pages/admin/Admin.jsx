@@ -1,21 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
-// import './admin.css';
 import Sidebar from '../../components/sidebar/sidebar';
 import Dashboard from '../dashboard/Dashboard';
 import Pengaturan from '../pengaturan/Pengaturan';
+import MobileSidebar from '../../components/sidebar/mobile_sidebar';
+import Pegawai from '../pegawai/pegawai';
 
 const Admin = () => {
-  const [isSidebarOpen, setSidebarOpen] = useState(false); // Mengubah default menjadi false
-
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
   };
 
+  const [showSidebar, setShowSidebar] = useState(false);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(max-width: 769px)');
+    const handleMediaQueryChange = (mediaQueryList) => {
+      if (mediaQueryList.matches) {
+        setShowSidebar(true);
+      } else {
+        setShowSidebar(false);
+      }
+    };
+
+    mediaQuery.addListener(handleMediaQueryChange);
+    handleMediaQueryChange(mediaQuery);
+
+    return () => {
+      mediaQuery.removeListener(handleMediaQueryChange);
+    };
+  }, []);
+
   return (
     <div>
-      <Sidebar isOpen={isSidebarOpen} /> {/* Melewatkan status isSidebarOpen ke Sidebar */}
-      <section className={`home-section ${isSidebarOpen ? 'expanded' : ''}`}> {/* Mengubah kelas berdasarkan isSidebarOpen */}
+      {showSidebar && <MobileSidebar className='sticky-sidebar' />}
+      <Sidebar isOpen={isSidebarOpen} />
+      <section className={`home-section ${isSidebarOpen ? 'expanded' : ''}`}>
         <div className="home-content">
           <div className="topbar">
             <div className="topbar2">
@@ -36,6 +57,7 @@ const Admin = () => {
           <div className="submain">
             <Routes>
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="pegawai" element={<Pegawai />} />
               <Route path="pengaturan" element={<Pengaturan />} />
               <Route path="*" element={<Dashboard />} /> 
             </Routes>

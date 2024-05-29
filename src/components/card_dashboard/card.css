@@ -3,3 +3,28 @@
     color: #064C56;
     border: 2px solid #18C89E;
 }
+
+.card-title{
+    margin-left: 50px;
+}
+
+@media (max-width: 769px) {
+    .col-md-3{
+        width: 170px !important;
+    }
+    .card-counter{
+        height: 100px;
+       
+    }
+    .card-title{
+        margin-left: 10px;
+    }
+    .img_card{
+        width: 40px;
+        height: 40px;
+    }
+
+    .font_size{
+        font: 0.8em sans-serif;
+    }
+}

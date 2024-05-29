@@ -1,4 +1,5 @@
 import React from 'react';
+import './Dashboard.css'
 import Card from '../../components/card_dashboard/card';
 import Card_title from '../../components/card_title_dashboard/card_title';
 import AreaChart from '../../components/charts/AreaChart';
@@ -18,14 +19,14 @@ const Dashboard = () => {
         <div className='col card-chart rounded-4'>
           <div className='row '>
             <div className='col'>
-            <GridItem title="Bar Chart">
+            {/* <GridItem title="Bar Chart">
               <BarChart />
-            </GridItem>
+            </GridItem> */}
             </div>
             <div className='col'>
-            <GridItem title="Pie Chart">
+            {/* <GridItem title="Pie Chart">
               <PieChart />
-            </GridItem>
+            </GridItem> */}
             </div>
           </div>
         </div>

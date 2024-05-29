@@ -494,6 +494,9 @@
 background: #afe7be44;
 }
 
+Navbar{
+  display: none;
+}
 @media (max-width: 769px) {
   /* .menu-btn{
       display: block;
@@ -505,18 +508,73 @@ background: #afe7be44;
     height: 100%;
     width: 260px;
     background: linear-gradient(#18C89E,#5AC9C3, #007991,#064C56);
-    /* z-index: 100; */
+    z-index: 9999;
     transition: all 0.5s ease;
-    border-top-right-radius: 20px;
-    border-bottom-left-radius: 20px;
+    border-top-right-radius: 0px;
+    border-bottom-left-radius: 0px;
     display: none;
+  }
+
+  .sticky-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1000; /* Pastikan z-index lebih tinggi dari elemen lainnya */
   }
   
 
+  .home-section{
+    position: relative;
+    height: 100vh;
+    left: 0;
+    width: 100%;
+    transition: all 0.5s ease;
+    padding: 12px;
+  }
 
   .sidebar.close ~ .home-section{
     left: 0;
-    width: calc(100% - 78px);
+    width: 100%;
   }
+
   
+  .topbar{
+    display: none;
+  }
+}
+
+.search-box {
+  position: relative;        
+  float: right;
+}
+.search-box input {
+  height: 34px;
+  border-radius: 20px;
+  padding-left: 35px;
+  border-color: #ddd;
+  box-shadow: none;
+}
+.search-box input:focus {
+  border-color: #3FBAE4;
+}
+.search-box i {
+  color: #a0a5b1;
+  position: absolute;
+  font-size: 19px;
+  z-index: 999;
+  top: 3px;
+  left: 14px;
+}
+
+.tableFixHead          { 
+  overflow: auto; height: 390px; }
+
+.tableFixHeadth { 
+  position: sticky; 
+  top: 0; 
+  z-index: 1; 
+  background-color: white;
+  text-align: center;
 }
