@@ -1,24 +1,24 @@
 module.exports = (sequelize, DataTypes) => {
-  const Attendance = sequelize.define(
-    "Attendance",
+  const AttendanceTime = sequelize.define(
+    "AttendanceTime",
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
       },
-      user_id: {
-        type: DataTypes.UUID,
-        references: { model: "User", key: "id" },
-        allowNull: false,
-      },
-      date: DataTypes.DATEONLY,
-      status: {
+      name: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      time_in: DataTypes.TIME,
-      time_out: DataTypes.TIME,
+      start_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
+      end_time: {
+        type: DataTypes.TIME,
+        allowNull: false,
+      },
       archived: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -42,14 +42,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       timestamps: false,
-      tableName: "tbl_attendances",
+      tableName: "tbl_attendance_times",
     }
   );
 
-  Attendance.associate = function (models) {
-    // associations can be defined here
-    Attendance.belongsTo(models.User, { foreignKey: "user_id" });
-  };
-
-  return Attendance;
+  return AttendanceTime;
 };
