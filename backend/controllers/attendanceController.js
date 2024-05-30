@@ -1,25 +1,21 @@
 const { Attendance } = require("../models"); // Adjust the path as necessary to your models' index.js
 const attendanceValidator = require("../utils/validator/attendanceValidator");
-const {
-  getAttendanceTime,
-  isTodayAHoliday,
-  isTodayOnLeave,
-} = require("../utils/attendance");
+const { handleFailed } = require("../utils/response");
 const moment = require("moment");
-const { v4: uuidv4 } = require("uuid");
-const { Op } = require("sequelize");
+const {
+  checkWeekend,
+  checkHolidayAndLeave,
+  validateAttendanceData,
+  handleAttendanceCheck,
+  handleCreateOrUpdateAttendance,
+} = require("../utils/attendance");
 
 const attendanceController = {
   // Create a new attendance
   create: async (req, res) => {
     try {
       const { error, value } = attendanceValidator.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          status: "gagal",
-          message: error.details[0].message,
-        });
-      }
+      if (error) return handleFailed(res, 400, error.details[0].message);
       const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
       const data = await Attendance.create({
         ...value,
@@ -43,244 +39,113 @@ const attendanceController = {
   //in attendance
   in: async (req, res) => {
     try {
-      //cek jika hari ini adalah hari weekend
-      const isWeekend = moment().locale("id").format("dddd");
-      if (isWeekend == "Sabtu" || isWeekend == "Minggu") {
-        res.status(400).json({
-          status: "gagal",
-          message: "Hari ini adalah hari weekend",
-        });
-        return;
+      if (checkWeekend()) {
+        return handleFailed(res, 400, "Hari ini adalah hari weekend");
       }
 
-      //cek jika hari ini sudah melakukan absensi masuk
       const currentDate = moment().locale("id").format("YYYY-MM-DD");
       const attendanceCheck = await Attendance.findOne({
         where: { archived: false, date: currentDate },
       });
+
       if (attendanceCheck) {
-        res.status(400).json({
-          status: "gagal",
-          message: "Sudah melakukan presensi masuk hari ini",
-        });
-        return;
+        return handleFailed(
+          res,
+          400,
+          "Sudah melakukan presensi masuk hari ini"
+        );
       }
 
-      //cek jika hari ini adalah hari libur
-      const isHoliday = await isTodayAHoliday();
-      if (isHoliday) {
-        res.status(400).json({
-          status: "gagal",
-          message: `Hari ini adalah hari libur ${isHoliday.name}`,
-        });
-        return;
+      const holidayAndLeaveCheck = await checkHolidayAndLeave("tes");
+      console.log(holidayAndLeaveCheck);
+      if (holidayAndLeaveCheck) {
+        return handleFailed(res, 400, holidayAndLeaveCheck);
       }
 
-      //cek jika hari ini sedang cuti
-      const isOnLeave = await isTodayOnLeave("tes");
-      if (isOnLeave) {
-        res.status(400).json({
-          status: "gagal",
-          message: `Hari ini sedang cuti ${isOnLeave.type} dengan alasan ${isOnLeave.reasoning}`,
-        });
-        return;
-      }
-
-      //dapatkan waktu absensi masuk berdasarkan params
-      const attendanceTime = await getAttendanceTime(
-        req.params.attendanceTimeId
-      );
-      if (attendanceTime == null) {
-        res.status(404).json({
-          status: "gagal",
-          message: `Waktu absensi dengan id : ${req.params.attendanceTimeId} tidak ditemukan`,
-        });
-        return;
-      }
-
-      const optionalattendanceValidator = attendanceValidator.fork(
-        ["date", "time_in", "time_out", "status"],
-        (schema) => schema.optional()
-      );
-      const { error, value } = optionalattendanceValidator.validate(req.body);
+      const { error, value } = validateAttendanceData(req);
       if (error) {
-        return res.status(400).json({
-          status: "gagal",
-          message: error.details[0].message,
-        });
+        return handleFailed(res, 400, error.details[0].message);
       }
 
-      //cek jika waktu saat ini adalah waktu absensi masuk
       const currentTime = moment().locale("id").format("HH:mm:ss");
-      const { start_time, end_time } = attendanceTime;
-      console.log(start_time);
-      if (currentTime < start_time) {
-        return res.status(400).json({
-          status: "gagal",
-          message: "Belum waktunya melakukan absensi masuk",
-        });
-      } else if (currentTime >= start_time && currentTime <= end_time) {
-        value["time_in"] = currentTime;
-        value["time_out"] = null;
-        value["date"] = currentDate;
-        value["status"] = "hadir";
-      } else if (
-        currentTime >
-        moment(end_time, "HH:mm:ss").add(2, "hour").format("HH:mm:ss")
-      ) {
-        value["time_in"] = currentTime;
-        value["time_out"] = null;
-        value["date"] = currentDate;
-        value["status"] = "alpha";
-      } else if (currentTime > end_time) {
-        value["time_in"] = currentTime;
-        value["time_out"] = null;
-        value["date"] = currentDate;
-        value["status"] = "telat";
+      const { status, attendanceTime } = await handleAttendanceCheck(
+        "masuk",
+        currentTime,
+        currentDate
+      );
+
+      if (status === "Belum waktunya melakukan absensi masuk") {
+        return handleFailed(res, 400, status);
       }
 
-      const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
-      const data = await Attendance.create({
-        ...value,
-        creation_time: now,
-        update_time: now,
-        create_id: uuidv4(),
-        update_id: uuidv4(),
-      });
-      res.status(201).json({
-        status: "sukses",
-        data: data,
-      });
+      value.time_in = currentTime;
+      value.time_out = null;
+      value.date = currentDate;
+      value.status = status;
+
+      const data = await handleCreateOrUpdateAttendance(value, null);
+
+      res.status(201).json({ status: "sukses", data });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
+      res.status(500).json({ status: "error", message: error.message });
     }
   },
 
   //out attendance
   out: async (req, res) => {
     try {
-      //cek jika hari ini adalah hari weekend
-      const isWeekend = moment().locale("id").format("dddd");
-      if (isWeekend == "Sabtu" || isWeekend == "Minggu") {
-        res.status(400).json({
-          status: "gagal",
-          message: "Hari ini adalah hari weekend",
-        });
-        return;
+      if (checkWeekend()) {
+        return handleFailed(res, 400, "Hari ini adalah hari weekend");
       }
 
-      //cek jika hari ini sudah melakukan absensi keluar
       const currentDate = moment().locale("id").format("YYYY-MM-DD");
       const attendanceCheck = await Attendance.findOne({
-        where: {
-          archived: false,
-          date: currentDate,
-        },
+        where: { archived: false, date: currentDate },
       });
 
-      if (attendanceCheck != null && attendanceCheck.time_out != null) {
-        res.status(400).json({
-          status: "gagal",
-          message: "Sudah melakukan presensi keluar hari ini",
-        });
-        return;
+      if (attendanceCheck && attendanceCheck.time_out) {
+        return handleFailed(
+          res,
+          400,
+          "Sudah melakukan presensi keluar hari ini"
+        );
       }
 
-      //cek jika hari ini adalah hari libur
-      const isHoliday = await isTodayAHoliday();
-      if (isHoliday) {
-        res.status(400).json({
-          status: "gagal",
-          message: `Hari ini adalah hari libur ${isHoliday.name}`,
-        });
-        return;
+      const holidayAndLeaveCheck = await checkHolidayAndLeave("tes");
+      if (holidayAndLeaveCheck) {
+        return handleFailed(res, 400, holidayAndLeaveCheck);
       }
 
-      //cek jika hari ini sedang cuti
-      const isOnLeave = await isTodayOnLeave("tes");
-      if (isOnLeave) {
-        res.status(400).json({
-          status: "gagal",
-          message: `Hari ini sedang cuti ${isOnLeave.type} dengan alasan ${isOnLeave.reasoning}`,
-        });
-        return;
-      }
-
-      //dapatkan waktu absensi keluar berdasarkan params
-      const attendanceTime = await getAttendanceTime(
-        req.params.attendanceTimeId
-      );
-      if (attendanceTime == null) {
-        res.status(404).json({
-          status: "gagal",
-          message: `Waktu absensi dengan id : ${req.params.attendanceTimeId} tidak ditemukan`,
-        });
-        return;
-      }
-
-      const optionalattendanceValidator = attendanceValidator.fork(
-        ["date", "time_in", "time_out", "status"],
-        (schema) => schema.optional()
-      );
-      const { error, value } = optionalattendanceValidator.validate(req.body);
+      const { error, value } = validateAttendanceData(req);
       if (error) {
-        return res.status(400).json({
-          status: "gagal",
-          message: error.details[0].message,
-        });
+        return handleFailed(res, 400, error.details[0].message);
       }
 
-      //cek jika waktu saat ini adalah waktu absensi keluar
       const currentTime = moment().locale("id").format("HH:mm:ss");
-      const { start_time, end_time } = attendanceTime;
-      if (currentTime < start_time) {
-        return res.status(400).json({
-          status: "gagal",
-          message: "Belum waktunya melakukan absensi keluar",
-        });
-      } else if (attendanceCheck == null) {
-        value["time_in"] = null;
-        value["time_out"] = currentTime;
-        value["date"] = currentDate;
-        value["status"] = "alpha";
-      } else if (
-        (currentTime >= start_time && currentTime <= end_time) ||
-        currentTime > end_time
-      ) {
-        value["time_in"] =
-          attendanceCheck && attendanceCheck.time_in
-            ? attendanceCheck.time_in
-            : null;
-        value["time_out"] = currentTime;
-        value["date"] = currentDate;
-        value["status"] = attendanceCheck.status == "alpha" ? "alpha" : "hadir";
+      const { status, attendanceTime } = await handleAttendanceCheck(
+        "keluar",
+        currentTime,
+        currentDate
+      );
+
+      if (status === "Belum waktunya melakukan absensi keluar") {
+        return handleFailed(res, 400, status);
       }
 
-      const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
+      value.time_out = currentTime;
+      value.date = currentDate;
+      value.status =
+        (attendanceCheck && attendanceCheck.status == "alpha") ||
+        attendanceCheck.status == "telat"
+          ? attendanceCheck.status
+          : status;
+      value.time_in = attendanceCheck ? attendanceCheck.time_in : null;
 
-      const data = await Attendance.upsert(
-        {
-          ...value,
-          id: attendanceCheck ? attendanceCheck.id : uuidv4(),
-          creation_time: now,
-          update_time: now,
-          create_id: uuidv4(),
-          update_id: uuidv4(),
-        },
-        { returning: true }
-      );
-      res.status(201).json({
-        status: "sukses",
-        data: data[0],
-      });
+      const data = await handleCreateOrUpdateAttendance(value, attendanceCheck);
+
+      res.status(201).json({ status: "sukses", data });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
+      res.status(500).json({ status: "error", message: error.message });
     }
   },
 
@@ -335,13 +200,7 @@ const attendanceController = {
         (schema) => schema.optional()
       );
       const { error, value } = optionalattendanceValidator.validate(req.body);
-      if (error) {
-        res.status(400).json({
-          status: "gagal",
-          message: error.details[0].message,
-        });
-        return;
-      }
+      if (error) return handleFailed(res, 400, error.details[0].message);
       const data = await Attendance.update(
         {
           ...value,
