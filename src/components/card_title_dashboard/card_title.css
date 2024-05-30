@@ -1,5 +1,5 @@
 .card-title-couter{
-    background: linear-gradient(-45deg, #007991, #78FFD6);
+    background: linear-gradient(-45deg, #007991, #78FFD6) !important;
     height: 100%;
     
 }

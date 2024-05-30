@@ -70,71 +70,70 @@ const Sidebar = ({ isOpen }) => {
             </li>
             <li>
               <div className="bg-down">
-                <a href="#" className="klik-down" style={{ paddingLeft: '10px' }}>potongan gaji</a>
+              <Link to="/admin/Potongan">
+                <span href="#" className="klik-down" style={{ paddingLeft: '10px' }}>Potongan Gaji</span>
+                </Link>
               </div>
             </li>
           </ul>
         </li>
 
         <li>
-          <a href="#">
+        <Link to="/admin/Absensi">
           <i class='bx bxs-user-check'></i>
             <span className="link_name">Absensi</span>
-          </a>
+         </Link>
           <ul className="sub-menu blank">
             <li><a className="link_name" href="#">Absensi</a></li>
           </ul>
         </li>
         <li>
-          <a href="#">
+        <Link to="/admin/Gaji">
           <i class='bx bxs-dollar-circle'></i>
             <span className="link_name">Gaji</span>
-          </a>
+          </Link>
           <ul className="sub-menu blank">
             <li><a className="link_name" href="#">Gaji</a></li>
           </ul>
         </li>
         <li>
-          <a href="#">
+        <Link to="/admin/Lembur">
           <i class='bx bxs-briefcase-alt-2'></i>
             <span className="link_name">Lembur</span>
-          </a>
+          </Link>
           <ul className="sub-menu blank">
             <li><a className="link_name" href="#">Lembur</a></li>
           </ul>
         </li>
 
         <li>
-          <a href="#">
+        <Link to="/admin/Cuti">
           <i class='bx bxs-calendar-event'></i>
             <span className="link_name">Cuti</span>
-          </a>
+          </Link>
           <ul className="sub-menu blank">
             <li><a className="link_name" href="#">cuti</a></li>
           </ul>
         </li>
 
         <li>
-          <a href="#">
-            <i className='bx bx-conversation'></i>
+        <Link to="/admin/RecapAbsensi">
+          <i class="bi bi-calendar3"></i>
             <span className="link_name">Recap absensi</span>
-          </a>
+          </Link>
           <ul className="sub-menu blank">
             <li><a className="link_name" href="#">Recap absensi</a></li>
           </ul>
         </li>
-
         <li>
-          <a href="#">
-          <i class='bx bxs-detail'></i>
-            <span className="link_name">Recap gaji</span>
-          </a>
+        <Link to="/admin/RecapGaji">
+          <i class="bi bi-card-heading"></i>
+            <span className="link_name">Recap Gaji</span>
+          </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#"></a>Recap gaji</li>
+            <li><a className="link_name" href="#">Recap Gaji</a></li>
           </ul>
         </li>
-
-
         <li>
        
         <Link to="/admin/pengaturan">

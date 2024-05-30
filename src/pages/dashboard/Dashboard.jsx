@@ -10,27 +10,26 @@ import logopegawai from '../../image/pegawai.png';
 import logojabatan from '../../image/jabatan.png';
 import logokehadiran from '../../image/kehadiran.png';
 
-
 const Dashboard = () => {
   return (
     <div className='container'>
       <h1 className='mt-3 mb-3'><b>Dashboard</b></h1>
-      <div className='row mt-5 mb-5 h-100 ' >
-        <div className='col card-chart rounded-4'>
-          <div className='row '>
-            <div className='col'>
-            {/* <GridItem title="Bar Chart">
-              <BarChart />
-            </GridItem> */}
+      <div className='row mt-5 mb-5 h-100'>
+        <div className='col-12 col-md-6  rounded-4  '>
+          <div className='row p-5'>
+            <div className='col-12 col-md-6  '>
+              <GridItem title="Bar Chart">
+                <BarChart />
+              </GridItem>
             </div>
-            <div className='col'>
-            {/* <GridItem title="Pie Chart">
-              <PieChart />
-            </GridItem> */}
+            <div className='col-12 col-md-6'>
+              <GridItem title="Pie Chart">
+                <PieChart />
+              </GridItem>
             </div>
           </div>
         </div>
-        <div className='col'>
+        <div className='col-12 col-md-6'>
           <Card_title />
         </div>
       </div>
@@ -46,11 +45,10 @@ const Dashboard = () => {
 
 function GridItem({ title, children }) {
   return (
-    <div className="flex flex-col items-center justify-center p-4  border-slate-900 bg-slate-900/50 rounded-xl h-[100px]">
-      <h3 className="text-2xl font-semibold text-black mb-4">{title}</h3>
+    <div className="d-flex flex-column align-items-center justify-content-center p-4 border bg-light rounded-xl h-100">
+      <h3 className="text-2xl font-semibold text-black mb-4 text-center">{title}</h3>
       {children}
     </div>
-
   );
 }
 

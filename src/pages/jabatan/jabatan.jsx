@@ -8,7 +8,8 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Excel from '../../image/Excel.png';
 import Pdf from '../../image/PDF.png';
-
+import Success from '../../image/success.png';
+import Failed from '../../image/failed.png';
 
 const Jabatan = () => {
     const columns = [
@@ -46,8 +47,9 @@ const Jabatan = () => {
             name: "Actions",
             cell: row => (
                 <>
-                    <Button variant="warning" onClick={() => handleEdit(row)}>Edit</Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} className="ms-2">Delete</Button>
+                 <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
+                <Button variant="danger" onClick={() => handleDelete(row.id)} className='opacity-50'><i className="bi bi-trash3-fill"></i></Button>
+                    
                 </>
             )
         }
@@ -71,6 +73,8 @@ const Jabatan = () => {
     const [records, setRecords] = useState(initialData);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showFailedModal, setShowFailedModal] = useState(false);
     const [editData, setEditData] = useState({ id: '', name: '', deskripsi: '', gajipokok: '', tunjangan: '', uangmakan: '' });
     const [newData, setNewData] = useState({ name: '', deskripsi: '', gajipokok: '', tunjangan: '', uangmakan: '' });
 
@@ -80,6 +84,12 @@ const Jabatan = () => {
     const handleCloseAdd = () => setShowAddModal(false);
     const handleShowAdd = () => setShowAddModal(true);
 
+    const handleCloseSuccess = () => setShowSuccessModal(false);
+    const handleShowSuccess = () => setShowSuccessModal(true);
+
+    const handleCloseFailed = () => setShowFailedModal(false);
+    const handleShowFailed = () => setShowFailedModal(true);
+
     const handleEdit = (row) => {
         setEditData(row);
         handleShowEdit();
@@ -88,6 +98,7 @@ const Jabatan = () => {
     const handleSaveEdit = () => {
         setRecords(records.map(record => (record.id === editData.id ? editData : record)));
         handleCloseEdit();
+        handleShowSuccess();
     };
 
     const handleDelete = (id) => {
@@ -109,6 +120,17 @@ const Jabatan = () => {
         const newRecord = { id: newId, ...newData };
         setRecords([...records, newRecord]);
         handleCloseAdd();
+        handleShowSuccess();
+    };
+
+    const handleFailedAdd = () => {
+        handleCloseAdd();
+        handleShowFailed();
+    };
+
+    const handleFailedEdit = () => {
+        handleCloseEdit();
+        handleShowFailed();
     };
 
     const exportToPDF = () => {
@@ -145,11 +167,11 @@ const Jabatan = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Jabatan</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-                <Button className='btn btn-success ms-2' onClick={handleShowAdd}>Tambah</Button>
+            <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+          <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Tambah
+        </Button>
+               
                 <div>
-                <Button className='btn btn-success ms-2' onClick={handleShowAdd}>Filter</Button>
-                    <Button className='btn btn-warning mx-3 text-white font-weight-bold' style={{  backgroundColor: '#D4FF78' }} onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
-                    <Button className='btn btn-success' style={{  backgroundColor: '#78FFD6' }} onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
             </div>
@@ -217,11 +239,11 @@ const Jabatan = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseEdit}>
-                        Close
+                    <Button variant="secondary" onClick={handleFailedEdit}>
+                        Batal
                     </Button>
                     <Button variant="primary" onClick={handleSaveEdit}>
-                        Save Changes
+                        Simpan Perubahan
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -281,11 +303,39 @@ const Jabatan = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseAdd}>
-                        Close
+                    <Button variant="secondary" onClick={handleFailedAdd} >
+                        Batal
                     </Button>
                     <Button variant="primary" onClick={handleSaveAdd}>
-                        Save Changes
+                        Tambahkan
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Failed Notification Modal */}
+            <Modal show={showFailedModal} onHide={handleCloseFailed}>
+                <Modal.Body className="text-center mt-5">
+                    <img src={Failed} alt="Failed" width={70} />
+                    <h5 className="mt-3">Gagal</h5>
+                    <p>Data gagal disimpan</p>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleCloseFailed}>
+                        Tutup
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Success Notification Modal */}
+            <Modal show={showSuccessModal} onHide={handleCloseSuccess}>
+                <Modal.Body className="text-center mt-5">
+                    <img src={Success} alt="success" width={70} />
+                    <h5 className="mt-3">Berhasil</h5>
+                    <p>Data berhasil disimpan</p>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleCloseSuccess}>
+                        Tutup
                     </Button>
                 </Modal.Footer>
             </Modal>
