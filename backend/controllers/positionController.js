@@ -20,8 +20,8 @@ const positionController = {
         ...value,
         creation_time: now,
         update_time: now,
-        create_id: uuidv4(),
-        update_id: uuidv4(),
+        create_id: req.user.id,
+        update_id: req.user.id,
       });
       res.status(201).json({
         status: "sukses",
@@ -103,7 +103,7 @@ const positionController = {
         {
           ...value,
           update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
-          update_id: uuidv4(),
+          update_id: req.user.id,
         },
         {
           where: {
