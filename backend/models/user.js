@@ -55,6 +55,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         allowNull: false,
       },
+      token: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
       archived: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,

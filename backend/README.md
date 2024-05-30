@@ -14,6 +14,10 @@ Documentation is still on progress. For now, you can view this postman collectio
 5.  Run project\
     `npm run dev`
 
-Dummy account:\
-`Email : user@example.com`\
+Dummy account admin:\
+`Email : user@example.com`
+`Password : password123`
+
+Dummy account employee:\
+`Email : user1@example.com`
 `Password : password123`
