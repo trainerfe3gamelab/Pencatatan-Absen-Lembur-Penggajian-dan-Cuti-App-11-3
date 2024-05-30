@@ -166,11 +166,54 @@ const attendanceController = {
     }
   },
 
+  findAllForEmployee: async (req, res) => {
+    try {
+      const data = await Attendance.findAll({
+        where: { user_id: req.user.id, archived: false },
+      });
+      res.status(200).json({
+        status: "sukses",
+        data: data,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+      return;
+    }
+  },
+
   // Retrieve a single attendance by ID
   findOne: async (req, res) => {
     try {
       const data = await Attendance.findOne({
         where: { archived: false, id: req.params.id },
+      });
+      if (data == null) {
+        res.status(404).json({
+          status: "gagal",
+          message: "Presensi tidak ditemukan",
+        });
+        return;
+      }
+      res.status(200).json({
+        status: "sukses",
+        data: data,
+      });
+    } catch (error) {
+      res.status(500).json({
+        status: "error",
+        message: error.message,
+      });
+      return;
+    }
+  },
+
+  findOneForEmployee: async (req, res) => {
+    try {
+      const data = await Attendance.findOne({
+        where: { archived: false, id: req.params.id, user_id: req.user.id },
       });
       if (data == null) {
         res.status(404).json({
