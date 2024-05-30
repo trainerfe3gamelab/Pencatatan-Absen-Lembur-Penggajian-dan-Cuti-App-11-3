@@ -2,12 +2,11 @@ const jwt = require("jsonwebtoken");
 const { User } = require("../../models");
 
 const verifyTokenMiddleware = async (req, res, next) => {
-  const authorization = req.header("Authorization");
-  if (!authorization) {
+  const token = req.header("Authorization").replace("Bearer ", "");
+  if (!token) {
     return res.status(401).send({ error: "Akses ditolak." });
   }
 
-  const token = authorization.replace("Bearer ", "");
   try {
     const decoded = jwt.verify(
       token,
@@ -29,12 +28,10 @@ const verifyTokenMiddleware = async (req, res, next) => {
 };
 
 const adminMiddleware = async (req, res, next) => {
-  const authorization = req.header("Authorization");
-  if (!authorization) {
+  const token = req.header("Authorization").replace("Bearer ", "");
+  if (!token) {
     return res.status(401).send({ error: "Akses ditolak." });
   }
-
-  const token = authorization.replace("Bearer ", "");
 
   try {
     const decoded = jwt.verify(
@@ -61,12 +58,10 @@ const adminMiddleware = async (req, res, next) => {
 };
 
 const employeeMiddleware = async (req, res, next) => {
-  const authorization = req.header("Authorization");
-  if (!authorization) {
+  const token = req.header("Authorization").replace("Bearer ", "");
+  if (!token) {
     return res.status(401).send({ error: "Akses ditolak." });
   }
-
-  const token = authorization.replace("Bearer ", "");
 
   try {
     const decoded = jwt.verify(
