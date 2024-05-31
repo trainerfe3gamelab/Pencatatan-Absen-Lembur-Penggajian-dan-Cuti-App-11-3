@@ -4,33 +4,36 @@ const leaveValidator = require("../utils/validator/leaveValidator");
 const leaveController = {
   // Create a new leave
   create: async (req, res) => {
-    const { date, time_in, time_out, user_id } = req.body;
+    const { type, reasoning, user_id, start_date, end_date } = req.body;
 
-    // Validate request body 
+    // Validate request body
     const { error } = leaveValidator.validate({
       user_id,
-      date,
       type,
       reasoning,
       start_date,
       end_date,
-
     });
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res.status(400).json({ message: error.details[0].message });
     }
 
     // Check if the user exists
     if (user_id) {
-      const user = await User.findByPk(user_id);
+      const user = await User.findOne({
+        where: {
+          id: user_id,
+          role: "employee",
+        },
+      });
       if (!user) {
-        return res
-          .status(400)
-          .json({ error: "User tidak ditemukan. Gagal insert data lembur." });
+        return res.status(400).json({
+          message: "Karyawan tidak ditemukan. Gagal insert data cuti.",
+        });
       }
     }
     try {
-      const newLeave = await Leave.create({
+      await Leave.create({
         user_id: user_id || req.user.id,
         type,
         reasoning,
@@ -41,7 +44,7 @@ const leaveController = {
         update_time: new Date(),
         update_id: req.user.id,
       });
-      res.status(201).json({ data: newLeave });
+      res.status(201).json({ message: "Berhasil insert data cuti" });
     } catch (err) {
       res.status(400).json(err);
     }
@@ -110,48 +113,46 @@ const leaveController = {
   // Update a leave (#BELUM DIEDIT)###
   update: async (req, res) => {
     try {
-      const { user_id, date, time_in, time_out } = req.body;
+      const { type, reasoning, start_date, end_date } = req.body;
 
       // Validate request body
       const { error } = leaveValidator.validate({
-        user_id,
         type,
+        reasoning,
         start_date,
         end_date,
-
       });
       if (error) {
-        return res.status(400).json({ error: error.details[0].message });
+        return res.status(400).json({ message: error.details[0].message });
       }
       const updateData = await Leave.update(
         {
-          date,
+          type,
           reasoning,
           start_date,
           end_date,
           update_time: new Date(),
-          update_id: user_id || req.user.id,
+          update_id: req.user.id,
         },
         {
           where: {
             id: req.params.id,
-            user_id: user_id || req.user.id,
             archived: false,
           },
         }
       );
       if (updateData[0] == 1) {
         res.status(200).json({
-          message: "Data lembur berhasil diupdate.",
+          message: "Data cuti berhasil diupdate.",
         });
       } else {
         res.status(400).json({
-          message: `Data lembur gagal diupdate`,
+          message: `Data cuti gagal diupdate`,
         });
       }
     } catch (error) {
       res.status(500).json({
-        message: "Error updating Leave with id=" + id,
+        message: "Error updating Leave with id=" + req.params.id,
       });
     }
   },
@@ -173,13 +174,13 @@ const leaveController = {
       if (data[0] == 0) {
         res.status(404).json({
           status: "gagal",
-          message: "Lembur tidak ditemukan",
+          message: "Data cuti tidak ditemukan",
         });
         return;
       }
       res.status(200).json({
         status: "sukses",
-        message: "Lembur berhasil dihapus",
+        message: "Data cuti berhasil dihapus",
       });
     } catch (error) {
       res.status(500).json({

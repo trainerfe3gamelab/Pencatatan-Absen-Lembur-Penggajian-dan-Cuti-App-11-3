@@ -14,20 +14,25 @@ const overtimeController = {
       time_out,
     });
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res.status(400).json({ message: error.details[0].message });
     }
 
     // Check if the user exists
     if (user_id) {
-      const user = await User.findByPk(user_id);
+      const user = await User.findOne({
+        where: {
+          id: user_id,
+          role: "employee",
+        },
+      });
       if (!user) {
-        return res
-          .status(400)
-          .json({ error: "User tidak ditemukan. Gagal insert data lembur." });
+        return res.status(400).json({
+          message: "Karyawan tidak ditemukan. Gagal insert data lembur.",
+        });
       }
     }
     try {
-      const newOvertime = await Overtime.create({
+      await Overtime.create({
         user_id: user_id || req.user.id,
         date,
         time_in,
@@ -37,7 +42,7 @@ const overtimeController = {
         update_time: new Date(),
         update_id: req.user.id,
       });
-      res.status(201).json({ data: newOvertime });
+      res.status(201).json({ message: "Berhasil insert data lembur" });
     } catch (err) {
       res.status(400).json(err);
     }
@@ -106,17 +111,16 @@ const overtimeController = {
   // Update a overtime
   update: async (req, res) => {
     try {
-      const { user_id, date, time_in, time_out } = req.body;
+      const { date, time_in, time_out } = req.body;
 
       // Validate request body
       const { error } = overtimeValidator.validate({
-        user_id,
         date,
         time_in,
         time_out,
       });
       if (error) {
-        return res.status(400).json({ error: error.details[0].message });
+        return res.status(400).json({ message: error.details[0].message });
       }
       const updateData = await Overtime.update(
         {
@@ -124,12 +128,11 @@ const overtimeController = {
           time_in,
           time_out,
           update_time: new Date(),
-          update_id: user_id || req.user.id,
+          update_id: req.user.id,
         },
         {
           where: {
             id: req.params.id,
-            user_id: user_id || req.user.id,
             archived: false,
           },
         }
@@ -145,7 +148,7 @@ const overtimeController = {
       }
     } catch (error) {
       res.status(500).json({
-        message: "Error updating Overtime with id=" + id,
+        message: "Error updating Overtime with id=" + req.params.id,
       });
     }
   },

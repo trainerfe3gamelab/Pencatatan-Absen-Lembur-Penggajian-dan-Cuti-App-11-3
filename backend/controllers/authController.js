@@ -8,12 +8,12 @@ const login = async (req, res) => {
   try {
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      return res.status(400).json({ error: "Email atau password salah." });
+      return res.status(400).json({ message: "Email atau password salah." });
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
-      return res.status(400).json({ error: "Email atau password salah." });
+      return res.status(400).json({ message: "Email atau password salah." });
     }
 
     const token = jwt.sign(
@@ -40,7 +40,7 @@ const login = async (req, res) => {
 
     res.json({ token, user: userData });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: error.message });
   }
 };
 
@@ -48,7 +48,7 @@ const logout = async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
     if (!user) {
-      return res.status(400).json({ error: "Invalid user." });
+      return res.status(400).json({ message: "Invalid user." });
     }
 
     user.token = null;
@@ -56,7 +56,7 @@ const logout = async (req, res) => {
 
     res.json({ message: "Sukses logout" });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ message: "Server error" });
   }
 };
 
