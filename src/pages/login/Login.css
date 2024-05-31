@@ -1,0 +1,110 @@
+.body{
+    height: 100vh; 
+    width: 100vw;
+    background: linear-gradient(-45deg, #004E5E, #76FBD3);
+}
+
+.logo{
+    width: 100px;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+}
+
+.wrapper-login{
+    width: 420px;
+    background: linear-gradient(-45deg, #ffffff98, #cbc9c989, #ffffff6f);
+    border: 2px solid rgba(255, 255, 255, .2);
+    backdrop-filter: blur(9px);
+    color: #fff;
+    border-radius: 12px;
+    padding: 30px 40px;
+  }
+  .wrapper-login h1{
+    font-size: 36px;
+    text-align: center;
+  }
+  .wrapper-login .input-box{
+    position: relative;
+    width: 100%;
+    height: 50px;
+    margin: 30px 0;
+  }
+  .input-box input{
+    width: 100%;
+    height: 100%;
+    background: #ffffff8c;
+    border: none;
+    outline: none;
+    border: 2px solid rgba(255, 255, 255, .2);
+    border-radius: 40px;
+    font-size: 16px;
+    color: #0a7a89;
+    padding: 20px 45px 20px 20px;
+  }
+  .input-box input::placeholder{
+    color: #0a7a895e;
+  }
+  .input-box i{
+    position: absolute;
+    right: 10px;
+    top: 30%;
+    transform: translate(-50%);
+    font-size: 20px;
+    color: #004E5E;
+  
+  }
+  .wrapper-login .remember-forgot{
+    display: flex;
+    justify-content: space-between;
+    font-size: 14.5px;
+    margin: -15px 0 15px;
+  }
+  .remember-forgot label input{
+    accent-color: #fff;
+    margin-right: 3px;
+  
+  }
+  .remember-forgot a{
+    color: #fff;
+    text-decoration: none;
+  
+  }
+  .remember-forgot a:hover{
+    text-decoration: underline;
+  }
+  .wrapper-login .btn{
+    width: 100%;
+    height: 45px;
+    background: linear-gradient(45deg, #004E5E, #76FBD3);
+    border: none;
+    outline: none;
+    border-radius: 40px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, .1);
+    cursor: pointer;
+    font-size: 16px;
+    color: #ffffff;
+    font-weight: 600;
+  }
+
+  .wrapper-login .btn:hover{
+    color: #000000;
+    background: #ffffff;
+  }
+
+  .wrapper-login .register-link{
+    font-size: 14.5px;
+    text-align: center;
+    margin: 20px 0 15px;
+  
+  }
+  .register-link p a{
+    color: #004E5E;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .register-link p a:hover{
+    text-decoration: underline;
+  }
+
+  
