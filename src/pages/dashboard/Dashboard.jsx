@@ -1,8 +1,7 @@
 import React from 'react';
 import './Dashboard.css'
 import Card from '../../components/card_dashboard/card';
-import Card_title from '../../components/card_title_dashboard/card_title';
-import AreaChart from '../../components/charts/AreaChart';
+import CardTitle from '../../components/card_title_dashboard/card_title';
 import BarChart from '../../components/charts/BarChart';
 import PieChart from '../../components/charts/PieChart';
 import logoadmin from '../../image/admin.png';
@@ -30,7 +29,7 @@ const Dashboard = () => {
           </div>
         </div>
         <div className='col-12 col-md-6'>
-          <Card_title />
+          <CardTitle />
         </div>
       </div>
       <div className="row mt-5">
@@ -45,7 +44,7 @@ const Dashboard = () => {
 
 function GridItem({ title, children }) {
   return (
-    <div className="d-flex flex-column align-items-center justify-content-center p-4 border bg-light rounded-xl h-100">
+    <div className="d-flex flex-column align-items-center justify-content-center p-4  h-100">
       <h3 className="text-2xl font-semibold text-black mb-4 text-center">{title}</h3>
       {children}
     </div>

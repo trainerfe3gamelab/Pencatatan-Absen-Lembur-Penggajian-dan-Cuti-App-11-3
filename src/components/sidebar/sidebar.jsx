@@ -80,7 +80,7 @@ const Sidebar = ({ isOpen }) => {
 
         <li>
         <Link to="/admin/Absensi">
-          <i class='bx bxs-user-check'></i>
+          <i className='bx bxs-user-check'></i>
             <span className="link_name">Absensi</span>
          </Link>
           <ul className="sub-menu blank">
@@ -89,7 +89,7 @@ const Sidebar = ({ isOpen }) => {
         </li>
         <li>
         <Link to="/admin/Gaji">
-          <i class='bx bxs-dollar-circle'></i>
+          <i className='bx bxs-dollar-circle'></i>
             <span className="link_name">Gaji</span>
           </Link>
           <ul className="sub-menu blank">
@@ -98,7 +98,7 @@ const Sidebar = ({ isOpen }) => {
         </li>
         <li>
         <Link to="/admin/Lembur">
-          <i class='bx bxs-briefcase-alt-2'></i>
+          <i className='bx bxs-briefcase-alt-2'></i>
             <span className="link_name">Lembur</span>
           </Link>
           <ul className="sub-menu blank">
@@ -108,7 +108,7 @@ const Sidebar = ({ isOpen }) => {
 
         <li>
         <Link to="/admin/Cuti">
-          <i class='bx bxs-calendar-event'></i>
+          <i className='bx bxs-calendar-event'></i>
             <span className="link_name">Cuti</span>
           </Link>
           <ul className="sub-menu blank">
@@ -118,7 +118,7 @@ const Sidebar = ({ isOpen }) => {
 
         <li>
         <Link to="/admin/RecapAbsensi">
-          <i class="bi bi-calendar3"></i>
+          <i className="bi bi-calendar3"></i>
             <span className="link_name">Recap absensi</span>
           </Link>
           <ul className="sub-menu blank">
@@ -127,7 +127,7 @@ const Sidebar = ({ isOpen }) => {
         </li>
         <li>
         <Link to="/admin/RecapGaji">
-          <i class="bi bi-card-heading"></i>
+          <i className="bi bi-card-heading"></i>
             <span className="link_name">Recap Gaji</span>
           </Link>
           <ul className="sub-menu blank">
