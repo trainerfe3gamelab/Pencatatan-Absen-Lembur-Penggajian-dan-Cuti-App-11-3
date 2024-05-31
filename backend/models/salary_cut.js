@@ -38,7 +38,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       timestamps: false,
-      tableName: "tbl_salary_cut",
+      tableName: "tbl_salary_cuts",
     }
   );
 
