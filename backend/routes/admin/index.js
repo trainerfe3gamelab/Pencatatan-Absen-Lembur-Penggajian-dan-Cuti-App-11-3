@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { adminMiddleware } = require("../../utils/middleware/auth");
+const { adminMiddleware } = require("../../middleware/auth");
 const positionRoutes = require("./positionRoutes");
 const overtimeRoutes = require("./overtimeRoutes");
 const attendanceRoutes = require("./attendanceRoutes");

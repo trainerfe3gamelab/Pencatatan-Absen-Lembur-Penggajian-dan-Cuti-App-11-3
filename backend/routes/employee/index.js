@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { employeeMiddleware } = require("../../utils/middleware/auth");
+const { employeeMiddleware } = require("../../middleware/auth");
 const attendanceRoutes = require("./attendanceRoutes");
 const overtimeRoutes = require("./overtimeRoutes");
 
