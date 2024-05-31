@@ -46,8 +46,8 @@ const Gaji = () => {
             name: "Actions",
             cell: row => (
                 <>
-                    <Button variant="warning" onClick={() => handleEdit(row)}>Edit</Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} className="ms-2">Delete</Button>
+                    <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
+                    <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
                 </>
             )
         }
@@ -177,7 +177,7 @@ const Gaji = () => {
         const { bulan, tahun, gender, position } = filterCriteria;
         const criteriaText = [];
 
-       
+
         if (bulan && bulan !== 'semua') criteriaText.push(`Bulan: ${bulan}`);
         if (tahun && tahun !== 'semua') criteriaText.push(`Tahun: ${tahun}`);
         if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
@@ -190,9 +190,13 @@ const Gaji = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Data Gaji</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-                <Button className='btn btn-success ms-2' onClick={handleShowAdd}>Generate Gaji</Button>
+                <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+                    <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Generate Gaji
+                </Button>
                 <div>
-                    <Button className='btn btn-success ms-2' onClick={handleShowFilter}> Filter </Button>
+                    <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+                        <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
+                    </Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
             </div>

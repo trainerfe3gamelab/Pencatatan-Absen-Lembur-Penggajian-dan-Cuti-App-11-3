@@ -184,10 +184,12 @@ const RecapGaji = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Recap Gaji</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-            <Button className='btn btn-success ms-2' onClick={handleShowFilter}> Filter </Button>
+            <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+                <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
+        </Button>
                 <div>
-                    <Button className='btn btn-warning mx-3 text-white font-weight-bold' style={{ backgroundColor: '#D4FF78' }} onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
-                    <Button className='btn btn-success' style={{ backgroundColor: '#78FFD6' }} onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
+                <Button variant="danger"  className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
+                    <Button variant="success" className='btn btn-success text-white font-weight-bold rounded-5' onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
             </div>

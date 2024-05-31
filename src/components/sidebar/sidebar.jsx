@@ -38,7 +38,7 @@ const Sidebar = ({ isOpen }) => {
         </Link>
             
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">Dashboard</a></li>
+            <li><a className="link_name" href="#" onClick={() => navigate('/admin/Dashboard')}>Dashboard</a></li>
           </ul>
           
         </li>
@@ -84,7 +84,7 @@ const Sidebar = ({ isOpen }) => {
             <span className="link_name">Absensi</span>
          </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">Absensi</a></li>
+            <li><a className="link_name" href="#" onClick={() => navigate('/admin/Absensi')}>Absensi</a></li>
           </ul>
         </li>
         <li>
@@ -93,7 +93,7 @@ const Sidebar = ({ isOpen }) => {
             <span className="link_name">Gaji</span>
           </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">Gaji</a></li>
+            <li><a className="link_name" href="#" onClick={() => navigate('/admin/Gaji')}>Gaji</a></li>
           </ul>
         </li>
         <li>
@@ -102,7 +102,7 @@ const Sidebar = ({ isOpen }) => {
             <span className="link_name">Lembur</span>
           </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">Lembur</a></li>
+            <li><a className="link_name" href="#" onClick={() => navigate('/admin/Lembur')}>Lembur</a></li>
           </ul>
         </li>
 
@@ -112,7 +112,7 @@ const Sidebar = ({ isOpen }) => {
             <span className="link_name">Cuti</span>
           </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">cuti</a></li>
+            <li><a className="link_name" href="#" onClick={() => navigate('/admin/Cuti')}>cuti</a></li>
           </ul>
         </li>
 
@@ -122,7 +122,7 @@ const Sidebar = ({ isOpen }) => {
             <span className="link_name">Recap absensi</span>
           </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">Recap absensi</a></li>
+            <li><a className="link_name" href="#" onClick={() => navigate('/admin/RecapAbsensi')}>Recap absensi</a></li>
           </ul>
         </li>
         <li>
@@ -131,7 +131,7 @@ const Sidebar = ({ isOpen }) => {
             <span className="link_name">Recap Gaji</span>
           </Link>
           <ul className="sub-menu blank">
-            <li><a className="link_name" href="#">Recap Gaji</a></li>
+            <li><a className="link_name" href="#" onClick={() => navigate('/admin/RecapGaji')}>Recap Gaji</a></li>
           </ul>
         </li>
         <li>

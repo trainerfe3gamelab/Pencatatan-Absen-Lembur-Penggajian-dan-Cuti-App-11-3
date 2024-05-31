@@ -84,7 +84,7 @@ const RecapAbsensi = () => {
     const [records, setRecords] = useState(initialData);
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [filteredRecords, setFilteredRecords] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState({ date: '', gender: '', position: '' });
+    const [filterCriteria, setFilterCriteria] = useState({ bulan: '', tahun: '', gender: '', position: '' });
 
     const handleFilterButton = () => {
         let filteredData = initialData;
@@ -109,13 +109,8 @@ const RecapAbsensi = () => {
         setShowFilterModal(false);
     };
 
-   
-
     const handleCloseFilter = () => setShowFilterModal(false);
     const handleShowFilter = () => setShowFilterModal(true);
-
-
-   
 
     const handleFilter = (event) => {
         const newData = initialData.filter(row => {
@@ -133,7 +128,6 @@ const RecapAbsensi = () => {
         const { bulan, tahun, gender, position } = filterCriteria;
         const criteriaText = [];
 
-       
         if (bulan && bulan !== 'semua') criteriaText.push(`Bulan: ${bulan}`);
         if (tahun && tahun !== 'semua') criteriaText.push(`Tahun: ${tahun}`);
         if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
@@ -174,10 +168,12 @@ const RecapAbsensi = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Recap Absensi</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-            <Button className='btn btn-success ms-2' onClick={handleShowFilter}> Filter </Button>
+                <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+                    <i className="bi bi-funnel-fill" aria-hidden="true"></i> Filter
+                </Button>
                 <div>
-                    <Button className='btn btn-warning mx-3 text-white font-weight-bold' style={{ backgroundColor: '#D4FF78' }} onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
-                    <Button className='btn btn-success' style={{ backgroundColor: '#78FFD6' }} onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
+                    <Button variant="danger" className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
+                    <Button variant="success" className='btn btn-success text-white font-weight-bold rounded-5' onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
             </div>
@@ -197,8 +193,6 @@ const RecapAbsensi = () => {
                 />
             </div>
 
-            
-
             {/* Filter Modal */}
             <Modal show={showFilterModal} onHide={handleCloseFilter}>
                 <Modal.Header closeButton>
@@ -208,7 +202,12 @@ const RecapAbsensi = () => {
                     <Form>
                         <Form.Group controlId="formBulan">
                             <Form.Label>Bulan</Form.Label>
-                            <Form.Control as="select" name="bulan" onChange={handleFilterCriteriaChange}>
+                            <Form.Control
+                                as="select"
+                                name="bulan"
+                                value={filterCriteria.bulan}
+                                onChange={handleFilterCriteriaChange}
+                            >
                                 <option value="">Pilih Bulan</option>
                                 <option value="semua">semua</option>
                                 <option value="Januari">Januari</option>
@@ -219,7 +218,7 @@ const RecapAbsensi = () => {
                                 <option value="Juni">Juni</option>
                                 <option value="Juli">Juli</option>
                                 <option value="Agustus">Agustus</option>
-                                <option value="september">September</option>
+                                <option value="September">September</option>
                                 <option value="Oktober">Oktober</option>
                                 <option value="November">November</option>
                                 <option value="Desember">Desember</option>
@@ -227,7 +226,12 @@ const RecapAbsensi = () => {
                         </Form.Group>
                         <Form.Group controlId="formTahun">
                             <Form.Label>Tahun</Form.Label>
-                            <Form.Control as="select" name="tahun" onChange={handleFilterCriteriaChange}>
+                            <Form.Control
+                                as="select"
+                                name="tahun"
+                                value={filterCriteria.tahun}
+                                onChange={handleFilterCriteriaChange}
+                            >
                                 <option value="">Pilih Tahun</option>
                                 <option value="semua">semua</option>
                                 {Array.from({ length: 50 }, (_, i) => 2000 + i).map(year => (
@@ -240,6 +244,7 @@ const RecapAbsensi = () => {
                             <Form.Control
                                 as="select"
                                 name="gender"
+                                value={filterCriteria.gender}
                                 onChange={handleFilterCriteriaChange}
                             >
                                 <option value="">Pilih Jenis Kelamin</option>
@@ -253,6 +258,7 @@ const RecapAbsensi = () => {
                             <Form.Control
                                 as="select"
                                 name="position"
+                                value={filterCriteria.position}
                                 onChange={handleFilterCriteriaChange}
                             >
                                 <option value="">Pilih Jenis Jabatan</option>

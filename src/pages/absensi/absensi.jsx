@@ -51,8 +51,8 @@ const Absensi = () => {
             name: "Actions",
             cell: row => (
                 <>
-                    <Button variant="warning" onClick={() => handleEdit(row)}>Edit</Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} className="ms-2">Delete</Button>
+                    <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
+                    <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
                 </>
             )
         }
@@ -189,9 +189,13 @@ const Absensi = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Absensi</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-                <Button className='btn btn-success ms-2' onClick={handleShowAdd}>Tambah</Button>
+                <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+                    <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Tambah
+                </Button>
                 <div>
-                    <Button className='btn btn-success ms-2' onClick={handleShowFilter}> Filter </Button>
+                    <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+                        <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
+                    </Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
             </div>

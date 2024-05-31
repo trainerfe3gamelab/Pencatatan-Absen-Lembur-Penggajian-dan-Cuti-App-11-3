@@ -3,11 +3,6 @@ import DataTable from 'react-data-table-component';
 import SearchBox from '../../components/search/SearchBox';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import Excel from '../../image/Excel.png';
-import Pdf from '../../image/PDF.png';
 import Success from '../../image/success.png';
 import Failed from '../../image/failed.png';
 
@@ -48,7 +43,7 @@ const Jabatan = () => {
             cell: row => (
                 <>
                  <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
-                <Button variant="danger" onClick={() => handleDelete(row.id)} className='opacity-50'><i className="bi bi-trash3-fill"></i></Button>
+                <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
                     
                 </>
             )
@@ -133,28 +128,6 @@ const Jabatan = () => {
         handleShowFailed();
     };
 
-    const exportToPDF = () => {
-        const doc = new jsPDF();
-        doc.autoTable({
-            head: [['#', 'Nama Jabatan', 'Deskripsi', 'Gaji Pokok', 'Tunjangan Transportasi', 'Uang Makan']],
-            body: records.map((row, index) => [index + 1, row.name, row.deskripsi, row.gajipokok, row.tunjangan, row.uangmakan])
-        });
-        doc.save('table.pdf');
-    };
-
-    const exportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(records.map((row, index) => ({
-            "#": index + 1,
-            "Nama Jabatan": row.name,
-            "Deskripsi": row.deskripsi,
-            "Gaji Pokok": row.gajipokok,
-            "Tunjangan Transportasi": row.tunjangan,
-            "Uang Makan": row.uangmakan
-        })));
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-        XLSX.writeFile(wb, "table.xlsx");
-    };
 
     function handleFilter(event) {
         const newData = initialData.filter(row => {

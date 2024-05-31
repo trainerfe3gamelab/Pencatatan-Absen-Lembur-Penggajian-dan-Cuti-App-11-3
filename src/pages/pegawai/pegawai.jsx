@@ -34,45 +34,55 @@ const Lembur = () => {
             sortable: true
         },
         {
-            name: "Tanggal",
-            selector: row => row.tanggal,
+            name: "Nomor Tlpn",
+            selector: row => row.telepon,
             sortable: true
         },
         {
-            name: "Waktu masuk",
-            selector: row => row.timein,
+            name: "Alamat",
+            selector: row => row.alamat,
             sortable: true
         },
         {
-            name: "Waktu keluar",
-            selector: row => row.timeout,
+            name: "Email",
+            selector: row => row.email,
+            sortable: true
+        },
+        {
+            name: "Status",
+            selector: row => row.status,
+            sortable: true
+        },
+        {
+            name: "Role",
+            selector: row => row.role,
             sortable: true
         },
         {
             name: "Actions",
             cell: row => (
                 <>
-                    <Button variant="warning" onClick={() => handleEdit(row)}>Edit</Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} className="ms-2">Delete</Button>
+                    <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
+                <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
                 </>
             )
         }
     ];
 
     const initialData = [
-        { id: 1, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', tanggal: '02-03-2023', timein: '11:33', timeout: '17:22' },
-        { id: 2, name: 'Beta', kelamin: 'perempuan', jabatan: 'manajer', tanggal: '05-03-2023', timein: '09:00', timeout: '17:00' },
-        { id: 3, name: 'Gamma', kelamin: 'laki-laki', jabatan: 'staf IT', tanggal: '06-03-2023', timein: '08:45', timeout: '16:30' },
-        { id: 4, name: 'Delta', kelamin: 'perempuan', jabatan: 'staf HR', tanggal: '07-03-2023', timein: '10:15', timeout: '18:00' },
-        { id: 5, name: 'Epsilon', kelamin: 'laki-laki', jabatan: 'manajer', tanggal: '08-03-2023', timein: '09:30', timeout: '17:15' },
-        { id: 6, name: 'Zeta', kelamin: 'perempuan', jabatan: 'staf keuangan', tanggal: '09-03-2023', timein: '08:00', timeout: '16:00' },
-        { id: 7, name: 'Eta', kelamin: 'laki-laki', jabatan: 'direktur', tanggal: '10-03-2023', timein: '09:45', timeout: '18:30' },
-        { id: 8, name: 'Theta', kelamin: 'perempuan', jabatan: 'staf pemasaran', tanggal: '11-03-2023', timein: '08:15', timeout: '17:00' },
-        { id: 9, name: 'Iota', kelamin: 'laki-laki', jabatan: 'manajer', tanggal: '12-03-2023', timein: '09:00', timeout: '18:00' },
-        { id: 10, name: 'Kappa', kelamin: 'perempuan', jabatan: 'staf admin', tanggal: '13-03-2023', timein: '07:45', timeout: '16:30' },
-        { id: 11, name: 'Lambda', kelamin: 'laki-laki', jabatan: 'staf IT', tanggal: '14-03-2023', timein: '08:30', timeout: '17:15' },
-        { id: 12, name: 'Mu', kelamin: 'perempuan', jabatan: 'staf HR', tanggal: '15-03-2023', timein: '09:15', timeout: '17:45' },
-        { id: 13, name: 'Nu', kelamin: 'laki-laki', jabatan: 'staf keuangan', tanggal: '16-03-2023', timein: '08:00', timeout: '16:30' }
+        { id: 1, name: 'Alpa', kelamin: 'perempuan', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 2, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 3, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 4, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 5, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 6, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 7, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 8, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 9, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 10, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 11, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 12, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
+        { id: 13, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', telepon: '08214472642424', alamat: 'jalan sini had', email: 'mail@gmail.com', status:'pegawai', role:'admin' },
     ];
     
 
@@ -82,10 +92,10 @@ const Lembur = () => {
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', kelamin: '', jabatan: '', tanggal: '', timein: '', timeout: '' });
-    const [newData, setNewData] = useState({ name: '', kelamin: '', jabatan: '', tanggal: '', timein: '', timeout: '' });
+    const [editData, setEditData] = useState({ id: '', name: '', kelamin: '', jabatan: '', telepon: '', alamat: '', email: '', status:'', role:'' });
+    const [newData, setNewData] = useState({ name: '', kelamin: '', jabatan: '', telepon: '', alamat: '', email: '', status:'', role:''});
     const [filteredRecords, setFilteredRecords] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState({ date: '', gender: '', position: '' });
+    const [filterCriteria, setFilterCriteria] = useState({  gender: '', position: '' });
 
     const handleFilterButton = () => {
         let filteredData = initialData;
@@ -177,10 +187,9 @@ const Lembur = () => {
     };
 
     const getFilterCriteriaText = () => {
-        const { date, gender, position } = filterCriteria;
+        const {  gender, position } = filterCriteria;
         const criteriaText = [];
 
-        if (date) criteriaText.push(`Tanggal: ${date}`);
         if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
         if (position && position !== 'semua') criteriaText.push(`Jabatan: ${position}`);
 
@@ -190,20 +199,21 @@ const Lembur = () => {
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.autoTable({
-            head: [['#', 'Nama Pegawai', 'Jenis Kelamin', 'Tanggal', 'Waktu masuk', 'Waktu keluar']],
-            body: records.map((row, index) => [index + 1, row.name, row.kelamin, row.tanggal, row.timein, row.timeout])
+            head: [['#', 'Nama Pegawai', 'Jenis Kelamin', 'Jabatan', 'Nomor Tlpn', 'Alamat', 'Status', 'Role']],
+            body: (filteredRecords || records).map((row, index) => [index + 1, row.name, row.kelamin, row.jabatan, row.telepon, row.alamat, row.status, row.role])
         });
         doc.save('table.pdf');
     };
 
     const exportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(records.map((row, index) => ({
+        const ws = XLSX.utils.json_to_sheet((filteredRecords || records).map((row, index) => ({
             "#": index + 1,
             "Nama Pegawai": row.name,
             "Jenis Kelamin": row.kelamin,
-            "Tanggal": row.tanggal,
-            "Waktu Masuk": row.timein,
-            "Waktu Keluar": row.timeout
+            "Jabatan": row.jabatan,
+            "Nomor Tlpn": row.telepon,
+            "Status": row.status,
+            "Role": row.role,
         })));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -212,13 +222,17 @@ const Lembur = () => {
 
     return (
         <div className='container'>
-            <h1 className='mt-3 mb-3'><b>Data Lembur</b></h1>
+            <h1 className='mt-3 mb-3'><b>Data Pegawai</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-                <Button className='btn btn-success ms-2' onClick={handleShowAdd}>Tambah</Button>
+            <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+          <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Tambah
+        </Button>
                 <div>
-                    <Button className='btn btn-success ms-2' onClick={handleShowFilter}> Filter </Button>
-                    <Button className='btn btn-warning mx-3 text-white font-weight-bold' style={{ backgroundColor: '#D4FF78' }} onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
-                    <Button className='btn btn-success' style={{ backgroundColor: '#78FFD6' }} onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
+                <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+                <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
+        </Button>
+        <Button variant="danger"  className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
+                    <Button variant="success" className='btn btn-success text-white font-weight-bold rounded-5' onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
             </div>
@@ -276,33 +290,55 @@ const Lembur = () => {
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="formTanggal">
-                            <Form.Label>Tanggal</Form.Label>
+                        <Form.Group controlId="formTelepon">
+                            <Form.Label>Nomor Telepon</Form.Label>
                             <Form.Control
-                                type="date"
-                                name="Tanggal"
-                                value={editData.tanggal}
+                                type="number"
+                                name="telepon"
+                                value={editData.telepon}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="formWaktuMasuk">
-                            <Form.Label>Waktu Masuk</Form.Label>
+                        <Form.Group controlId="formAlamat">
+                            <Form.Label>Alamat</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timein"
-                                value={editData.timein}
+                                type="text"
+                                name="alamat"
+                                value={editData.alamat}
                                 onChange={handleInputChange}
                             />
 
                         </Form.Group>
-                        <Form.Group controlId="formWaktuKeluar">
-                            <Form.Label>Waktu Masuk</Form.Label>
+                        <Form.Group controlId="formEmail">
+                            <Form.Label>Email</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timeout"
-                                value={editData.timeout}
+                                type="email"
+                                name="email"
+                                value={editData.email}
                                 onChange={handleInputChange}
                             />
+                        </Form.Group>
+                        <Form.Group controlId="formStatus">
+                            <Form.Label>status</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="status"
+                                value={editData.status}
+                                onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formRole">
+                            <Form.Label>Role</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="role"
+                                value={editData.role}
+                                onChange={handleInputChange}
+                            >
+                                <option value="">Pilih role</option>
+                                <option value="admin">admin</option>
+                                <option value="user">user</option>
+                            </Form.Control>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -356,34 +392,63 @@ const Lembur = () => {
                                 value={newData.jabatan}
                                 onChange={handleNewInputChange}
                             />
-                        </Form.Group>
-                        <Form.Group controlId="formTanggal">
-                            <Form.Label>Tanggal</Form.Label>
+                            </Form.Group>
+                        <Form.Group controlId="formTelepon">
+                            <Form.Label>Nomor Telepon</Form.Label>
                             <Form.Control
-                                type="date"
-                                name="tanggal"
-                                value={newData.tanggal}
+                                type="number"
+                                name="telepon"
+                                value={newData.telepon}
                                 onChange={handleNewInputChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="formWaktuMasuk">
-                            <Form.Label>Waktu Masuk</Form.Label>
+                        <Form.Group controlId="formAlamat">
+                            <Form.Label>Alamat</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timein"
-                                value={newData.timein}
+                                type="text"
+                                name="alamat"
+                                value={newData.alamat}
                                 onChange={handleNewInputChange}
                             />
 
                         </Form.Group>
-                        <Form.Group controlId="formWaktuKeluar">
-                            <Form.Label>Wkatu Keluar</Form.Label>
+                        <Form.Group controlId="formEmail">
+                            <Form.Label>Email</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timeout"
-                                value={newData.timeout}
+                                type="email"
+                                name="email"
+                                value={newData.email}
                                 onChange={handleNewInputChange}
                             />
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control
+                                type="password"
+                                name="password"
+                                // value={editData.email}
+                                // onChange={handleInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formStatus">
+                            <Form.Label>status</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="status"
+                                value={newData.status}
+                                onChange={handleNewInputChange}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formRole">
+                            <Form.Label>Role</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="role"
+                                value={newData.role}
+                                onChange={handleNewInputChange}
+                            >
+                                <option value="">Pilih role</option>
+                                <option value="admin">admin</option>
+                                <option value="user">user</option>
+                            </Form.Control>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -435,14 +500,6 @@ const Lembur = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group controlId="formTanggal">
-                            <Form.Label>Tanggal</Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="date"
-                                onChange={handleFilterCriteriaChange}
-                            />
-                        </Form.Group>
                         <Form.Group controlId="formKelamin">
                             <Form.Label>Jenis Kelamin</Form.Label>
                             <Form.Control

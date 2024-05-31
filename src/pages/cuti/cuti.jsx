@@ -62,8 +62,8 @@ const Cuti = () => {
             name: "Actions",
             cell: row => (
                 <>
-                    <Button variant="warning" onClick={() => handleEdit(row)}>Edit</Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} className="ms-2">Delete</Button>
+                    <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
+                    <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
                 </>
             )
         }
@@ -91,10 +91,10 @@ const Cuti = () => {
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', kelamin: '', jabatan: '', jeniscuti: '', keterangan: '', starttanggal: '', finistanggal:'', pertimbangan:'' });
-    const [newData, setNewData] = useState({ name: '', kelamin: '', jabatan: '',  jeniscuti: '', keterangan: '', starttanggal: '', finistanggal:'', pertimbangan:'' });
+    const [editData, setEditData] = useState({ id: '', name: '', kelamin: '', jabatan: '', jeniscuti: '', keterangan: '', starttanggal: '', finistanggal: '', pertimbangan: '' });
+    const [newData, setNewData] = useState({ name: '', kelamin: '', jabatan: '', jeniscuti: '', keterangan: '', starttanggal: '', finistanggal: '', pertimbangan: '' });
     const [filteredRecords, setFilteredRecords] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState({ gender: '', position: '', jeniscuti:'', pertimbangan:'' });
+    const [filterCriteria, setFilterCriteria] = useState({ gender: '', position: '', jeniscuti: '', pertimbangan: '' });
 
     const handleFilterButton = () => {
         let filteredData = initialData;
@@ -204,13 +204,13 @@ const Cuti = () => {
         const doc = new jsPDF();
         doc.autoTable({
             head: [['#', 'Nama', 'Jenis Kelamin', 'Jabatan', 'Jenis Cuti', 'Mulai Tanggal', 'Selesai Tanggal', 'Pertimbangan']],
-            body: records.map((row, index) => [index + 1, row.name, row.kelamin, row.jabatan, row.jeniscuti, row.starttanggal, row.finistanggal, row.pertimbangan])
+            body: (filteredRecords || records).map((row, index) => [index + 1, row.name, row.kelamin, row.jabatan, row.jeniscuti, row.starttanggal, row.finistanggal, row.pertimbangan])
         });
         doc.save('table.pdf');
     };
 
     const exportToExcel = () => {
-        const ws = XLSX.utils.json_to_sheet(records.map((row, index) => ({
+        const ws = XLSX.utils.json_to_sheet((filteredRecords || records).map((row, index) => ({
             "#": index + 1,
             "Nama": row.name,
             "Jenis Kelamin": row.kelamin,
@@ -229,11 +229,15 @@ const Cuti = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Data Cuti</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-                <Button className='btn btn-success ms-2' onClick={handleShowAdd}>Tambah</Button>
+                <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+                    <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Tambah
+                </Button>
                 <div>
-                    <Button className='btn btn-success ms-2' onClick={handleShowFilter}> Filter </Button>
-                    <Button className='btn btn-warning mx-3 text-white font-weight-bold' style={{ backgroundColor: '#D4FF78' }} onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
-                    <Button className='btn btn-success' style={{ backgroundColor: '#78FFD6' }} onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
+                    <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+                        <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
+                    </Button>
+                    <Button variant="danger"  className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
+                    <Button variant="success" className='btn btn-success text-white font-weight-bold rounded-5' onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
             </div>
