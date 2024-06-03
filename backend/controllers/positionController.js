@@ -2,18 +2,14 @@ const { Position } = require("../models"); // Adjust the path as necessary to yo
 const positionValidator = require("../utils/validator/positionValidator");
 const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
+const { handleFailed, handleError } = require("../utils/response");
 
 const positionController = {
   // Create a new position
   create: async (req, res) => {
     try {
       const { error, value } = positionValidator.validate(req.body);
-      if (error) {
-        return res.status(400).json({
-          status: "gagal",
-          message: error.details[0].message,
-        });
-      }
+      if (error) return handleFailed(res, 400, error.details[0].message);
 
       const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const data = await Position.create({
@@ -28,10 +24,8 @@ const positionController = {
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -44,11 +38,8 @@ const positionController = {
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -58,23 +49,15 @@ const positionController = {
       const data = await Position.findOne({
         where: { archived: false, id: req.params.id },
       });
-      if (data == null) {
-        res.status(404).json({
-          status: "gagal",
-          message: "Posisi tidak ditemukan",
-        });
-        return;
-      }
+      if (data == null) return handleFailed(res, 404, "Posisi tidak ditemukan");
+
       res.status(200).json({
         status: "sukses",
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -92,13 +75,8 @@ const positionController = {
         (schema) => schema.optional()
       );
       const { error, value } = optionalpositionValidator.validate(req.body);
-      if (error) {
-        res.status(400).json({
-          status: "gagal",
-          message: error.details[0].message,
-        });
-        return;
-      }
+      if (error) return handleFailed(res, 400, error.details[0].message);
+
       const data = await Position.update(
         {
           ...value,
@@ -114,23 +92,16 @@ const positionController = {
           },
         }
       );
-      if (data[0] == 0) {
-        res.status(404).json({
-          status: "gagal",
-          message: "Posisi tidak ditemukan",
-        });
-        return;
-      }
+      if (data[0] == 0)
+        return handleFailed(res, 400, "Gagal memperbarui posisi");
+
       res.status(200).json({
         status: "sukses",
         message: "Posisi berhasil diperbarui",
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -148,23 +119,16 @@ const positionController = {
           },
         }
       );
-      if (data[0] == 0) {
-        res.status(404).json({
-          status: "gagal",
-          message: "Posisi tidak ditemukan",
-        });
-        return;
-      }
+      if (data[0] == 0)
+        return handleFailed(res, 400, "Gagal memperbarui posisi");
+
       res.status(200).json({
         status: "sukses",
         message: "Posisi berhasil dihapus",
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 };

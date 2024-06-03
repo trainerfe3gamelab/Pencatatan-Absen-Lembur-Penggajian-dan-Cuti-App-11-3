@@ -6,30 +6,25 @@ const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
 const resetPasswordValidator = require("../utils/validator/resetPasswordValidator");
 const { updateOrCreateToken } = require("../utils/resetPassword");
-const { handleFailed } = require("../utils/response");
+const { handleFailed, handleError } = require("../utils/response");
+const loginValidator = require("../utils/validator/loginValidator");
 
 const login = async (req, res) => {
-  const { email, password } = req.body;
+  const { error, value } = loginValidator.validate(req.body);
+  if (error) return handleFailed(res, 400, error.details[0].message);
 
   try {
-    const user = await User.findOne({ where: { email } });
-    if (!user) {
-      return res.status(400).json({ message: "Email atau password salah." });
-    }
+    const user = await User.findOne({ where: { email: value.email } });
+    if (!user) return handleFailed(res, 400, error.details[0].message);
 
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(400).json({ message: "Email atau password salah." });
-    }
+    const validPassword = await bcrypt.compare(value.password, user.password);
+    if (!validPassword) return handleFailed(res, 400, error.details[0].message);
 
     const token = jwt.sign(
       { id: user.id, role: user.role },
       "et1kAtkQ5eiVzpR6S9QwrSH0ZrJ0zyXioR8gcEES",
       { expiresIn: "24h" }
     );
-
-    user.token = token;
-    await user.save();
 
     // Exclude sensitive fields from the user data
     const {
@@ -46,23 +41,8 @@ const login = async (req, res) => {
 
     res.json({ token, user: userData });
   } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-const logout = async (req, res) => {
-  try {
-    const user = await User.findByPk(req.user.id);
-    if (!user) {
-      return res.status(400).json({ message: "Invalid user." });
-    }
-
-    user.token = null;
-    await user.save();
-
-    res.json({ message: "Sukses logout" });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+    console.log(error.message);
+    handleError(res, 500, "Terjadi error pada server");
   }
 };
 
@@ -88,10 +68,8 @@ const resetPasswordToken = async (req, res) => {
     res.status(200).json({ status: "sukses", pesan: "Token Berhasil dikirim" });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({
-      status: "error",
-      message: "Server error",
-    });
+    console.log(error.message);
+    handleError(res, 500, "Terjadi error pada server");
   }
 };
 
@@ -128,23 +106,15 @@ const resetPassword = async (req, res) => {
       { password: newPassword, update_time: now, update_id: uuidv4() },
       { where: { email: value.email } }
     );
-    if (data[0] == 0) {
-      return res.status(404).json({
-        status: "gagal",
-        message: "User tidak ditemukan",
-      });
-    }
+    if (data[0] == 0) return handleFailed(res, 404, "User tidak ditemukan");
     res.status(200).json({
       status: "sukses",
       message: "Password berhasil diperbarui",
     });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({
-      status: "error",
-      message: "Server error",
-    });
+    handleError(res, 500, "Terjadi error pada server");
   }
 };
 
-module.exports = { login, logout, resetPasswordToken, resetPassword };
+module.exports = { login, resetPasswordToken, resetPassword };

@@ -1,6 +1,6 @@
-const { Attendance } = require("../models"); // Adjust the path as necessary to your models' index.js
+const { User, Attendance } = require("../models"); // Adjust the path as necessary to your models' index.js
 const attendanceValidator = require("../utils/validator/attendanceValidator");
-const { handleFailed } = require("../utils/response");
+const { handleFailed, handleError } = require("../utils/response");
 const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
 const {
@@ -16,6 +16,7 @@ const attendanceController = {
     try {
       const { error, value } = attendanceValidator.validate(req.body);
       if (error) return handleFailed(res, 400, error.details[0].message);
+
       const now = moment.tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const data = await Attendance.create({
         ...value,
@@ -29,10 +30,8 @@ const attendanceController = {
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -83,7 +82,8 @@ const attendanceController = {
 
       res.status(201).json({ status: "sukses", data });
     } catch (error) {
-      res.status(500).json({ status: "error", message: error.message });
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -139,7 +139,8 @@ const attendanceController = {
 
       res.status(201).json({ status: "sukses", data });
     } catch (error) {
-      res.status(500).json({ status: "error", message: error.message });
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -152,29 +153,22 @@ const attendanceController = {
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
   findAllForEmployee: async (req, res) => {
     try {
-      const data = await Attendance.findAll({
-        where: { user_id: req.user.id, archived: false },
+      const attendance = await User.findOne({
+        where: { id: req.user.id },
+        include: { model: Attendance, as: "attendances" },
+        attributes: ["id", "email", "role"],
       });
-      res.status(200).json({
-        status: "sukses",
-        data: data,
-      });
+      res.status(200).json({ status: "sukses", data: attendance });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(err.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -184,23 +178,16 @@ const attendanceController = {
       const data = await Attendance.findOne({
         where: { archived: false, id: req.params.id },
       });
-      if (data == null) {
-        res.status(404).json({
-          status: "gagal",
-          message: "Presensi tidak ditemukan",
-        });
-        return;
-      }
+      if (data == null)
+        return handleFailed(res, 400, "Presensi tidak ditemukan");
+
       res.status(200).json({
         status: "sukses",
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -209,23 +196,16 @@ const attendanceController = {
       const data = await Attendance.findOne({
         where: { archived: false, id: req.params.id, user_id: req.user.id },
       });
-      if (data == null) {
-        res.status(404).json({
-          status: "gagal",
-          message: "Presensi tidak ditemukan",
-        });
-        return;
-      }
+      if (data == null)
+        return handleFailed(res, 400, "Presensi tidak ditemukan");
+
       res.status(200).json({
         status: "sukses",
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -251,23 +231,15 @@ const attendanceController = {
           },
         }
       );
-      if (data[0] == 0) {
-        res.status(404).json({
-          status: "gagal",
-          message: "Presensi tidak ditemukan",
-        });
-        return;
-      }
+      if (data[0] == 0) return handleFailed(res, 400, error.details[0].message);
+
       res.status(200).json({
         status: "sukses",
         message: "Presensi berhasil diperbarui",
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -297,11 +269,8 @@ const attendanceController = {
         message: "Presensi berhasil dihapus",
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 };

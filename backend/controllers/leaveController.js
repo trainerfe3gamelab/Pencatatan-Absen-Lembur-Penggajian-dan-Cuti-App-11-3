@@ -1,52 +1,46 @@
 const { Leave, User } = require("../models");
 const leaveValidator = require("../utils/validator/leaveValidator");
+const { handleFailed, handleError } = require("../utils/response");
+const moment = require("moment-timezone");
+const { v4: uuidv4 } = require("uuid");
 
 const leaveController = {
   // Create a new leave
   create: async (req, res) => {
-    const { type, reasoning, user_id, start_date, end_date } = req.body;
-
     // Validate request body
-    const { error } = leaveValidator.validate({
-      user_id,
-      type,
-      reasoning,
-      start_date,
-      end_date,
-    });
-    if (error) {
-      return res.status(400).json({ message: error.details[0].message });
-    }
+    const { error, value } = leaveValidator.validate(req.body);
+    if (error) return handleFailed(res, 400, error.details[0].message);
 
     // Check if the user exists
-    if (user_id) {
-      const user = await User.findOne({
-        where: {
-          id: user_id,
-          role: "employee",
-        },
-      });
-      if (!user) {
-        return res.status(400).json({
-          message: "Karyawan tidak ditemukan. Gagal insert data cuti.",
-        });
-      }
-    }
+    const user = await User.findOne({
+      where: {
+        id: value.user_id,
+        role: "employee",
+        archived: false,
+      },
+    });
+    if (!user)
+      return handleFailed(
+        res,
+        400,
+        "Karyawan tidak ditemukan. Gagal insert data cuti."
+      );
+
     try {
+      const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       await Leave.create({
-        user_id: user_id || req.user.id,
-        type,
-        reasoning,
-        start_date,
-        end_date,
-        creation_time: new Date(),
-        create_id: req.user.id,
-        update_time: new Date(),
-        update_id: req.user.id,
+        ...value,
+        creation_time: now,
+        create_id: uuidv4(),
+        update_time: now,
+        update_id: uuidv4(),
       });
-      res.status(201).json({ message: "Berhasil insert data cuti" });
+      res
+        .status(201)
+        .json({ status: "sukses", message: "Berhasil insert data cuti" });
     } catch (err) {
-      res.status(400).json(err);
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -56,20 +50,24 @@ const leaveController = {
       const leave = await Leave.findAll({
         where: { archived: false },
       });
-      res.status(200).json({ data: leave });
+      res.status(200).json({ status: "sukses", data: leave });
     } catch (error) {
-      res.status(500).json(error);
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
   findAllForEmployee: async (req, res) => {
     try {
-      const leave = await Leave.findAll({
-        where: { archived: false, user_id: req.user.id },
+      const leave = await User.findOne({
+        where: { id: req.user.id },
+        include: { model: Leave, as: "leaves" },
+        attributes: ["id", "email", "role"],
       });
-      res.status(200).json({ data: leave });
+      res.status(200).json({ status: "sukses", data: leave });
     } catch (error) {
-      res.status(500).json(error);
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -83,14 +81,16 @@ const leaveController = {
         },
       });
       if (leave) {
-        res.status(200).json({ data: leave });
+        res.status(200).json({ status: "sukses", data: leave });
       } else {
-        res.status(404).json({ message: "Leave not found." });
+        handleFailed(res, 404, "Data cuti tidak ditemukan.");
       }
     } catch (error) {
-      res.status(500).json(error);
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
+
   findOneForEmployee: async (req, res) => {
     try {
       const leave = await Leave.findOne({
@@ -101,59 +101,54 @@ const leaveController = {
         },
       });
       if (leave) {
-        res.status(200).json({ data: leave });
+        res.status(200).json({ status: "sukses", data: leave });
       } else {
-        res.status(404).json({ message: "Leave not found." });
+        handleFailed(res, 404, "Data cuti tidak ditemukan.");
       }
     } catch (error) {
-      res.status(500).json(error);
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
-  // Update a leave (#BELUM DIEDIT)###
+  // Update a leave
   update: async (req, res) => {
     try {
-      const { type, reasoning, start_date, end_date } = req.body;
-
       // Validate request body
-      const { error } = leaveValidator.validate({
-        type,
-        reasoning,
-        start_date,
-        end_date,
-      });
+      const optionalLeaveValidator = leaveValidator.fork(
+        ["type", "reasoning", "start_date", "end_date"],
+        (schema) => schema.optional()
+      );
+      const { error, value } = optionalLeaveValidator.validate(req.body);
       if (error) {
-        return res.status(400).json({ message: error.details[0].message });
+        return handleFailed(res, 400, error.details[0].message);
       }
       const updateData = await Leave.update(
         {
-          type,
-          reasoning,
-          start_date,
-          end_date,
-          update_time: new Date(),
-          update_id: req.user.id,
+          ...value,
+          update_time: moment()
+            .tz("Asia/Jakarta")
+            .format("YYYY-MM-DD HH:mm:ss"),
+          update_id: uuidv4(),
         },
         {
           where: {
             id: req.params.id,
+            user_id: value.user_id,
             archived: false,
           },
         }
       );
-      if (updateData[0] == 1) {
-        res.status(200).json({
-          message: "Data cuti berhasil diupdate.",
-        });
-      } else {
-        res.status(400).json({
-          message: `Data cuti gagal diupdate`,
-        });
-      }
-    } catch (error) {
-      res.status(500).json({
-        message: "Error updating Leave with id=" + req.params.id,
+      if (updateData[0] == 0)
+        return handleFailed(res, 400, "Data cuti gagal diupdate");
+
+      res.status(200).json({
+        status: "sukses",
+        message: "Data cuti berhasil diupdate.",
       });
+    } catch (error) {
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -171,21 +166,16 @@ const leaveController = {
           },
         }
       );
-      if (data[0] == 0) {
-        res.status(404).json({
-          status: "gagal",
-          message: "Data cuti tidak ditemukan",
-        });
-        return;
-      }
+      if (data[0] == 0)
+        return handleFailed(res, 400, "Data cuti gagal diupdate");
+
       res.status(200).json({
         status: "sukses",
         message: "Data cuti berhasil dihapus",
       });
     } catch (error) {
-      res.status(500).json({
-        message: "Could not delete Leave with id=" + id,
-      });
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 };

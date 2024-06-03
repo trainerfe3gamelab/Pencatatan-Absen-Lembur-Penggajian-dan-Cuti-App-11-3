@@ -2,7 +2,7 @@ const { SalaryCut } = require("../models"); // Adjust the path as necessary to y
 const salaryCutValidator = require("../utils/validator/salaryCutValidator");
 const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
-const { handleFailed } = require("../utils/response");
+const { handleFailed, handleError } = require("../utils/response");
 
 const salaryCutController = {
   // Create a new Salary Cut
@@ -24,10 +24,8 @@ const salaryCutController = {
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -40,11 +38,8 @@ const salaryCutController = {
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -55,18 +50,15 @@ const salaryCutController = {
         where: { archived: false, id: req.params.id },
       });
       if (data == null)
-        return handleFailed(res, 400, "Potongan Gaji tidak ditemukan");
+        return handleFailed(res, 404, "Potongan Gaji tidak ditemukan");
 
       res.status(200).json({
         status: "sukses",
         data: data,
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -96,18 +88,15 @@ const salaryCutController = {
         }
       );
       if (data[0] == 0)
-        return handleFailed(res, 400, "Potongan Gaji tidak ditemukan");
+        return handleFailed(res, 404, "Potongan Gaji tidak ditemukan");
 
       res.status(200).json({
         status: "sukses",
         message: "Potongan gaji berhasil diperbarui",
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 
@@ -126,18 +115,15 @@ const salaryCutController = {
         }
       );
       if (data[0] == 0)
-        return handleFailed(res, 400, "Potongan Gaji tidak ditemukan");
+        return handleFailed(res, 404, "Potongan Gaji tidak ditemukan");
 
       res.status(200).json({
         status: "sukses",
         message: "Potongan gaji berhasil dihapus",
       });
     } catch (error) {
-      res.status(500).json({
-        status: "error",
-        message: error.message,
-      });
-      return;
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
     }
   },
 };
