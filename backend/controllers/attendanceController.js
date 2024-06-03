@@ -1,11 +1,11 @@
 const { Attendance } = require("../models"); // Adjust the path as necessary to your models' index.js
 const attendanceValidator = require("../utils/validator/attendanceValidator");
 const { handleFailed } = require("../utils/response");
-const moment = require("moment");
+const moment = require("moment-timezone");
+const { v4: uuidv4 } = require("uuid");
 const {
   checkWeekend,
   checkHolidayAndLeave,
-  validateAttendanceData,
   handleAttendanceCheck,
   handleCreateOrUpdateAttendance,
 } = require("../utils/attendance");
@@ -16,7 +16,7 @@ const attendanceController = {
     try {
       const { error, value } = attendanceValidator.validate(req.body);
       if (error) return handleFailed(res, 400, error.details[0].message);
-      const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
+      const now = moment.tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const data = await Attendance.create({
         ...value,
         creation_time: now,
@@ -43,7 +43,7 @@ const attendanceController = {
         return handleFailed(res, 400, "Hari ini adalah hari weekend");
       }
 
-      const currentDate = moment().locale("id").format("YYYY-MM-DD");
+      const currentDate = moment().tz("Asia/Jakarta").format("YYYY-MM-DD");
       const attendanceCheck = await Attendance.findOne({
         where: { archived: false, date: currentDate },
       });
@@ -56,32 +56,28 @@ const attendanceController = {
         );
       }
 
-      const holidayAndLeaveCheck = await checkHolidayAndLeave("tes");
-      console.log(holidayAndLeaveCheck);
+      const holidayAndLeaveCheck = await checkHolidayAndLeave(req.user.id);
       if (holidayAndLeaveCheck) {
         return handleFailed(res, 400, holidayAndLeaveCheck);
       }
 
-      const { error, value } = validateAttendanceData(req);
-      if (error) {
-        return handleFailed(res, 400, error.details[0].message);
-      }
-
-      const currentTime = moment().locale("id").format("HH:mm:ss");
+      const currentTime = moment().tz("Asia/Jakarta").format("HH:mm:ss");
       const { status, attendanceTime } = await handleAttendanceCheck(
         "masuk",
         currentTime,
         currentDate
       );
-
       if (status === "Belum waktunya melakukan absensi masuk") {
         return handleFailed(res, 400, status);
       }
 
-      value.time_in = currentTime;
-      value.time_out = null;
-      value.date = currentDate;
-      value.status = status;
+      const value = {
+        user_id: req.user.id,
+        time_in: currentTime,
+        time_out: null,
+        date: currentDate,
+        status: status,
+      };
 
       const data = await handleCreateOrUpdateAttendance(value, null);
 
@@ -98,7 +94,7 @@ const attendanceController = {
         return handleFailed(res, 400, "Hari ini adalah hari weekend");
       }
 
-      const currentDate = moment().locale("id").format("YYYY-MM-DD");
+      const currentDate = moment().tz("Asia/Jakarta").format("YYYY-MM-DD");
       const attendanceCheck = await Attendance.findOne({
         where: { archived: false, date: currentDate },
       });
@@ -111,17 +107,12 @@ const attendanceController = {
         );
       }
 
-      const holidayAndLeaveCheck = await checkHolidayAndLeave("tes");
+      const holidayAndLeaveCheck = await checkHolidayAndLeave(req.user.id);
       if (holidayAndLeaveCheck) {
         return handleFailed(res, 400, holidayAndLeaveCheck);
       }
 
-      const { error, value } = validateAttendanceData(req);
-      if (error) {
-        return handleFailed(res, 400, error.details[0].message);
-      }
-
-      const currentTime = moment().locale("id").format("HH:mm:ss");
+      const currentTime = moment().tz("Asia/Jakarta").format("HH:mm:ss");
       const { status, attendanceTime } = await handleAttendanceCheck(
         "keluar",
         currentTime,
@@ -132,14 +123,17 @@ const attendanceController = {
         return handleFailed(res, 400, status);
       }
 
-      value.time_out = currentTime;
-      value.date = currentDate;
-      value.status =
-        (attendanceCheck && attendanceCheck.status == "alpha") ||
-        attendanceCheck.status == "telat"
-          ? attendanceCheck.status
-          : status;
-      value.time_in = attendanceCheck ? attendanceCheck.time_in : null;
+      const value = {
+        user_id: req.user.id,
+        time_out: null,
+        date: currentDate,
+        status:
+          (attendanceCheck && attendanceCheck.status == "alpha") ||
+          attendanceCheck.status == "telat"
+            ? attendanceCheck.status
+            : status,
+        time_in: attendanceCheck ? attendanceCheck.time_in : null,
+      };
 
       const data = await handleCreateOrUpdateAttendance(value, attendanceCheck);
 
@@ -247,7 +241,7 @@ const attendanceController = {
       const data = await Attendance.update(
         {
           ...value,
-          update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
+          update_time: moment.tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss"),
           update_id: uuidv4(),
         },
         {
