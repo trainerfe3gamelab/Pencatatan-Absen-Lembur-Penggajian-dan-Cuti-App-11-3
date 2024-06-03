@@ -4,7 +4,10 @@ const { User } = require("../models");
 const verifyTokenMiddleware = async (req, res, next) => {
   const authorization = req.header("Authorization");
   if (!authorization) {
-    return res.status(401).send({ error: "Akses ditolak." });
+    return res.status(401).send({
+      status: "failed",
+      error: "Akses ditolak. Token tidak ditemukan",
+    });
   }
 
   const token = authorization.replace("Bearer ", "");
@@ -14,85 +17,42 @@ const verifyTokenMiddleware = async (req, res, next) => {
       "et1kAtkQ5eiVzpR6S9QwrSH0ZrJ0zyXioR8gcEES"
     );
     req.user = decoded;
-
-    const user = await User.findByPk(req.user.id);
-    if (!user || user.token !== token) {
-      return res.status(403).send({ error: "Akses ditolak." });
-    }
     next();
   } catch (error) {
     if (error.message === "jwt malformed") {
-      return res.status(400).send({ error: "Akses ditolak." });
-    }
-    res.status(400).send({ error: error.message });
-  }
-};
-
-const adminMiddleware = async (req, res, next) => {
-  const authorization = req.header("Authorization");
-  if (!authorization) {
-    return res.status(401).send({ error: "Akses ditolak." });
-  }
-
-  const token = authorization.replace("Bearer ", "");
-
-  try {
-    const decoded = jwt.verify(
-      token,
-      "et1kAtkQ5eiVzpR6S9QwrSH0ZrJ0zyXioR8gcEES"
-    );
-    req.user = decoded;
-
-    const user = await User.findByPk(req.user.id);
-    if (!user || user.token !== token) {
-      return res.status(403).send({ error: "Akses ditolak." });
-    } else if (user.role !== "admin") {
       return res
-        .status(403)
-        .send({ error: "Akses ditolak, anda bukan admin." });
+        .status(400)
+        .send({ status: "failed", error: "Akses ditolak." });
     }
-    next();
-  } catch (error) {
-    if (error.message === "jwt malformed") {
-      return res.status(400).send({ error: "Akses ditolak" });
-    }
-    res.status(400).send({ error: error.message });
+    res.status(400).send({ status: "failed", error: error.message });
   }
 };
 
-const employeeMiddleware = async (req, res, next) => {
-  const authorization = req.header("Authorization");
-  if (!authorization) {
-    return res.status(401).send({ error: "Akses ditolak." });
-  }
-
-  const token = authorization.replace("Bearer ", "");
-
-  try {
-    const decoded = jwt.verify(
-      token,
-      "et1kAtkQ5eiVzpR6S9QwrSH0ZrJ0zyXioR8gcEES"
-    );
-    if (!decoded) {
-      return res.status(401).send({ error: "Akses ditolak." });
-    }
-    req.user = decoded;
-
-    const user = await User.findByPk(req.user.id);
-    if (!user || user.token !== token) {
-      return res.status(403).send({ error: "Akses ditolak." });
-    } else if (user.role !== "employee") {
+const verifyRole = (role) => {
+  return (req, res, next) => {
+    if (!req.user) {
       return res
-        .status(403)
-        .send({ error: "Akses ditolak, anda bukan karyawan." });
+        .status(401)
+        .send({
+          status: "failed",
+          error: "Akses ditolak. Token tidak ditemukan",
+        });
+    } else {
+      if (req.user.role != role) {
+        return res
+          .status(403)
+          .send({
+            status: "failed",
+            error: `Akses ditolak. Role anda bukam ${role}`,
+          });
+      } else {
+        next();
+      }
     }
-    next();
-  } catch (error) {
-    if (error.message === "jwt malformed") {
-      return res.status(400).send({ error: "Akses ditolak." });
-    }
-    res.status(400).send({ error: error.message });
-  }
+  };
 };
 
-module.exports = { adminMiddleware, employeeMiddleware, verifyTokenMiddleware };
+module.exports = {
+  verifyTokenMiddleware,
+  verifyRole,
+};
