@@ -1,7 +1,6 @@
 const { AttendanceTime, Holiday, Leave, Attendance } = require("../models"); // Adjust the path as necessary to your models' index.js
 const moment = require("moment-timezone");
 const { Op } = require("sequelize");
-const attendanceValidator = require("../utils/validator/attendanceValidator");
 const { v4: uuidv4 } = require("uuid");
 
 const getAttendanceTime = async (attendanceName) => {
@@ -49,7 +48,7 @@ const isTodayOnLeave = async (userId) => {
 };
 
 const checkWeekend = () => {
-  const isWeekend = moment().locale("id").format("dddd");
+  const isWeekend = moment().tz("Asia/Jakarta").format("dddd");
   return isWeekend === "Sabtu" || isWeekend === "Minggu";
 };
 
@@ -62,14 +61,6 @@ const checkHolidayAndLeave = async (user_id) => {
     return `Hari ini sedang cuti ${isOnLeave.type} dengan alasan ${isOnLeave.reasoning}`;
 
   return null;
-};
-
-const validateAttendanceData = (req) => {
-  const optionalattendanceValidator = attendanceValidator.fork(
-    ["date", "time_in", "time_out", "status"],
-    (schema) => schema.optional()
-  );
-  return optionalattendanceValidator.validate(req.body);
 };
 
 const checkAttendanceTime = (currentTime, start_time, end_time, type) => {
@@ -102,7 +93,7 @@ const handleAttendanceCheck = async (type, currentTime, currentDate) => {
 };
 
 const handleCreateOrUpdateAttendance = async (value, attendanceCheck) => {
-  const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
+  const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
   if (attendanceCheck) {
     value.id = attendanceCheck.id;
   } else {
@@ -121,7 +112,6 @@ module.exports = {
   getAttendanceTime,
   checkWeekend,
   checkHolidayAndLeave,
-  validateAttendanceData,
   handleAttendanceCheck,
   handleCreateOrUpdateAttendance,
 };
