@@ -1,9 +1,9 @@
 const router = require("express").Router();
-const { employeeMiddleware } = require("../../middleware/auth");
+const { verifyRole } = require("../../middleware/auth");
 const attendanceRoutes = require("./attendanceRoutes");
 const overtimeRoutes = require("./overtimeRoutes");
 
-router.use(employeeMiddleware);
+router.use(verifyRole("employee"));
 router.use("/attendances", attendanceRoutes);
 router.use("/overtimes", overtimeRoutes);
 
