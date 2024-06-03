@@ -1,45 +1,44 @@
+const { where } = require("sequelize");
 const { Overtime, User } = require("../models");
 const overtimeValidator = require("../utils/validator/overtimeValidator");
+const moment = require("moment-timezone");
+const { v4: uuidv4 } = require("uuid");
 
 const overtimeController = {
   // Create a new overtime
   create: async (req, res) => {
-    const { date, time_in, time_out, user_id } = req.body;
-
     // Validate request body
-    const { error } = overtimeValidator.validate({
-      user_id,
-      date,
-      time_in,
-      time_out,
-    });
+    const { error } = overtimeValidator.validate(req.body);
     if (error) {
-      return res.status(400).json({ error: error.details[0].message });
+      return res
+        .status(400)
+        .json({ status: "gagal", error: error.details[0].message });
     }
 
     // Check if the user exists
-    if (user_id) {
-      const user = await User.findByPk(user_id);
-      if (!user) {
-        return res
-          .status(400)
-          .json({ error: "User tidak ditemukan. Gagal insert data lembur." });
-      }
+    const user = await User.findByPk(user_id);
+    if (!user) {
+      return res.status(400).json({
+        status: "gagal",
+        error: "User tidak ditemukan. Gagal insert data lembur.",
+      });
     }
+
     try {
+      const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const newOvertime = await Overtime.create({
-        user_id: user_id || req.user.id,
+        user_id: user_id,
         date,
         time_in,
         time_out,
-        creation_time: new Date(),
-        create_id: req.user.id,
-        update_time: new Date(),
-        update_id: req.user.id,
+        creation_time: now,
+        create_id: uuidv4(),
+        update_time: now,
+        update_id: uuidv4(),
       });
-      res.status(201).json({ data: newOvertime });
+      res.status(201).json({ status: "sukses", data: newOvertime });
     } catch (err) {
-      res.status(400).json(err);
+      res.status(500).json({ status: "error", data: error.message });
     }
   },
 
@@ -49,20 +48,22 @@ const overtimeController = {
       const overtime = await Overtime.findAll({
         where: { archived: false },
       });
-      res.status(200).json({ data: overtime });
+      res.status(200).json({ status: "sukses", data: overtime });
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({ status: "error", data: error.message });
     }
   },
 
   findAllForEmployee: async (req, res) => {
     try {
-      const overtime = await Overtime.findAll({
-        where: { archived: false, user_id: req.user.id },
+      const overtime = await User.findOne({
+        where: { id: req.user.id },
+        include: { model: Overtime, as: "overtimes" },
+        attributes: ["id", "email", "role"],
       });
-      res.status(200).json({ data: overtime });
+      res.status(200).json({ status: "sukses", data: overtime });
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({ status: "error", data: error.message });
     }
   },
 
@@ -76,12 +77,14 @@ const overtimeController = {
         },
       });
       if (overtime) {
-        res.status(200).json({ data: overtime });
+        res.status(200).json({ status: "sukses", data: overtime });
       } else {
-        res.status(404).json({ message: "Overtime not found." });
+        res
+          .status(404)
+          .json({ status: "gagal", message: "Overtime not found." });
       }
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({ status: "error", data: error.message });
     }
   },
   findOneForEmployee: async (req, res) => {
@@ -94,58 +97,61 @@ const overtimeController = {
         },
       });
       if (overtime) {
-        res.status(200).json({ data: overtime });
+        res.status(200).json({ status: "sukses", data: overtime });
       } else {
         res.status(404).json({ message: "Overtime not found." });
       }
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).json({ status: "error", data: error.message });
     }
   },
 
   // Update a overtime
   update: async (req, res) => {
     try {
-      const { user_id, date, time_in, time_out } = req.body;
-
       // Validate request body
-      const { error } = overtimeValidator.validate({
-        user_id,
-        date,
-        time_in,
-        time_out,
-      });
+      const optionalOvertimeValidator = overtimeValidator.fork(
+        ["date", "time_in", "time_out"],
+        (schema) => schema.optional()
+      );
+      const { error, value } = optionalOvertimeValidator.validate(req.body);
+      console.log(value);
       if (error) {
-        return res.status(400).json({ error: error.details[0].message });
+        return res
+          .status(400)
+          .json({ status: "sukses", error: error.details[0].message });
       }
       const updateData = await Overtime.update(
         {
-          date,
-          time_in,
-          time_out,
-          update_time: new Date(),
-          update_id: user_id || req.user.id,
+          ...value,
+          update_time: moment()
+            .tz("Asia/Jakarta")
+            .format("YYYY-MM-DD HH:mm:ss"),
+          update_id: uuidv4(),
         },
         {
           where: {
             id: req.params.id,
-            user_id: user_id || req.user.id,
+            user_id: value.user_id,
             archived: false,
           },
         }
       );
       if (updateData[0] == 1) {
         res.status(200).json({
+          status: "sukses",
           message: "Data lembur berhasil diupdate.",
         });
       } else {
         res.status(400).json({
+          status: "sukses",
           message: `Data lembur gagal diupdate`,
         });
       }
     } catch (error) {
       res.status(500).json({
-        message: "Error updating Overtime with id=" + id,
+        status: "error",
+        message: "Error updating Overtime with id =" + req.user.id,
       });
     }
   },
@@ -177,6 +183,7 @@ const overtimeController = {
       });
     } catch (error) {
       res.status(500).json({
+        status: "error",
         message: "Could not delete Overtime with id=" + id,
       });
     }
