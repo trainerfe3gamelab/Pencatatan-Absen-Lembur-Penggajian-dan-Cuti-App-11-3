@@ -1,9 +1,10 @@
 const Joi = require("joi");
 
 const overtimeValidator = Joi.object({
-  user_id: Joi.string().optional().messages({
+  user_id: Joi.string().required().messages({
     "string.base": "user_id harus berupa teks",
     "string.empty": "user_id tidak boleh kosong",
+    "any.required": "user_id wajib diisi",
   }),
   date: Joi.string()
     .pattern(/^\d{4}-\d{2}-\d{2}$/)
