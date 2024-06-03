@@ -1,6 +1,12 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
+const { User, EmailVerification } = require("../models");
+const { Op } = require("sequelize");
+const moment = require("moment-timezone");
+const { v4: uuidv4 } = require("uuid");
+const resetPasswordValidator = require("../utils/validator/resetPasswordValidator");
+const { updateOrCreateToken } = require("../utils/resetPassword");
+const { handleFailed } = require("../utils/response");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -60,4 +66,85 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = { login, logout };
+const resetPasswordToken = async (req, res) => {
+  try {
+    //validasi data
+    const optionalresetPasswordValidator = resetPasswordValidator.fork(
+      ["token"],
+      (schema) => schema.optional()
+    );
+    const { error, value } = optionalresetPasswordValidator.validate(req.body);
+    if (error) return handleFailed(res, 400, error.details[0].message);
+    const { email } = value;
+
+    //cek apakah email terdaftar
+    const user = await User.findOne({ where: { email, archived: false } });
+    if (!user)
+      return handleFailed(res, 400, "Email tidak terdaftar pada aplikasi");
+
+    //buat dan kirim token ke email
+    const isSuccess = await updateOrCreateToken(email);
+    if (!isSuccess) throw new Error("Gagal menambahkan token ke database");
+    res.status(200).json({ status: "sukses", pesan: "Token Berhasil dikirim" });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      status: "error",
+      message: "Server error",
+    });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    //validasi data
+    const { error, value } = resetPasswordValidator.validate(req.body);
+    if (error) return handleFailed(res, 400, error.details[0].message);
+
+    //cek token didatabase
+    const now = moment.tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
+    const token = await EmailVerification.findOne({
+      where: {
+        email: value.email,
+        token: value.token,
+        archived: false,
+        used: false,
+        expired: { [Op.gte]: now },
+      },
+    });
+
+    //jika token sudah kadaluarsa atau digunakan
+    if (!token)
+      return handleFailed(res, 400, "Token Sudah Kadaluarsa atau Digunakan");
+
+    //jika token tidak kadaluarsa atau digunakan
+    await EmailVerification.update(
+      { used: true, update_time: now, update_id: uuidv4() },
+      { where: { email: value.email } }
+    );
+    const salt = await bcrypt.genSalt(10);
+    const newPassword = await bcrypt.hash(value.new_password, salt);
+    const data = await User.update(
+      { password: newPassword, update_time: now, update_id: uuidv4() },
+      { where: { email: value.email } }
+    );
+    if (data[0] == 0) {
+      return res.status(404).json({
+        status: "gagal",
+        message: "User tidak ditemukan",
+      });
+    }
+    res.status(200).json({
+      status: "sukses",
+      message: "Password berhasil diperbarui",
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({
+      status: "error",
+      message: "Server error",
+    });
+  }
+};
+
+module.exports = { login, logout, resetPasswordToken, resetPassword };
