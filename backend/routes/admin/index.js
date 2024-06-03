@@ -1,11 +1,11 @@
 const router = require("express").Router();
-const { adminMiddleware } = require("../../middleware/auth");
+const { verifyRole } = require("../../middleware/auth");
 const positionRoutes = require("./positionRoutes");
 const overtimeRoutes = require("./overtimeRoutes");
 const attendanceRoutes = require("./attendanceRoutes");
 const salaryCutRoutes = require("./salaryCutRoutes");
 
-router.use(adminMiddleware);
+router.use(verifyRole("admin"));
 router.use("/position", positionRoutes);
 router.use("/overtimes", overtimeRoutes);
 router.use("/attendances", attendanceRoutes);
