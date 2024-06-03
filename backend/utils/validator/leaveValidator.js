@@ -1,9 +1,10 @@
 const Joi = require("joi");
 
 const leaveValidator = Joi.object({
-  user_id: Joi.string().optional().messages({
+  user_id: Joi.string().required().messages({
     "string.base": "user_id harus berupa teks",
     "string.empty": "user_id tidak boleh kosong",
+    "any.required": "user_id wajib diisi",
   }),
   type: Joi.string().valid("sakit", "izin").required().messages({
     "string.base": "type harus berupa teks",
