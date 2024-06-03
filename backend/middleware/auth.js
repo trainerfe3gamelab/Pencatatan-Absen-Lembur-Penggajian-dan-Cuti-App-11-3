@@ -31,20 +31,16 @@ const verifyTokenMiddleware = async (req, res, next) => {
 const verifyRole = (role) => {
   return (req, res, next) => {
     if (!req.user) {
-      return res
-        .status(401)
-        .send({
-          status: "failed",
-          error: "Akses ditolak. Token tidak ditemukan",
-        });
+      return res.status(401).send({
+        status: "failed",
+        error: "Akses ditolak. Token tidak ditemukan",
+      });
     } else {
       if (req.user.role != role) {
-        return res
-          .status(403)
-          .send({
-            status: "failed",
-            error: `Akses ditolak. Role anda bukam ${role}`,
-          });
+        return res.status(403).send({
+          status: "failed",
+          error: `Akses ditolak. Role anda bukam ${role}`,
+        });
       } else {
         next();
       }
