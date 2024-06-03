@@ -88,11 +88,17 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = function (models) {
     User.belongsTo(models.Position, { foreignKey: "position_id" });
-    User.hasMany(models.Attendance, { foreignKey: "user_id" });
-    User.hasMany(models.Leave, { foreignKey: "user_id" });
+    User.hasMany(models.Attendance, {
+      foreignKey: "user_id",
+      as: "attendances",
+    });
+    User.hasMany(models.Leave, { foreignKey: "user_id", as: "leaves" });
     User.hasMany(models.Overtime, { foreignKey: "user_id", as: "overtimes" });
-    User.hasMany(models.Wage, { foreignKey: "user_id" });
-    User.hasMany(models.EmailVerification, { foreignKey: "email" });
+    User.hasMany(models.Wage, { foreignKey: "user_id", as: "wages" });
+    User.hasMany(models.EmailVerification, {
+      foreignKey: "email",
+      as: "emailverifications",
+    });
   };
 
   User.beforeCreate(async (user, options) => {
