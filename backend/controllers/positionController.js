@@ -1,6 +1,6 @@
 const { Position } = require("../models"); // Adjust the path as necessary to your models' index.js
 const positionValidator = require("../utils/validator/positionValidator");
-const moment = require("moment");
+const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
 
 const positionController = {
@@ -15,13 +15,13 @@ const positionController = {
         });
       }
 
-      const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
+      const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const data = await Position.create({
         ...value,
         creation_time: now,
         update_time: now,
-        create_id: req.user.id,
-        update_id: req.user.id,
+        create_id: uuidv4(),
+        update_id: uuidv4(),
       });
       res.status(201).json({
         status: "sukses",
@@ -102,8 +102,10 @@ const positionController = {
       const data = await Position.update(
         {
           ...value,
-          update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
-          update_id: req.user.id,
+          update_time: moment()
+            .tz("Asia/Jakarta")
+            .format("YYYY-MM-DD HH:mm:ss"),
+          update_id: uuidv4(),
         },
         {
           where: {

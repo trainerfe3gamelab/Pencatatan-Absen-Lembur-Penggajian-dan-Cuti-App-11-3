@@ -1,6 +1,7 @@
 const { SalaryCut } = require("../models"); // Adjust the path as necessary to your models' index.js
 const salaryCutValidator = require("../utils/validator/salaryCutValidator");
-const moment = require("moment");
+const moment = require("moment-timezone");
+const { v4: uuidv4 } = require("uuid");
 const { handleFailed } = require("../utils/response");
 
 const salaryCutController = {
@@ -10,13 +11,13 @@ const salaryCutController = {
       const { error, value } = salaryCutValidator.validate(req.body);
       if (error) return handleFailed(res, 400, error.details[0].message);
 
-      const now = moment().locale("id").format("YYYY-MM-DD HH:mm:ss");
+      const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const data = await SalaryCut.create({
         ...value,
         creation_time: now,
         update_time: now,
-        create_id: req.user.id,
-        update_id: req.user.id,
+        create_id: uuidv4(),
+        update_id: uuidv4(),
       });
       res.status(201).json({
         status: "sukses",
@@ -82,8 +83,10 @@ const salaryCutController = {
       const data = await SalaryCut.update(
         {
           ...value,
-          update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
-          update_id: req.user.id,
+          update_time: moment()
+            .tz("Asia/Jakarta")
+            .format("YYYY-MM-DD HH:mm:ss"),
+          update_id: uuidv4(),
         },
         {
           where: {
