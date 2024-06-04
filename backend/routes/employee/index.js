@@ -3,10 +3,12 @@ const { verifyRole } = require("../../middleware/auth");
 const attendanceRoutes = require("./attendanceRoutes");
 const overtimeRoutes = require("./overtimeRoutes");
 const leaveRoutes = require("./leaveRoutes");
+const attendanceTimeRoutes = require("./attendanceTimeRoutes");
 
 router.use(verifyRole("employee"));
 router.use("/attendances", attendanceRoutes);
 router.use("/overtimes", overtimeRoutes);
 router.use("/leaves", leaveRoutes);
+router.use("/attendance-times", attendanceTimeRoutes);
 
 module.exports = router;
