@@ -1,4 +1,3 @@
-const { where } = require("sequelize");
 const { Overtime, User } = require("../models");
 const overtimeValidator = require("../utils/validator/overtimeValidator");
 const moment = require("moment-timezone");
