@@ -1,14 +1,10 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
+const { handleFailed } = require("../utils/response");
 
 const verifyTokenMiddleware = async (req, res, next) => {
   const authorization = req.header("Authorization");
-  if (!authorization) {
-    return res.status(401).send({
-      status: "failed",
-      error: "Akses ditolak. Token tidak ditemukan",
-    });
-  }
+  if (!authorization)
+    return handleFailed(res, 401, "Akses ditolak. Token tidak ditemukan");
 
   const token = authorization.replace("Bearer ", "");
   try {
@@ -19,32 +15,21 @@ const verifyTokenMiddleware = async (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    if (error.message === "jwt malformed") {
-      return res
-        .status(400)
-        .send({ status: "failed", error: "Akses ditolak." });
-    }
-    res.status(400).send({ status: "failed", error: error.message });
+    if (error.message === "jwt malformed")
+      return handleFailed(res, 400, "Akses ditolak");
+    handleFailed(res, 400, error.message);
   }
 };
 
 const verifyRole = (role) => {
   return (req, res, next) => {
-    if (!req.user) {
-      return res.status(401).send({
-        status: "failed",
-        error: "Akses ditolak. Token tidak ditemukan",
-      });
-    } else {
-      if (req.user.role != role) {
-        return res.status(403).send({
-          status: "failed",
-          error: `Akses ditolak. Role anda bukam ${role}`,
-        });
-      } else {
-        next();
-      }
-    }
+    if (!req.user)
+      return handleFailed(res, 401, "Akses ditolak. Token tidak ditemukan");
+
+    if (req.user.role != role)
+      return handleFailed(res, 403, `Akses ditolak. Role anda bukan ${role}`);
+
+    next();
   };
 };
 
