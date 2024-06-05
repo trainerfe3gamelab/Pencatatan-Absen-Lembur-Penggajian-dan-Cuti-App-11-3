@@ -56,10 +56,6 @@ module.exports = {
         },
         allowNull: false,
       },
-      token: {
-        type: Sequelize.STRING,
-        allowNull: true,
-      },
       archived: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
