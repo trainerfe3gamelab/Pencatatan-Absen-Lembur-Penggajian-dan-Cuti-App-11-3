@@ -8,10 +8,13 @@ const app = express();
 
 // Middleware
 app.use(cors({ origin: "*" }));
-app.use(express.json({ extended: false }));
-app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  "/uploads/users",
+  express.static(path.join(__dirname, "public/uploads/users"))
+);
+app.use("/img", express.static(path.join(__dirname, "public/img")));
 
 app.use("/api", index);
 
