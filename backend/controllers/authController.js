@@ -15,10 +15,11 @@ const login = async (req, res) => {
 
   try {
     const user = await User.findOne({ where: { email: value.email } });
-    if (!user) return handleFailed(res, 400, error.details[0].message);
+    if (!user) return handleFailed(res, 400, "Email atau password salah");
 
     const validPassword = await bcrypt.compare(value.password, user.password);
-    if (!validPassword) return handleFailed(res, 400, error.details[0].message);
+    if (!validPassword)
+      return handleFailed(res, 400, "Email atau password salah");
 
     const token = jwt.sign(
       { id: user.id, role: user.role },
@@ -68,7 +69,6 @@ const resetPasswordToken = async (req, res) => {
     res.status(200).json({ status: "sukses", pesan: "Token Berhasil dikirim" });
   } catch (error) {
     console.log(error.message);
-    console.log(error.message);
     handleError(res, 500, "Terjadi error pada server");
   }
 };
@@ -96,16 +96,16 @@ const resetPassword = async (req, res) => {
       return handleFailed(res, 400, "Token Sudah Kadaluarsa atau Digunakan");
 
     //jika token tidak kadaluarsa atau digunakan
+    const data = await User.update(
+      { password: value.new_password, update_time: now, update_id: uuidv4() },
+      { where: { email: value.email }, individualHooks: true }
+    );
+
     await EmailVerification.update(
       { used: true, update_time: now, update_id: uuidv4() },
       { where: { email: value.email } }
     );
-    const salt = await bcrypt.genSalt(10);
-    const newPassword = await bcrypt.hash(value.new_password, salt);
-    const data = await User.update(
-      { password: newPassword, update_time: now, update_id: uuidv4() },
-      { where: { email: value.email } }
-    );
+
     if (data[0] == 0) return handleFailed(res, 404, "User tidak ditemukan");
     res.status(200).json({
       status: "sukses",
