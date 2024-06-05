@@ -1,4 +1,4 @@
-const bcrypt = require("bcrypt");
+const { hash } = require("../utils/bcrypt");
 
 module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
@@ -55,10 +55,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         allowNull: false,
       },
-      token: {
-        type: DataTypes.STRING,
-        allowNull: true,
-      },
       archived: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -102,8 +98,13 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.beforeCreate(async (user, options) => {
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(user.password, salt);
+    user.password = await hash(user.password);
+  });
+
+  User.beforeUpdate(async (user, options) => {
+    if (user.changed("password")) {
+      user.password = await hash(user.password);
+    }
   });
 
   return User;
