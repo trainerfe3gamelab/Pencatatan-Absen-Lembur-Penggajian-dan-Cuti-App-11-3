@@ -7,6 +7,7 @@ const salaryCutRoutes = require("./salaryCutRoutes");
 const leaveRoutes = require("./leaveRoutes");
 const attendanceTimeRoutes = require("./attendanceTimeRoutes");
 const holidayRoutes = require("./holidayRoutes");
+const userRoutes = require("./userRoutes");
 
 router.use(verifyRole("admin"));
 router.use("/position", positionRoutes);
@@ -16,5 +17,6 @@ router.use("/salarycuts", salaryCutRoutes);
 router.use("/leaves", leaveRoutes);
 router.use("/attendance-times", attendanceTimeRoutes);
 router.use("/holidays", holidayRoutes);
+router.use("/users", userRoutes);
 
 module.exports = router;
