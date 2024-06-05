@@ -8,10 +8,7 @@ const verifyTokenMiddleware = async (req, res, next) => {
 
   const token = authorization.replace("Bearer ", "");
   try {
-    const decoded = jwt.verify(
-      token,
-      "et1kAtkQ5eiVzpR6S9QwrSH0ZrJ0zyXioR8gcEES"
-    );
+    const decoded = jwt.verify(token, process.env.JWTSECRET);
     req.user = decoded;
     next();
   } catch (error) {
