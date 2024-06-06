@@ -56,6 +56,12 @@ const MobileSidebar = () => {
                     <NavDropdown.Item href="#action5" onClick={() => navigate('/admin/Potongan')}>
                       Potongan Gaji
                     </NavDropdown.Item>
+                    <NavDropdown.Item href="#action5" onClick={() => navigate('/admin/Waktu')}>
+                      Waktu Absensi
+                    </NavDropdown.Item>
+                    <NavDropdown.Item href="#action5" onClick={() => navigate('/admin/Hari')}>
+                      Hari Libur
+                    </NavDropdown.Item>
                   </NavDropdown>
                   <Nav.Link href="#action1" onClick={() => navigate('/admin/Absensi')}>
                     <p className="link_name fs-2 "> <i className='bx bxs-user-check me-3'></i> Absensi</p>
