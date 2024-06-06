@@ -75,6 +75,20 @@ const Sidebar = ({ isOpen }) => {
                 </Link>
               </div>
             </li>
+            <li>
+              <div className="bg-down">
+              <Link to="/admin/Waktu">
+                <span href="#" className="klik-down" style={{ paddingLeft: '10px' }}>Waktu Absensi</span>
+                </Link>
+              </div>
+            </li>
+            <li>
+              <div className="bg-down">
+              <Link to="/admin/Hari">
+                <span href="#" className="klik-down" style={{ paddingLeft: '10px' }}>Hari Libur</span>
+                </Link>
+              </div>
+            </li>
           </ul>
         </li>
 
