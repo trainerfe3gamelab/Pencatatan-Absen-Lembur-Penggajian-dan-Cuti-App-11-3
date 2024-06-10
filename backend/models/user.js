@@ -44,8 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       profile_picture: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue:
-          "https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png",
+        defaultValue: "img/default-profile-picture.png",
       },
       position_id: {
         type: DataTypes.UUID,
@@ -83,7 +82,10 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = function (models) {
-    User.belongsTo(models.Position, { foreignKey: "position_id" });
+    User.belongsTo(models.Position, {
+      foreignKey: "position_id",
+      as: "position",
+    });
     User.hasMany(models.Attendance, {
       foreignKey: "user_id",
       as: "attendances",
@@ -91,6 +93,10 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.Leave, { foreignKey: "user_id", as: "leaves" });
     User.hasMany(models.Overtime, { foreignKey: "user_id", as: "overtimes" });
     User.hasMany(models.Wage, { foreignKey: "user_id", as: "wages" });
+    User.hasMany(models.AttendanceReport, {
+      foreignKey: "user_id",
+      as: "attendance_reports",
+    });
     User.hasMany(models.EmailVerification, {
       foreignKey: "email",
       as: "emailverifications",
