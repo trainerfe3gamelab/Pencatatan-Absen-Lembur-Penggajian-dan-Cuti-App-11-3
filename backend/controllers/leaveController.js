@@ -8,7 +8,10 @@ const leaveController = {
   // Create a new leave
   create: async (req, res) => {
     // Validate request body
-    const { error, value } = leaveValidator.validate(req.body);
+    const optionalLeaveValidator = leaveValidator.fork(["status"], (schema) =>
+      schema.forbidden()
+    );
+    const { error, value } = optionalLeaveValidator.validate(req.body);
     if (error) return handleFailed(res, 400, error.details[0].message);
 
     // Check if the user exists
@@ -30,6 +33,7 @@ const leaveController = {
       const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       await Leave.create({
         ...value,
+        status: "diproses",
         creation_time: now,
         create_id: uuidv4(),
         update_time: now,
@@ -49,6 +53,13 @@ const leaveController = {
     try {
       const leave = await Leave.findAll({
         where: { archived: false },
+        include: {
+          model: User,
+          as: "user",
+          where: { archived: false },
+          required: false,
+          attributes: ["name"],
+        },
       });
       res.status(200).json({ status: "sukses", data: leave });
     } catch (error) {
@@ -60,8 +71,13 @@ const leaveController = {
   findAllForEmployee: async (req, res) => {
     try {
       const leave = await User.findOne({
-        where: { id: req.user.id },
-        include: { model: Leave, as: "leaves" },
+        where: { id: req.user.id, archived: false },
+        include: {
+          model: Leave,
+          as: "leaves",
+          where: { archived: false },
+          required: false,
+        },
         attributes: ["id", "email", "role"],
       });
       res.status(200).json({ status: "sukses", data: leave });
@@ -78,6 +94,13 @@ const leaveController = {
         where: {
           id: req.params.id,
           archived: false,
+        },
+        include: {
+          model: User,
+          as: "user",
+          where: { archived: false },
+          required: false,
+          attributes: ["name"],
         },
       });
       if (leave) {
@@ -116,7 +139,7 @@ const leaveController = {
     try {
       // Validate request body
       const optionalLeaveValidator = leaveValidator.fork(
-        ["type", "reasoning", "start_date", "end_date"],
+        ["status", "type", "reasoning", "start_date", "end_date"],
         (schema) => schema.optional()
       );
       const { error, value } = optionalLeaveValidator.validate(req.body);
