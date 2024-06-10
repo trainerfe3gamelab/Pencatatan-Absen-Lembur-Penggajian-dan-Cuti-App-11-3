@@ -1,6 +1,8 @@
 const multer = require("multer");
 const moment = require("moment");
-const { handleFailed, handleError } = require("../utils/response");
+const fs = require("fs");
+const path = require("path");
+const { handleFailed } = require("../utils/response");
 
 function getCurrentDateTime() {
   return moment().format("YYYYMMDDHHmmss");
@@ -8,7 +10,7 @@ function getCurrentDateTime() {
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/uploads/users");
+    cb(null, "public/uploads/temp");
   },
   filename: (req, file, cb) => {
     const dateTime = getCurrentDateTime();
@@ -19,16 +21,11 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-  if (
-    file.mimetype == "image/png" ||
-    file.mimetype == "image/jpg" ||
-    file.mimetype == "image/jpeg"
-  ) {
-    file.isimage = true;
+  const allowedTypes = ["image/png", "image/jpg", "image/jpeg"];
+  if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    file.isimage = false;
-    cb(null, true);
+    cb(new Error("hanya menerima file berformat .png, .jpg dan .jpeg"), false);
   }
 };
 
@@ -39,7 +36,7 @@ const multerHandleError = (err, req, res, next) => {
     }
   } else if (err) {
     console.log(err.message);
-    return handleFailed(res, 500, "Terjadi error pada server");
+    return handleFailed(res, 400, err.message);
   }
   next();
 };

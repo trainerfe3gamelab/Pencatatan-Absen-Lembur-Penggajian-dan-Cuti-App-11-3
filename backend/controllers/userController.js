@@ -1,21 +1,45 @@
-const { User } = require("../models"); // Adjust the path as necessary to your models' index.js
+const { User, Position } = require("../models");
 const userValidator = require("../utils/validator/userValidator");
 const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
-const { handleFailed, handleError } = require("../utils/response");
+const { moveFile, deleteTempFile } = require("../middleware/fileHandler");
+const { Op } = require("sequelize");
+const fs = require("fs");
 const path = require("path");
+const { handleFailed, handleError } = require("../utils/response");
+
+const deleteFile = (filePath) => {
+  if (
+    fs.existsSync(filePath) &&
+    !filePath.includes("default-profile-picture.png")
+  ) {
+    fs.unlinkSync(filePath);
+  }
+};
 
 const userController = {
-  // Create a new user
   create: async (req, res) => {
     try {
-      const user = await User.findOne({
-        where: { email: req.body.email },
-      });
-      if (user) return handleFailed(res, 404, "User sudah terdaftar");
+      const user = await User.findOne({ where: { email: req.body.email } });
+      if (user) {
+        deleteTempFile(req);
+        return handleFailed(res, 404, "User sudah terdaftar");
+      }
 
       const { error, value } = userValidator.validate(req.body);
-      if (error) return handleFailed(res, 400, error.details[0].message);
+      if (error) {
+        deleteTempFile(req);
+        return handleFailed(res, 400, error.details[0].message);
+      }
+
+      // Check if position_id exists in the Position table
+      const position = await Position.findOne({
+        where: { id: value.position_id, archived: false },
+      });
+      if (!position) {
+        deleteTempFile(req);
+        return handleFailed(res, 400, "Position tidak ditemukan");
+      }
 
       if (req.file)
         value.profile_picture = `uploads/users/${req.file.filename}`;
@@ -28,17 +52,21 @@ const userController = {
         create_id: uuidv4(),
         update_id: uuidv4(),
       });
-      res.status(201).json({
-        status: "sukses",
-        data: data,
+
+      // Move file to final destination if successful
+      moveFile(req, res, () => {
+        res.status(201).json({
+          status: "sukses",
+          data: data,
+        });
       });
     } catch (error) {
+      deleteTempFile(req);
       console.log(error.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
 
-  // Retrieve all users
   findAll: async (req, res) => {
     try {
       const data = await User.findAll({
@@ -55,7 +83,6 @@ const userController = {
     }
   },
 
-  // Retrieve a single user by ID
   findOne: async (req, res) => {
     try {
       const data = await User.findOne({
@@ -74,10 +101,9 @@ const userController = {
     }
   },
 
-  // Update a user
   update: async (req, res) => {
     try {
-      const optionaluserValidator = userValidator.fork(
+      const optionalUserValidator = userValidator.fork(
         [
           "email",
           "password",
@@ -90,12 +116,54 @@ const userController = {
         ],
         (schema) => schema.optional()
       );
-      const { error, value } = optionaluserValidator.validate(req.body);
-      if (error) return handleFailed(res, 400, error.details[0].message);
+      const { error, value } = optionalUserValidator.validate(req.body);
+      if (error) {
+        deleteTempFile(req);
+        return handleFailed(res, 400, error.details[0].message);
+      }
 
-      if (req.file)
+      // Check if email is already used by another user
+      if (value.email) {
+        const emailUser = await User.findOne({
+          where: {
+            email: value.email,
+            id: { [Op.ne]: req.params.id },
+          },
+        });
+        if (emailUser) {
+          deleteTempFile(req);
+          return handleFailed(
+            res,
+            400,
+            "Email sudah dipakai oleh pengguna lain"
+          );
+        }
+      }
+
+      // Check if position_id exists in the Position table
+      if (value.position_id) {
+        const position = await Position.findOne({
+          where: { id: value.position_id, archived: false },
+        });
+        if (!position) {
+          deleteTempFile(req);
+          return handleFailed(res, 400, "Position tidak ditemukan");
+        }
+      }
+
+      const user = await User.findOne({ where: { id: req.params.id } });
+      if (req.file) {
+        const oldImagePath = path.join(
+          __dirname,
+          "../public/",
+          user.profile_picture
+        );
+        if (user.profile_picture !== "img/default-profile-picture.png") {
+          deleteFile(oldImagePath);
+        }
         value.profile_picture = `uploads/users/${req.file.filename}`;
-      console.log(req.user.role);
+      }
+
       const data = await User.update(
         {
           ...value,
@@ -113,21 +181,31 @@ const userController = {
           individualHooks: true,
         }
       );
-      if (data[0] == 0) return handleFailed(res, 400, "Gagal memperbarui User");
+      if (data[0] == 0) {
+        deleteTempFile(req);
+        return handleFailed(res, 400, "Gagal memperbarui User");
+      }
 
-      res.status(200).json({
-        status: "sukses",
-        message: "User berhasil diperbarui",
+      moveFile(req, res, () => {
+        res.status(200).json({
+          status: "sukses",
+          message: "User berhasil diperbarui",
+        });
       });
     } catch (error) {
+      deleteTempFile(req);
       console.log(error.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
 
-  // Delete a user
   delete: async (req, res) => {
     try {
+      const user = await User.findOne({
+        where: { id: req.params.id, archived: false },
+      });
+      if (!user) return handleFailed(res, 400, "User tidak ditemukan");
+
       const data = await User.update(
         {
           archived: true,
@@ -139,7 +217,17 @@ const userController = {
           },
         }
       );
+
       if (data[0] == 0) return handleFailed(res, 400, "Gagal memperbarui User");
+
+      const oldImagePath = path.join(
+        __dirname,
+        "../public/",
+        user.profile_picture
+      );
+      if (user.profile_picture !== "img/default-profile-picture.png") {
+        deleteFile(oldImagePath);
+      }
 
       res.status(200).json({
         status: "sukses",
