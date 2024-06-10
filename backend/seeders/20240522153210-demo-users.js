@@ -16,8 +16,7 @@ module.exports = {
         name: "John Doe",
         address: "123 Main St",
         phone_number: "1234567890",
-        profile_picture:
-          "https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png",
+        profile_picture: "img/default-profile-picture.png",
         position_id: "tes",
         creation_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
         update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
@@ -32,8 +31,7 @@ module.exports = {
         name: "Toni",
         address: "123 Main St",
         phone_number: "12345678",
-        profile_picture:
-          "https://static-00.iconduck.com/assets.00/profile-circle-icon-2048x2048-cqe5466q.png",
+        profile_picture: "img/default-profile-picture.png",
         position_id: "tes1",
         creation_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
         update_time: moment().locale("id").format("YYYY-MM-DD HH:mm:ss"),
