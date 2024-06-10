@@ -18,10 +18,7 @@ const userController = {
       if (error) return handleFailed(res, 400, error.details[0].message);
 
       if (req.file)
-        value.profile_picture = path.join(
-          req.get("host"),
-          `uploads/users/${req.file.filename}`
-        );
+        value.profile_picture = `uploads/users/${req.file.filename}`;
 
       const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const data = await User.create({
@@ -75,7 +72,6 @@ const userController = {
 
   // Update a user
   update: async (req, res) => {
-    console.log(req.user);
     try {
       const optionaluserValidator = userValidator.fork(
         [
@@ -94,14 +90,12 @@ const userController = {
       if (error) return handleFailed(res, 400, error.details[0].message);
 
       if (req.file)
-        value.profile_picture = path.join(
-          req.get("host"),
-          `uploads/users/${req.file.filename}`
-        );
-
+        value.profile_picture = `uploads/users/${req.file.filename}`;
+      console.log(req.user.role);
       const data = await User.update(
         {
           ...value,
+          role: req.user.role == "employee" ? req.user.role : value.role,
           update_time: moment()
             .tz("Asia/Jakarta")
             .format("YYYY-MM-DD HH:mm:ss"),
