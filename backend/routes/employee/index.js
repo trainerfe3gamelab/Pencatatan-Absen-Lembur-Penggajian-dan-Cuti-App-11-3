@@ -5,6 +5,8 @@ const overtimeRoutes = require("./overtimeRoutes");
 const leaveRoutes = require("./leaveRoutes");
 const attendanceTimeRoutes = require("./attendanceTimeRoutes");
 const userRoutes = require("./userRoutes");
+const wageRoutes = require("./wageRoutes");
+const attendanceReportRoutes = require("./attendanceReportRoutes");
 
 router.use(verifyRole("employee"));
 router.use("/attendances", attendanceRoutes);
@@ -12,5 +14,7 @@ router.use("/overtimes", overtimeRoutes);
 router.use("/leaves", leaveRoutes);
 router.use("/attendance-times", attendanceTimeRoutes);
 router.use("/users", userRoutes);
+router.use("/wages", wageRoutes);
+router.use("/attendance-reports", attendanceReportRoutes);
 
 module.exports = router;
