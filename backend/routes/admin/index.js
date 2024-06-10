@@ -8,9 +8,11 @@ const leaveRoutes = require("./leaveRoutes");
 const attendanceTimeRoutes = require("./attendanceTimeRoutes");
 const holidayRoutes = require("./holidayRoutes");
 const userRoutes = require("./userRoutes");
+const wageRoutes = require("./wageRoutes");
+const attendanceReportRoutes = require("./attendanceReportRoutes");
 
 router.use(verifyRole("admin"));
-router.use("/position", positionRoutes);
+router.use("/positions", positionRoutes);
 router.use("/overtimes", overtimeRoutes);
 router.use("/attendances", attendanceRoutes);
 router.use("/salarycuts", salaryCutRoutes);
@@ -18,5 +20,7 @@ router.use("/leaves", leaveRoutes);
 router.use("/attendance-times", attendanceTimeRoutes);
 router.use("/holidays", holidayRoutes);
 router.use("/users", userRoutes);
+router.use("/wages", wageRoutes);
+router.use("/attendance-reports", attendanceReportRoutes);
 
 module.exports = router;
