@@ -217,12 +217,14 @@ const attendanceController = {
   // Update a attendance
   update: async (req, res) => {
     try {
-      const optionalattendanceValidator = attendanceValidator.fork(
+      const optionalAttendanceValidator = attendanceValidator.fork(
         ["user_id", "date", "time_in", "time_out", "status"],
         (schema) => schema.optional()
       );
-      const { error, value } = optionalattendanceValidator.validate(req.body);
-      if (error) return handleFailed(res, 400, error.details[0].message);
+
+      const { error, value } = optionalAttendanceValidator.validate(req.body);
+      if (error) return handleFailed(res, 400, error?.details[0]?.message);
+
       const data = await Attendance.update(
         {
           ...value,
@@ -236,7 +238,12 @@ const attendanceController = {
           },
         }
       );
-      if (data[0] == 0) return handleFailed(res, 400, error.details[0].message);
+
+      if (data[0] == 0)
+        return res.status(404).json({
+          status: "gagal",
+          message: "Data presensi tidak ditemukan",
+        });
 
       res.status(200).json({
         status: "sukses",
