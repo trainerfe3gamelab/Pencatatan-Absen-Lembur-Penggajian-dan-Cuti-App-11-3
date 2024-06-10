@@ -127,7 +127,7 @@ const userController = {
         const emailUser = await User.findOne({
           where: {
             email: value.email,
-            id: { [Op.ne]: req.params.id },
+            id: { [Op.ne]: req?.params?.id || req.user.id },
           },
         });
         if (emailUser) {
@@ -151,7 +151,9 @@ const userController = {
         }
       }
 
-      const user = await User.findOne({ where: { id: req.params.id } });
+      const user = await User.findOne({
+        where: { id: req?.params?.id || req.user.id },
+      });
       if (req.file) {
         const oldImagePath = path.join(
           __dirname,
