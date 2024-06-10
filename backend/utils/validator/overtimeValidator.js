@@ -36,6 +36,16 @@ const overtimeValidator = Joi.object({
       "string.empty": "time_out tidak boleh kosong",
       "any.required": "time_out wajib diisi",
     }),
+  status: Joi.string()
+    .valid("diproses", "ditolak", "disetujui")
+    .required()
+    .messages({
+      "string.base": "status harus berupa teks",
+      "any.only":
+        "status harus berupa salah satu dari 'diproses', 'ditolak', 'disetujui'",
+      "string.empty": "status tidak boleh kosong",
+      "any.required": "status wajib diisi",
+    }),
 });
 
 module.exports = overtimeValidator;
