@@ -161,8 +161,13 @@ const attendanceController = {
   findAllForEmployee: async (req, res) => {
     try {
       const attendance = await User.findOne({
-        where: { id: req.user.id },
-        include: { model: Attendance, as: "attendances" },
+        where: { id: req.user.id, archived: false },
+        include: {
+          model: Attendance,
+          as: "attendances",
+          where: { archived: false },
+          required: false,
+        },
         attributes: ["id", "email", "role"],
       });
       res.status(200).json({ status: "sukses", data: attendance });
