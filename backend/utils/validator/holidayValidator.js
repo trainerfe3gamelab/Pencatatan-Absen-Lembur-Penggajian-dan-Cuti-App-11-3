@@ -1,6 +1,6 @@
 const Joi = require("joi");
 
-const attendancedateValidator = Joi.object({
+const holidayValidator = Joi.object({
   name: Joi.string().required().messages({
     "string.base": "name  harus berupa teks",
     "string.empty": "name  tidak boleh kosong",
@@ -28,4 +28,4 @@ const attendancedateValidator = Joi.object({
     }),
 });
 
-module.exports = attendancedateValidator;
+module.exports = holidayValidator;
