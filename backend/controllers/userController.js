@@ -41,7 +41,10 @@ const userController = {
   // Retrieve all users
   findAll: async (req, res) => {
     try {
-      const data = await User.findAll({ where: { archived: false } });
+      const data = await User.findAll({
+        where: { archived: false },
+        attributes: { exclude: ["password"] },
+      });
       res.status(200).json({
         status: "sukses",
         data: data,
@@ -57,6 +60,7 @@ const userController = {
     try {
       const data = await User.findOne({
         where: { archived: false, id: req.params.id },
+        attributes: { exclude: ["password"] },
       });
       if (data == null) return handleFailed(res, 404, "User tidak ditemukan");
 
