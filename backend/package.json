@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "pm2 start index.js",
+    "stop": "pm2 stop index.js",
+    "delete": "pm2 delete index.js"
   },
   "author": "",
   "license": "ISC",
@@ -29,6 +32,8 @@
     "nodemailer": "^6.9.13",
     "sequelize": "^6.37.0",
     "sequelize-cli": "^6.6.2",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1",
     "uuid": "^9.0.1"
   }
 }
