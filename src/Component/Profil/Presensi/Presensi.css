@@ -1,5 +1,5 @@
 .card-presensi {
-  width: 845px; /* Mengatur lebar kartu */
+  width: 860px; /* Mengatur lebar kartu */
   margin-left: 350px;
   height: 100px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Menambahkan bayangan untuk memberikan efek tiga dimensi */
@@ -9,7 +9,7 @@
   flex-direction: column; /* Menyusun elemen anak secara vertikal */
   justify-content: space-between; /* Menyelaraskan konten secara vertikal ke tengah */
   position: relative; /* Mengatur posisi relatif untuk penggunaan properti top */
-  top: -445px; /* Mengatur posisi kartu naik sedikit */
+  top: -540px; /* Mengatur posisi kartu naik sedikit */
 }
 
 .card-body {
@@ -68,6 +68,38 @@
 .button:hover {
   background: #d9d9d9;
   color: #004E5E;
+}
+
+@media(max-width: 640px){
+  .card-presensi{
+    top: -280px;
+    right: 20.5rem;
+    height: 3rem;
+    width: 18rem;
+    position: relative;
+  }
+  .card-text{
+    top: -0.7rem;
+    font-size: 7px;
+    left: -28px;
+    position: absolute;
+  }
+  .card-text span{
+    font-size: 11px;
+  }
+  .card-button h6{
+    position: absolute;
+    left: 11rem;
+    top: 0.5rem;
+    font-size: 7px;
+  }
+  .card-button .button{
+    font-size: 7px;
+    font-weight: 500;
+    position: relative;
+    left: 7.8rem;
+    bottom: 1.5rem;
+  }
 }
 
 

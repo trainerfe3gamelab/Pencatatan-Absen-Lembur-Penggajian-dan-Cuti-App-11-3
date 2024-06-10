@@ -42,7 +42,7 @@
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  height: 100vh;
   padding: 20px;
   position: relative; /* Position relative to allow positioning of the overlay */
 }
@@ -64,6 +64,21 @@
   height: auto;
   margin: 10px;
 }
+
+
+.card-navbar {
+  position: absolute;
+  top: 230px;
+  left: 350px; /* Sesuaikan margin kiri agar sama dengan .card-presensi */
+  width: 860px !important; /* Sesuaikan lebar agar sama dengan .card-presensi */
+  height: 54%;
+  background-color: white; /* Tambahkan ini jika ingin memiliki latar belakang */
+  z-index: 2; /* Pastikan card-navbar berada di atas overlay */
+  border-radius: 5px; /* Sesuaikan dengan .card-presensi jika diperlukan */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Menambahkan bayangan agar konsisten dengan .card-presensi */
+}
+
+
 
 /* Media Queries for Responsive Design */
 
@@ -149,7 +164,7 @@
 }
 
 /* Mobile Devices */
-@media (max-width: 599px) {
+@media (max-width: 640px) {
   .user-container {
     flex-direction: column;
   }
@@ -179,6 +194,19 @@
     bottom: 60vh;
     right: 30vw;
   }
+  .header .logo{
+    width: 8rem;
+    height: 20%;
+  }
+  .card-navbar{
+    position: absolute;
+    width: 280px !important;
+    height: 27%;
+    left: 1.7rem;
+    top: 26.5rem;
+
+  }
+  
 }
 
 .header {
@@ -215,3 +243,21 @@
   margin-left: 15px;
   color: black;
 }
+
+.content {
+  display: flex;
+  /* justify-content: center; Pusatkan card secara horizontal */
+  /* align-items: center; Pusatkan card secara vertikal */
+  margin-top: -478px; 
+  margin-left: 350px;
+  height: 55%; /* Atur tinggi card */
+}
+
+.card-navbar{
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tambahkan bayangan pada card */
+  border-radius: 10px; /* Buat sudut card menjadi melengkung */
+  padding: 20px; /* Tambahkan padding pada card */
+  width: 98%;
+}
+

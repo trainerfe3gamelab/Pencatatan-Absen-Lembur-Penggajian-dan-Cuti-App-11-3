@@ -1,0 +1,49 @@
+/* Tambahkan ini ke file CSS Anda, misalnya App.css */
+.btn-printer {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.btn-printer .bi-printer {
+    font-size: 1.5em; /* Sesuaikan ukuran ikon sesuai keinginan Anda */
+    background: linear-gradient(135deg, #0CAD7F, #5AC9C3);
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.btn-printer:hover .bi-printer,
+.btn-printer:focus .bi-printer {
+    background: #D9D9D9;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+.btn-printer:active .bi-printer {
+    background: #D9D9D9;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+@media (max-width: 768px) {
+    .table-container {
+      overflow-x: auto;
+      max-height: 75px; /* Height for mobile views */
+    }
+  
+    table {
+      width: 100%;
+    }
+  
+    .rdt_TableHeader,
+    .rdt_TableBody {
+      width: 100%;
+    }
+    
+    .btn.btn-filter {
+        font-size: 8px; /* Mengurangi ukuran font */
+        padding: 1px 6px; /* Mengurangi padding */
+        position: relative;
+        bottom: 10px;
+      }
+  }

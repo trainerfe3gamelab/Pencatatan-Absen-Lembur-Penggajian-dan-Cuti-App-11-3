@@ -7,6 +7,7 @@ import logo from '../Image/Logo (2).png'; // Tambahkan path logo di sini
 import '../App.css'; // Import file CSS
 import Profil from '../Component/Profil/Profil';
 import Presensi from '../Component/Profil/Presensi/Presensi';
+import Navbar from '../Component/Profil/Navbar/Navbar';
 
 
 const User = () => {
@@ -15,11 +16,16 @@ const User = () => {
       <div className="overlay">
         <header className="header">
           <img src={logo} alt="Logo" className="logo" />
-          <div className="header-overlay right"><span>Kanan</span></div>
+          <div className="header-overlay right"><span>Ahmad</span></div>
         </header>
         <Profil/>
-        <div className="top-content">
+       
           <Presensi/>
+       
+        <div className="content">
+          <div className="card-navbar">
+            <Navbar/>
+          </div>
         </div>
       </div>
       <img src={rect146} alt="Rectangle 146" className="image-rect146" />
