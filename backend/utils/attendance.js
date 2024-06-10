@@ -88,7 +88,6 @@ const handleAttendanceCheck = async (type, currentTime, currentDate) => {
 
   const { start_time, end_time } = attendanceTime;
   const status = checkAttendanceTime(currentTime, start_time, end_time, type);
-
   return { status, attendanceTime };
 };
 
