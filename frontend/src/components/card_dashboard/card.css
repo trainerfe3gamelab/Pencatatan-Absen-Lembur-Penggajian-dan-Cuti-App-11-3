@@ -1,0 +1,98 @@
+/* .card-counter{
+    background: #03ffc024;
+    color: #064C56;
+    border: 2px solid #18C89E;
+}
+
+.card-title{
+    margin-left: 50px;
+}
+
+@media (max-width: 769px) {
+    .col-md-3{
+        width: 170px !important;
+    }
+    .card-counter{
+        height: 100px;
+       
+    }
+    .card-title{
+        margin-left: 10px;
+    }
+    .img_card{
+        width: 40px;
+        height: 40px;
+    }
+
+    .font_size{
+        font: 0.8em sans-serif;
+    }
+} */
+
+
+/* card.css */
+.card-counter {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    background-color: #f8f9fa;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #18C89E;
+    background: #03ffc024;
+    gap: 20px;
+}
+
+.img_card {
+    width: 100%;
+    max-width: 90px;
+    height: auto;
+}
+
+.card-title {
+    margin-left: 1rem;
+    flex: 1;
+}
+
+.count-name {
+    font-size: 1rem;
+}
+
+.count-numbers {
+    font-size: 2rem;
+    /* text-align: center; */
+}
+
+/* Media Queries for Responsive Design */
+@media (max-width: 768px) {
+    .img_card {
+        max-width: 60px;
+    }
+    
+    .count-name, .count-numbers {
+        font-size: 0.8rem;
+    }
+    
+    .count-numbers {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .card-counter {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .img_card {
+        max-width: 50px;
+    }
+
+    .count-name, .count-numbers {
+        font-size: 0.7rem;
+    }
+
+    .count-numbers {
+        font-size: 1.2rem;
+    }
+}
