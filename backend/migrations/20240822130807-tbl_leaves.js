@@ -32,6 +32,11 @@ module.exports = {
         type: Sequelize.DATEONLY,
         allowNull: false,
       },
+      status: {
+        type: Sequelize.ENUM,
+        values: ["diproses", "disetujui", "ditolak"],
+        allowNull: false,
+      },
       archived: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,

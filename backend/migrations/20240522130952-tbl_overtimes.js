@@ -27,6 +27,11 @@ module.exports = {
         type: Sequelize.TIME,
         allowNull: false,
       },
+      status: {
+        type: Sequelize.ENUM,
+        values: ["diproses", "disetujui", "ditolak"],
+        allowNull: false,
+      },
       archived: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
