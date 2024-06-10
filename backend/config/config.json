@@ -6,7 +6,7 @@
     "host": "127.0.0.1",
     "dialect": "mysql",
     "pool": {
-      "max": 5,
+      "max": 10,
       "min": 1,
       "acquire": 30000,
       "idle": 10000
@@ -19,7 +19,7 @@
     "host": "127.0.0.1",
     "dialect": "mysql",
     "pool": {
-      "max": 5,
+      "max": 10,
       "min": 1,
       "acquire": 30000,
       "idle": 10000
