@@ -27,6 +27,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.TIME,
         allowNull: false,
       },
+      status: {
+        type: DataTypes.ENUM("diproses", "disetujui", "ditolak"),
+        allowNull: false,
+      },
       archived: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -55,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Overtime.associate = function (models) {
-    Overtime.belongsTo(models.User, { foreignKey: "user_id" });
+    Overtime.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
   };
 
   return Overtime;

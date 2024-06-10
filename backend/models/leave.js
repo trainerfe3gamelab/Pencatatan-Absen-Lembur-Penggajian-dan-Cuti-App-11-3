@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      status: {
+        type: DataTypes.ENUM("diproses", "disetujui", "ditolak"),
+        allowNull: false,
+      },
       archived: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
@@ -57,6 +61,10 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
+
+  Leave.associate = function (models) {
+    Leave.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
+  };
 
   return Leave;
 };
