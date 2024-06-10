@@ -8,7 +8,11 @@ const overtimeController = {
   // Create a new overtime
   create: async (req, res) => {
     // Validate request body
-    const { error, value } = overtimeValidator.validate(req.body);
+    const optionalOvertimeValidator = overtimeValidator.fork(
+      ["status"],
+      (schema) => schema.forbidden()
+    );
+    const { error, value } = optionalOvertimeValidator.validate(req.body);
     if (error) return handleFailed(res, 400, error.details[0].message);
 
     // Check if the user exists
@@ -24,6 +28,7 @@ const overtimeController = {
       const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
       const newOvertime = await Overtime.create({
         ...value,
+        status: "diproses",
         creation_time: now,
         create_id: uuidv4(),
         update_time: now,
@@ -52,8 +57,13 @@ const overtimeController = {
   findAllForEmployee: async (req, res) => {
     try {
       const overtime = await User.findOne({
-        where: { id: req.user.id },
-        include: { model: Overtime, as: "overtimes" },
+        where: { id: req.user.id, archived: false },
+        include: {
+          model: Overtime,
+          as: "overtimes",
+          where: { archived: false },
+          required: false,
+        },
         attributes: ["id", "email", "role"],
       });
       res.status(200).json({ status: "sukses", data: overtime });
@@ -107,7 +117,7 @@ const overtimeController = {
     try {
       // Validate request body
       const optionalOvertimeValidator = overtimeValidator.fork(
-        ["date", "time_in", "time_out"],
+        ["status", "date", "time_in", "time_out"],
         (schema) => schema.optional()
       );
       const { error, value } = optionalOvertimeValidator.validate(req.body);
