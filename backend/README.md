@@ -1,5 +1,6 @@
 Documentation is still on progress. For now, you can view this postman collection\
-[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/27863176-030d402d-a92c-4648-a1ca-0f464821e839?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D27863176-030d402d-a92c-4648-a1ca-0f464821e839%26entityType%3Dcollection%26workspaceId%3Da6d86821-bb87-4674-85dc-cdd0b2a1536e)
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/27863176-030d402d-a92c-4648-a1ca-0f464821e839?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D27863176-030d402d-a92c-4648-a1ca-0f464821e839%26entityType%3Dcollection%26workspaceId%3Da6d86821-bb87-4674-85dc-cdd0b2a1536e)\
+
 api documentation can be accessed via the endpoint `/api-docs/`
 
 ### Installation
