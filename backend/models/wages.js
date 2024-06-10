@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Wage = sequelize.define(
     "Wage",
     {
-      uid: {
+      id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV4,
         primaryKey: true,
@@ -71,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Wage.associate = function (models) {
-    Wage.belongsTo(models.User, { foreignKey: "user_id" });
+    Wage.belongsTo(models.User, { foreignKey: "user_id", as: "user" });
   };
 
   return Wage;
