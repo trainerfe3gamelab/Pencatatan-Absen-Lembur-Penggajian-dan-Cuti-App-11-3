@@ -13,6 +13,8 @@ import Lembur from '../lembur/lembur';
 import Cuti from '../cuti/cuti';
 import RecapAbsensi from '../absensi/recapAbsensi';
 import RecapGaji from '../gaji/recapGaji';
+import HariLibur from '../hariLibur/HariLibur';
+import WaktuAbsensi from '../waktuAbsensi/WaktuAbsensi';
 
 const Admin = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
@@ -68,6 +70,8 @@ const Admin = () => {
               <Route path="pegawai" element={<Pegawai />} />
               <Route path="Jabatan" element={<Jabatan />} />
               <Route path="Potongan" element={<PotonganGaji />} />
+              <Route path="Hari" element={<HariLibur />} />
+              <Route path="Waktu" element={<WaktuAbsensi />} />
               <Route path="Absensi" element={<Absensi />} />
               <Route path="Gaji" element={<Gaji />} />
               <Route path="Lembur" element={<Lembur />} />
