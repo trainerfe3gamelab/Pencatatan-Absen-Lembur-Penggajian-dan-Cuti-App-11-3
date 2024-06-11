@@ -31,6 +31,18 @@ module.exports = (sequelize, DataTypes) => {
           max: 2100,
         },
       },
+      base_salary: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      transport_allowance: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
+      meal_allowance: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+      },
       overtimes: {
         type: DataTypes.INTEGER,
         allowNull: false,
