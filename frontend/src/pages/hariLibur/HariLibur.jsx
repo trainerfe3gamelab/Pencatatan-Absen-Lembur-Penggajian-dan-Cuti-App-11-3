@@ -1,12 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import SearchBox from '../../components/search/SearchBox';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Success from '../../image/success.png';
 import Failed from '../../image/failed.png';
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt';
 
 const HariLibur = () => {
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await axios.get(`${API_URL}/api/admin/holidays`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setRecords(response.data.data);
+
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    };
+
+
+    useEffect(() => {
+        koneksi();
+    }, []);
+
     const columns = [
         {
             name: "#",
@@ -20,12 +44,12 @@ const HariLibur = () => {
         },
         {
             name: "Tanggal Mulai",
-            selector: row => row.dateStart,
+            selector: row => row.start_date,
             sortable: true
         },
         {
             name: "Tanggal Selesai",
-            selector: row => row.dateFinis,
+            selector: row => row.end_date,
             sortable: true
         },
         {
@@ -44,13 +68,13 @@ const HariLibur = () => {
         { id: 1, name: 'hari raya', dateStart: '11-03-2024', dateFinis: '25-04-2024' },
     ];
 
-    const [records, setRecords] = useState(initialData);
+    const [records, setRecords] = useState([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', dateStart: '', dateFinis: '' });
-    const [newData, setNewData] = useState({ name: '', dateStart: '', dateFinis: '' });
+    const [editData, setEditData] = useState({ id: '', name: '', start_date: '', end_date: '' });
+    const [newData, setNewData] = useState({ name: '', start_date: '', end_date: '' });
 
     const handleCloseEdit = () => setShowEditModal(false);
     const handleShowEdit = () => setShowEditModal(true);
@@ -69,14 +93,51 @@ const HariLibur = () => {
         handleShowEdit();
     };
 
-    const handleSaveEdit = () => {
-        setRecords(records.map(record => (record.id === editData.id ? editData : record)));
-        handleCloseEdit();
-        handleShowSuccess();
+    const handleSaveEdit = async () => {
+        const token = localStorage.getItem('token');
+        const userId = editData.id;
+        const updatedUserData = {
+            name: editData.name,
+            start_date: editData.start_date,
+            end_date: editData.end_date,
+        };
+
+        try {
+            const response = await axios.put(`${API_URL}/api/admin/holidays/${userId}`, updatedUserData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log("User data updated successfully:", response.data);
+            handleCloseEdit();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error updating user data:", error);
+            handleCloseAdd();
+            handleShowFailed();
+        }
     };
 
-    const handleDelete = (id) => {
-        setRecords(records.filter(record => record.id !== id));
+    const handleDelete = async (id) => {
+        const token = localStorage.getItem('token');
+
+        try {
+            // Send a DELETE request to the API endpoint
+            await axios.delete(`${API_URL}/api/admin/holidays/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            // Update the records state to remove the deleted record
+            setRecords(records.filter(record => record.id !== id));
+            console.log(`Data with ID ${id} deleted successfully.`);
+        } catch (error) {
+            console.error("Error deleting data:", error);
+        }
     };
 
     const handleInputChange = (event) => {
@@ -89,12 +150,33 @@ const HariLibur = () => {
         setNewData({ ...newData, [name]: value });
     };
 
-    const handleSaveAdd = () => {
-        const newId = records.length ? records[records.length - 1].id + 1 : 1;
-        const newRecord = { id: newId, ...newData };
-        setRecords([...records, newRecord]);
-        handleCloseAdd();
-        handleShowSuccess();
+    const handleSaveAdd = async () => {
+        try {
+            const token = localStorage.getItem('token');
+    
+            const newDataToSend = {
+                name: newData.name,
+                start_date: newData.start_date,
+                end_date: newData.end_date,
+            };
+    
+            const response = await axios.post(`${API_URL}/api/admin/holidays`, newDataToSend, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            console.log('Response:', response.data);
+    
+            handleCloseAdd();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error adding position:", error);
+            handleCloseAdd();
+            handleShowFailed();
+        }
     };
 
     const handleFailedAdd = () => {
@@ -108,12 +190,19 @@ const HariLibur = () => {
     };
 
 
-    function handleFilter(event) {
-        const newData = initialData.filter(row => {
-            return row.name.toLowerCase().includes(event.target.value.toLowerCase());
-        });
-        setRecords(newData);
-    }
+    const handleFilter = (event) => {
+        const searchTerm = event.target.value.toLowerCase();
+        if (searchTerm === "") {
+            koneksi();
+        } else {
+            const newData = records.filter(row => {
+                return Object.values(row).some(value =>
+                    typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+                );
+            });
+            setRecords(newData);
+        }
+    };
 
     return (
         <div className='container'>
@@ -156,8 +245,8 @@ const HariLibur = () => {
                             <Form.Label>Tanggal Mulai</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="dateStart"
-                                value={editData.dateStart}
+                                name="start_date"
+                                value={editData.start_date}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
@@ -165,17 +254,14 @@ const HariLibur = () => {
                             <Form.Label>Tanggal Selesai</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="dateFinis"
-                                value={editData.dateFinis}
+                                name="end_date"
+                                value={editData.end_date}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleFailedEdit}>
-                        Batal
-                    </Button>
                     <Button variant="primary" onClick={handleSaveEdit}>
                         Simpan Perubahan
                     </Button>
@@ -202,8 +288,8 @@ const HariLibur = () => {
                             <Form.Label>Tanggal Mulai</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="dateStart"
-                                value={newData.dateStart}
+                                name="start_date"
+                                value={newData.start_date}
                                 onChange={handleNewInputChange}
                             />
                         </Form.Group>
@@ -211,17 +297,14 @@ const HariLibur = () => {
                             <Form.Label>Tanggal Selesai</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="dateFinis"
-                                value={newData.dateFinis}
+                                name="end_date"
+                                value={newData.end_date}
                                 onChange={handleNewInputChange}
                             />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleFailedAdd} >
-                        Batal
-                    </Button>
                     <Button variant="primary" onClick={handleSaveAdd}>
                         Tambahkan
                     </Button>

@@ -1,11 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import SearchBox from '../../components/search/SearchBox';
 import { Modal, Button, Form } from 'react-bootstrap';
 import Success from '../../image/success.png';
 import Failed from '../../image/failed.png';
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt';
 
 const Absensi = () => {
+
+
+    const [records, setRecords] = useState([]);
+    const [positions, setPositions] = useState([]);
+    const [users, setUsers] = useState([]);
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const [responseAbsensi, responseUser, responsePosition] = await Promise.all([
+                axios.get(`${API_URL}/api/admin/attendances`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/users`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/positions`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+
+            const absensiData = responseAbsensi.data.data;
+            const userData = responseUser.data.data;
+            const positionsData = responsePosition.data.data;
+            setPositions(positionsData);
+            setUsers(userData);
+
+            const records = absensiData.map(absensi => {
+                const user = userData.find(user => user.id === absensi.user_id);
+                const position = user ? positionsData.find(position => position.id === user.position_id) : null;
+                return {
+                    ...absensi,
+                    name: user ? user.name : 'Unknown User',
+                    gender: user ? user.gender : 'Unknown Gender',
+                    position_name: position ? position.position_name : 'Unknown Position',
+                    status: absensi.status,
+                    time_in: absensi.time_in,
+                    time_out: absensi.time_out
+                };
+            });
+
+            console.log(records);
+            setRecords(records);
+
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    };
+
+
+    useEffect(() => {
+        koneksi();
+    }, []);
+
+
     const columns = [
         {
             name: "#",
@@ -19,12 +76,12 @@ const Absensi = () => {
         },
         {
             name: "Jenis Kelamin",
-            selector: row => row.kelamin,
+            selector: row => row.gender,
             sortable: true
         },
         {
             name: "Jabatan",
-            selector: row => row.jabatan,
+            selector: row => row.position_name,
             sortable: true
         },
         {
@@ -34,17 +91,17 @@ const Absensi = () => {
         },
         {
             name: "Tanggal",
-            selector: row => row.tanggal,
+            selector: row => row.date,
             sortable: true
         },
         {
             name: "Waktu Masuk",
-            selector: row => row.timein,
+            selector: row => row.time_in,
             sortable: true
         },
         {
             name: "Waktu Keluar",
-            selector: row => row.timeout,
+            selector: row => row.time_out,
             sortable: true
         },
         {
@@ -74,14 +131,14 @@ const Absensi = () => {
         { id: 13, name: 'nu', kelamin: 'laki-laki', jabatan: 'staf gudang', status: 'hadir', tanggal: '22-2-2024', timein: '07:40', timeout: '16:40' },
     ];
 
-    const [records, setRecords] = useState(initialData);
+
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', kelamin: '', jabatan: '', status: '', tanggal: '', timein: '', timeout: '' });
-    const [newData, setNewData] = useState({ name: '', kelamin: '', jabatan: '', status: '', tanggal: '', timein: '', timeout: '' });
+    const [editData, setEditData] = useState({ id: '', name: '', gender: '', position_id: '', status: '', date: '', time_in: '', time_out: '' });
+    const [newData, setNewData] = useState({ name: '', gender: '', position_id: '', status: '', date: '', time_in: '', time_out: '' });
     const [filteredRecords, setFilteredRecords] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState({ date: '', gender: '', position: '' });
 
@@ -130,8 +187,24 @@ const Absensi = () => {
         handleShowSuccess();
     };
 
-    const handleDelete = (id) => {
-        setRecords(records.filter(record => record.id !== id));
+    const handleDelete = async (id) => {
+        const token = localStorage.getItem('token');
+    
+        try {
+            // Send a DELETE request to the API endpoint
+            await axios.delete(`${API_URL}/api/admin/attendances/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            // Update the records state to remove the deleted record
+            setRecords(records.filter(record => record.id !== id));
+            console.log(`Data with ID ${id} deleted successfully.`);
+        } catch (error) {
+            console.error("Error deleting data:", error);
+        }
     };
 
     const handleInputChange = (event) => {
@@ -163,10 +236,17 @@ const Absensi = () => {
     };
 
     const handleFilter = (event) => {
-        const newData = initialData.filter(row => {
-            return row.name.toLowerCase().includes(event.target.value.toLowerCase());
-        });
-        setRecords(newData);
+        const searchTerm = event.target.value.toLowerCase();
+        if (searchTerm === "") {
+            koneksi(); 
+        } else {
+            const newData = records.filter(row => {
+                return Object.values(row).some(value => 
+                    typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+                );
+            });
+            setRecords(newData);
+        }
     };
 
     const handleFilterCriteriaChange = (event) => {
@@ -215,6 +295,10 @@ const Absensi = () => {
                 />
             </div>
 
+
+
+
+
             {/* Edit Modal */}
             <Modal show={showEditModal} onHide={handleCloseEdit}>
                 <Modal.Header closeButton>
@@ -225,18 +309,25 @@ const Absensi = () => {
                         <Form.Group controlId="formNama">
                             <Form.Label>Nama</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="name"
-                                value={editData.name}
+                                as="select"
+                                name="user_id"
+                                value={editData.user_id}
                                 onChange={handleInputChange}
-                            />
+                            >
+                                <option value="">Pilih nama Pegawai</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formKelamin">
                             <Form.Label>Jenis Kelamin</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="kelamin"
-                                value={editData.kelamin}
+                                name="gender"
+                                value={editData.gender}
                                 onChange={handleInputChange}
                             >
                                 <option value="">Pilih Jenis Kelamin</option>
@@ -247,11 +338,18 @@ const Absensi = () => {
                         <Form.Group controlId="formJabatan">
                             <Form.Label>Jabatan</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="jabatan"
-                                value={editData.jabatan}
+                                as="select"
+                                name="position_id"
+                                value={editData.position_id}
                                 onChange={handleInputChange}
-                            />
+                            >
+                                <option value="">Pilih jabatan</option>
+                                {positions.map(position => (
+                                    <option key={position.id} value={position.id}>
+                                        {position.position_name}
+                                    </option>
+                                ))}
+                            </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formStatus">
                             <Form.Label>Status</Form.Label>
@@ -266,8 +364,8 @@ const Absensi = () => {
                             <Form.Label>Tanggal</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="tanggal"
-                                value={editData.tanggal}
+                                name="date"
+                                value={editData.date}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
@@ -275,8 +373,8 @@ const Absensi = () => {
                             <Form.Label>Waktu Masuk</Form.Label>
                             <Form.Control
                                 type="time"
-                                name="timein"
-                                value={editData.timein}
+                                name="time_in"
+                                value={editData.time_in}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
@@ -284,22 +382,16 @@ const Absensi = () => {
                             <Form.Label>Waktu Keluar</Form.Label>
                             <Form.Control
                                 type="time"
-                                name="timeout"
-                                value={editData.timeout}
+                                name="time_out"
+                                value={editData.time_out}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseEdit}>
-                        Close
-                    </Button>
                     <Button variant="success" onClick={handleSaveEdit}>
                         Save Changes
-                    </Button>
-                    <Button variant="danger" onClick={handleFailedEdit}>
-                        Failed
                     </Button>
                 </Modal.Footer>
             </Modal>

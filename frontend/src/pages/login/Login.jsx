@@ -1,15 +1,30 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
+import axios from 'axios';
 import './Login.css'; 
 import logo from '../../image/logo-login.png';
-
+import { API_URL } from '../../helpers/networt';
 
 const Login = () => {
   const navigate = useNavigate(); 
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axios.post(`${API_URL}/api/auth/login`, { email, password });
+      localStorage.setItem('token', response.data.token);
+      navigate('/Admin');
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Login failed!');
+    }
   };
 
   return (
@@ -19,15 +34,26 @@ const Login = () => {
       </div>
       <div className="d-flex justify-content-center align-items-center min-vh-100">
         <div className="wrapper-login">
-          <form action="">
+          <form onSubmit={handleSubmit}>
             <h1>Login</h1>
             <div className="input-box">
-              <input type="text" placeholder="masukan email anda        @gmail.com" autoComplete="email" required />
+              <input
+                type="email"
+                placeholder="masukan email anda@gmail.com"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="input-box">
               <input
                 type={showPassword ? "text" : "password"}
-                placeholder="Password"  autoComplete="current-password"
+                placeholder="Password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
               <i className="bx" onClick={togglePasswordVisibility}>
                 {showPassword ? (
@@ -42,7 +68,7 @@ const Login = () => {
                 <input type="checkbox" /> Remember Me
               </label>
             </div>
-            <button type="submit" className="btn" onClick={() => navigate('/Admin')}>Login</button>
+            <button type="submit" className="btn">Login</button>
             <div className="register-link">
               <p><a href="#">klik disini  </a> jika anda lupa sandi</p>
             </div>

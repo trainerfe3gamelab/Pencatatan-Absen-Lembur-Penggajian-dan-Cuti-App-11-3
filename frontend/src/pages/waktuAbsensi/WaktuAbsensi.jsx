@@ -1,12 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
-import SearchBox from '../../components/search/SearchBox';
 import { Modal, Button, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Success from '../../image/success.png';
 import Failed from '../../image/failed.png';
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt';
 
 const WaktuAbsensi = () => {
+
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await axios.get(`${API_URL}/api/admin/attendance-times`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            setRecords(response.data.data);
+
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    };
+
+
+    useEffect(() => {
+        koneksi();
+    }, []);
+
+
+
     const columns = [
         {
             name: "#",
@@ -20,12 +46,12 @@ const WaktuAbsensi = () => {
         },
         {
             name: "Waktu Mulai",
-            selector: row => row.timeStart,
+            selector: row => row.start_time,
             sortable: true
         },
         {
             name: "Waktu Selesai",
-            selector: row => row.timeFinis,
+            selector: row => row.end_time,
             sortable: true
         },
         {
@@ -33,30 +59,26 @@ const WaktuAbsensi = () => {
             cell: row => (
                 <>
                  <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
-                <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
+                
                     
                 </>
             )
         }
     ];
 
-    const initialData = [
-        { id: 1, name: 'hari raya', timeStart: '03:22', timeFinis: '04:23' },
-    ];
 
-    const [records, setRecords] = useState(initialData);
+
+    const [records, setRecords] = useState([]);
     const [showEditModal, setShowEditModal] = useState(false);
-    const [showAddModal, setShowAddModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', timeStart: '', timeFinis: '' });
-    const [newData, setNewData] = useState({ name: '', timeStart: '', timeFinis: '' });
+    const [editData, setEditData] = useState({ id: '', name: '', start_time: '', end_time: '' });
+   
 
     const handleCloseEdit = () => setShowEditModal(false);
     const handleShowEdit = () => setShowEditModal(true);
 
-    const handleCloseAdd = () => setShowAddModal(false);
-    const handleShowAdd = () => setShowAddModal(true);
+    
 
     const handleCloseSuccess = () => setShowSuccessModal(false);
     const handleShowSuccess = () => setShowSuccessModal(true);
@@ -69,64 +91,47 @@ const WaktuAbsensi = () => {
         handleShowEdit();
     };
 
-    const handleSaveEdit = () => {
-        setRecords(records.map(record => (record.id === editData.id ? editData : record)));
-        handleCloseEdit();
-        handleShowSuccess();
+    const handleSaveEdit = async () => {
+        const token = localStorage.getItem('token');
+        const userId = editData.id;
+        const updatedUserData = {
+            start_time: editData.start_time,
+            end_time: editData.end_time,
+        };
+
+        try {
+            const response = await axios.put(`${API_URL}/api/admin/attendance-times/${userId}`, updatedUserData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log("User data updated successfully:", response.data);
+            handleCloseEdit();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error updating user data:", error);
+            handleShowFailed();
+        }
     };
 
-    const handleDelete = (id) => {
-        setRecords(records.filter(record => record.id !== id));
-    };
 
     const handleInputChange = (event) => {
         const { name, value } = event.target;
         setEditData({ ...editData, [name]: value });
     };
 
-    const handleNewInputChange = (event) => {
-        const { name, value } = event.target;
-        setNewData({ ...newData, [name]: value });
-    };
-
-    const handleSaveAdd = () => {
-        const newId = records.length ? records[records.length - 1].id + 1 : 1;
-        const newRecord = { id: newId, ...newData };
-        setRecords([...records, newRecord]);
-        handleCloseAdd();
-        handleShowSuccess();
-    };
-
-    const handleFailedAdd = () => {
-        handleCloseAdd();
-        handleShowFailed();
-    };
-
-    const handleFailedEdit = () => {
-        handleCloseEdit();
-        handleShowFailed();
-    };
+ 
 
 
-    function handleFilter(event) {
-        const newData = initialData.filter(row => {
-            return row.name.toLowerCase().includes(event.target.value.toLowerCase());
-        });
-        setRecords(newData);
-    }
+
+ 
 
     return (
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Waktu Absensi</b></h1>
-            <div className='d-flex justify-content-between mb-3'>
-            <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
-          <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Tambah
-        </Button>
-               
-                <div>
-                    <SearchBox onChange={handleFilter} />
-                </div>
-            </div>
+           
             <div className='bg-white border rounded-4'>
                 <DataTable
                     columns={columns}
@@ -138,95 +143,51 @@ const WaktuAbsensi = () => {
 
             {/* Edit Modal */}
             <Modal show={showEditModal} onHide={handleCloseEdit}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Jabatan</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Nama Jabatan</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="name"
-                                value={editData.name}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Waktu Mulai</Form.Label>
-                            <Form.Control
-                                type="time"
-                                name="timeStart"
-                                value={editData.timeStart}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Waktu Selesai</Form.Label>
-                            <Form.Control
-                                type="time"
-                                name="timeFinis"
-                                value={editData.timeFinis}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleFailedEdit}>
-                        Batal
-                    </Button>
-                    <Button variant="primary" onClick={handleSaveEdit}>
-                        Simpan Perubahan
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+    <Modal.Header closeButton>
+        <Modal.Title>Edit Waktu</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+        <Form>
+            <Form.Group className="mb-3">
+                <Form.Label>Nama</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="name"
+                    value={editData.name}
+                    onChange={handleInputChange}
+                />
+            </Form.Group>
+            <Form.Group className="mb-3">
+                <Form.Label>Waktu Mulai (HH:mm:ss)</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="start_time"
+                    value={editData.start_time}
+                    onChange={handleInputChange}
+                />
+            </Form.Group>
+            <Form.Group className="mb-3">
+                <Form.Label>Waktu Selesai (HH:mm:ss)</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="end_time"
+                    value={editData.end_time}
+                    onChange={handleInputChange}
+                />
+            </Form.Group>
+        </Form>
+    </Modal.Body>
+    <Modal.Footer>
+        <Button variant="primary" onClick={handleSaveEdit}>
+            Simpan Perubahan
+        </Button>
+    </Modal.Footer>
+</Modal>
 
-            {/* Add Modal */}
-            <Modal show={showAddModal} onHide={handleCloseAdd}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Tambah </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Nama</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="name"
-                                value={newData.name}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Waktu Mulai</Form.Label>
-                            <Form.Control
-                                type="time"
-                                name="timeStart"
-                                value={newData.timeStart}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Waktu Selesai</Form.Label>
-                            <Form.Control
-                                type="time"
-                                name="timeFinis"
-                                value={newData.timeFinis}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleFailedAdd} >
-                        Batal
-                    </Button>
-                    <Button variant="primary" onClick={handleSaveAdd}>
-                        Tambahkan
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+
+
+
+           
 
             {/* Failed Notification Modal */}
             <Modal show={showFailedModal} onHide={handleCloseFailed}>
