@@ -115,22 +115,6 @@ const Absensi = () => {
         }
     ];
 
-    const initialData = [
-        { id: 1, name: 'alpa', kelamin: 'laki-laki', jabatan: 'staf admin', status: 'hadir', tanggal: '10-2-2024', timein: '07:45', timeout: '17:33' },
-        { id: 2, name: 'beta', kelamin: 'perempuan', jabatan: 'manager', status: 'alpa', tanggal: '11-2-2024', timein: '08:00', timeout: '18:00' },
-        { id: 3, name: 'gamma', kelamin: 'laki-laki', jabatan: 'security', status: 'alpa', tanggal: '12-2-2024', timein: '06:30', timeout: '16:30' },
-        { id: 4, name: 'delta', kelamin: 'perempuan', jabatan: 'staf IT', status: 'hadir', tanggal: '13-2-2024', timein: '09:00', timeout: '19:00' },
-        { id: 5, name: 'epsilon', kelamin: 'laki-laki', jabatan: 'staf HR', status: 'hadir', tanggal: '14-2-2024', timein: '08:15', timeout: '17:45' },
-        { id: 6, name: 'zeta', kelamin: 'perempuan', jabatan: 'sekretaris', status: 'alpa', tanggal: '15-2-2024', timein: '08:30', timeout: '17:30' },
-        { id: 7, name: 'eta', kelamin: 'laki-laki', jabatan: 'staf keuangan', status: 'hadir', tanggal: '16-2-2024', timein: '07:50', timeout: '16:50' },
-        { id: 8, name: 'theta', kelamin: 'perempuan', jabatan: 'kasir', status: 'alpa', tanggal: '17-2-2024', timein: '09:10', timeout: '18:10' },
-        { id: 9, name: 'iota', kelamin: 'laki-laki', jabatan: 'driver', status: 'alpa', tanggal: '18-2-2024', timein: '06:45', timeout: '16:45' },
-        { id: 10, name: 'kappa', kelamin: 'perempuan', jabatan: 'staf marketing', status: 'hadir', tanggal: '19-2-2024', timein: '08:00', timeout: '17:00' },
-        { id: 11, name: 'lambda', kelamin: 'laki-laki', jabatan: 'staf produksi', status: 'hadir', tanggal: '20-2-2024', timein: '07:30', timeout: '16:30' },
-        { id: 12, name: 'mu', kelamin: 'perempuan', jabatan: 'staf admin', status: 'hadir', tanggal: '21-2-2024', timein: '08:20', timeout: '17:20' },
-        { id: 13, name: 'nu', kelamin: 'laki-laki', jabatan: 'staf gudang', status: 'hadir', tanggal: '22-2-2024', timein: '07:40', timeout: '16:40' },
-    ];
-
 
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import SearchBox from '../../components/search/SearchBox';
 import { Modal, Button, Form } from 'react-bootstrap';
@@ -9,102 +9,84 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Excel from '../../image/Excel.png';
 import Pdf from '../../image/PDF.png';
-
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt';
 
 const Lembur = () => {
-    const columns = [
-        {
-            name: "#",
-            selector: (row, index) => index + 1,
-            sortable: true
-        },
-        {
-            name: "Nama Pegawai",
-            selector: row => row.name,
-            sortable: true
-        },
-        {
-            name: "Jenis Kelamin",
-            selector: row => row.kelamin,
-            sortable: true
-        },
-        {
-            name: "Jabatan",
-            selector: row => row.jabatan,
-            sortable: true
-        },
-        {
-            name: "Tanggal",
-            selector: row => row.tanggal,
-            sortable: true
-        },
-        {
-            name: "Waktu masuk",
-            selector: row => row.timein,
-            sortable: true
-        },
-        {
-            name: "Waktu keluar",
-            selector: row => row.timeout,
-            sortable: true
-        },
-        {
-            name: "Actions",
-            cell: row => (
-                <>
-                    <Button variant="success" onClick={() => handleEdit(row)} className="me-2 "><i className="bi bi-pencil-fill text-white"></i></Button>
-                    <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
-                </>
-            )
-        }
-    ];
-
-    const initialData = [
-        { id: 1, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', tanggal: '02-03-2023', timein: '11:33', timeout: '17:22' },
-        { id: 2, name: 'Beta', kelamin: 'perempuan', jabatan: 'manajer', tanggal: '05-03-2023', timein: '09:00', timeout: '17:00' },
-        { id: 3, name: 'Gamma', kelamin: 'laki-laki', jabatan: 'staf IT', tanggal: '06-03-2023', timein: '08:45', timeout: '16:30' },
-        { id: 4, name: 'Delta', kelamin: 'perempuan', jabatan: 'staf HR', tanggal: '07-03-2023', timein: '10:15', timeout: '18:00' },
-        { id: 5, name: 'Epsilon', kelamin: 'laki-laki', jabatan: 'manajer', tanggal: '08-03-2023', timein: '09:30', timeout: '17:15' },
-        { id: 6, name: 'Zeta', kelamin: 'perempuan', jabatan: 'staf keuangan', tanggal: '09-03-2023', timein: '08:00', timeout: '16:00' },
-        { id: 7, name: 'Eta', kelamin: 'laki-laki', jabatan: 'direktur', tanggal: '10-03-2023', timein: '09:45', timeout: '18:30' },
-        { id: 8, name: 'Theta', kelamin: 'perempuan', jabatan: 'staf pemasaran', tanggal: '11-03-2023', timein: '08:15', timeout: '17:00' },
-        { id: 9, name: 'Iota', kelamin: 'laki-laki', jabatan: 'manajer', tanggal: '12-03-2023', timein: '09:00', timeout: '18:00' },
-        { id: 10, name: 'Kappa', kelamin: 'perempuan', jabatan: 'staf admin', tanggal: '13-03-2023', timein: '07:45', timeout: '16:30' },
-        { id: 11, name: 'Lambda', kelamin: 'laki-laki', jabatan: 'staf IT', tanggal: '14-03-2023', timein: '08:30', timeout: '17:15' },
-        { id: 12, name: 'Mu', kelamin: 'perempuan', jabatan: 'staf HR', tanggal: '15-03-2023', timein: '09:15', timeout: '17:45' },
-        { id: 13, name: 'Nu', kelamin: 'laki-laki', jabatan: 'staf keuangan', tanggal: '16-03-2023', timein: '08:00', timeout: '16:30' }
-    ];
-
-
-    const [records, setRecords] = useState(initialData);
+    const [records, setRecords] = useState([]);
+    const [positions, setPositions] = useState([]);
+    const [users, setUsers] = useState([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', kelamin: '', jabatan: '', tanggal: '', timein: '', timeout: '' });
-    const [newData, setNewData] = useState({ name: '', kelamin: '', jabatan: '', tanggal: '', timein: '', timeout: '' });
+    const [editData, setEditData] = useState({ id: '', user_id: '', date: '', time_in: '', time_out: ''});
+    const [newData, setNewData] = useState({ user_id: '', date: '', time_in: '', time_out: ''});
     const [filteredRecords, setFilteredRecords] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState({ date: '', gender: '', position: '' });
+    const [filterCriteria, setFilterCriteria] = useState({ date: '', position_name: '' });
 
-    const handleFilterButton = () => {
-        let filteredData = initialData;
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const [responseAbsensi, responseUser, responsePosition] = await Promise.all([
+                axios.get(`${API_URL}/api/admin/overtimes`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/users`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/positions`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
 
-        if (filterCriteria.date) {
-            filteredData = filteredData.filter(record => record.tanggal === filterCriteria.date);
+            const absensiData = responseAbsensi.data.data;
+            const userData = responseUser.data.data;
+            const positionsData = responsePosition.data.data;
+            setPositions(positionsData);
+            setUsers(userData);
+
+            const records = absensiData.map(absensi => {
+                const user = userData.find(user => user.id === absensi.user_id);
+                const position = user ? positionsData.find(position => position.id === user.position_id) : null;
+                return {
+                    ...absensi,
+                    name: user ? user.name : 'Unknown User',
+                    gender: user ? user.gender : 'Unknown Gender',
+                    position_name: position ? position.position_name : 'Unknown Position',
+                    status: absensi.status,
+                    time_in: absensi.time_in,
+                    time_out: absensi.time_out
+                };
+            });
+
+            setRecords(records);
+
+        } catch (error) {
+            console.error("Error fetching data", error);
         }
-
-        if (filterCriteria.gender && filterCriteria.gender !== 'semua') {
-            filteredData = filteredData.filter(record => record.kelamin === filterCriteria.gender);
-        }
-
-        if (filterCriteria.position && filterCriteria.position !== 'semua') {
-            filteredData = filteredData.filter(record => record.jabatan === filterCriteria.position);
-        }
-
-        setFilteredRecords(filteredData);
-        setShowFilterModal(false);
     };
+
+    useEffect(() => {
+        koneksi();
+    }, []);
+
+    const columns = [
+        { name: "#", selector: (row, index) => index + 1, sortable: true },
+        { name: "Nama Pegawai", selector: row => row.name, sortable: true },
+        { name: "Jenis Kelamin", selector: row => row.gender, sortable: true },
+        { name: "Jabatan", selector: row => row.position_name, sortable: true },
+        { name: "Tanggal", selector: row => row.date, sortable: true },
+        { name: "Waktu masuk", selector: row => row.time_in, sortable: true },
+        { name: "Waktu keluar", selector: row => row.time_out, sortable: true },
+        { name: "Actions", cell: row => (
+            <>
+                <Button variant="success" onClick={() => handleEdit(row)} className="me-2"><i className="bi bi-pencil-fill text-white"></i></Button>
+                <Button variant="danger" onClick={() => handleDelete(row.id)}><i className="bi bi-trash3-fill"></i></Button>
+            </>
+        )}
+    ];
 
     const handleCloseEdit = () => setShowEditModal(false);
     const handleShowEdit = () => setShowEditModal(true);
@@ -126,14 +108,46 @@ const Lembur = () => {
         handleShowEdit();
     };
 
-    const handleSaveEdit = () => {
-        setRecords(records.map(record => (record.id === editData.id ? editData : record)));
-        handleCloseEdit();
-        handleShowSuccess();
+    const handleSaveEdit = async () => {
+        const token = localStorage.getItem('token');
+        const userId = editData.id;
+        const updatedUserData = {
+            user_id: editData.user_id, 
+            date: editData.date,
+            time_in: editData.time_in,
+            time_out: editData.time_out,
+        };
+
+        try {
+            await axios.put(`${API_URL}/api/admin/overtimes/${userId}`, updatedUserData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            handleCloseEdit();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error updating user data:", error);
+            handleCloseEdit();
+            handleShowFailed();
+        }
     };
 
-    const handleDelete = (id) => {
-        setRecords(records.filter(record => record.id !== id));
+    const handleDelete = async (id) => {
+        const token = localStorage.getItem('token');
+        try {
+            await axios.delete(`${API_URL}/api/admin/overtimes/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            setRecords(records.filter(record => record.id !== id));
+        } catch (error) {
+            console.error("Error deleting data:", error);
+        }
     };
 
     const handleInputChange = (event) => {
@@ -146,29 +160,43 @@ const Lembur = () => {
         setNewData({ ...newData, [name]: value });
     };
 
-    const handleSaveAdd = () => {
-        const newId = records.length ? records[records.length - 1].id + 1 : 1;
-        const newRecord = { id: newId, ...newData };
-        setRecords([...records, newRecord]);
-        handleCloseAdd();
-        handleShowSuccess();
-    };
-
-    const handleFailedAdd = () => {
-        handleCloseAdd();
-        handleShowFailed();
-    };
-
-    const handleFailedEdit = () => {
-        handleCloseEdit();
-        handleShowFailed();
+    const handleSaveAdd = async () => {
+        try {
+            const token = localStorage.getItem('token'); 
+            const requestData = {
+                user_id: newData.user_id,
+                date: newData.date,
+                time_in: newData.time_in,
+                time_out: newData.time_out
+            };
+            await axios.post(`${API_URL}/api/admin/overtimes`, requestData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            handleCloseAdd();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error adding attendance data:", error);
+            handleCloseAdd();
+            handleShowFailed();
+        }
     };
 
     const handleFilter = (event) => {
-        const newData = initialData.filter(row => {
-            return row.name.toLowerCase().includes(event.target.value.toLowerCase());
-        });
-        setRecords(newData);
+        const searchTerm = event.target.value.toLowerCase();
+        if (searchTerm === "") {
+            koneksi(); 
+        } else {
+            const newData = records.filter(row => {
+                return Object.values(row).some(value => 
+                    typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+                );
+            });
+            setRecords(newData);
+        }
     };
 
     const handleFilterCriteriaChange = (event) => {
@@ -176,13 +204,27 @@ const Lembur = () => {
         setFilterCriteria({ ...filterCriteria, [name]: value });
     };
 
+    const handleFilterButton = () => {
+        let newFilteredRecords = records;
+
+        if (filterCriteria.date) {
+            newFilteredRecords = newFilteredRecords.filter(record => record.date === filterCriteria.date);
+        }
+
+        if (filterCriteria.position_name) { 
+            newFilteredRecords = newFilteredRecords.filter(record => record.position_name === filterCriteria.position_name); 
+        }
+
+        setFilteredRecords(newFilteredRecords);
+        setShowFilterModal(false);
+    };
+
     const getFilterCriteriaText = () => {
-        const { date, gender, position } = filterCriteria;
+        const { date, position_name } = filterCriteria; 
         const criteriaText = [];
 
         if (date) criteriaText.push(`Tanggal: ${date}`);
-        if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
-        if (position && position !== 'semua') criteriaText.push(`Jabatan: ${position}`);
+        if (position_name) criteriaText.push(`Jabatan: ${position_name}`);
 
         return criteriaText.length ? criteriaText.join(', ') : 'Tidak ada filter yang diterapkan';
     };
@@ -190,8 +232,8 @@ const Lembur = () => {
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.autoTable({
-            head: [['#', 'Nama Pegawai', 'Jenis Kelamin', 'Tanggal', 'Waktu masuk', 'Waktu keluar']],
-            body: (filteredRecords || records).map((row, index) => [index + 1, row.name, row.kelamin, row.tanggal, row.timein, row.timeout])
+            head: [['#', 'Nama Pegawai', 'Jenis Kelamin', 'Jabatan', 'Tanggal', 'Waktu masuk', 'Waktu keluar']],
+            body: (filteredRecords || records).map((row, index) => [index + 1, row.name, row.gender, row.position_name, row.date, row.time_in, row.time_out])
         });
         doc.save('table.pdf');
     };
@@ -200,10 +242,11 @@ const Lembur = () => {
         const ws = XLSX.utils.json_to_sheet((filteredRecords || records).map((row, index) => ({
             "#": index + 1,
             "Nama Pegawai": row.name,
-            "Jenis Kelamin": row.kelamin,
-            "Tanggal": row.tanggal,
-            "Waktu Masuk": row.timein,
-            "Waktu Keluar": row.timeout
+            "Jenis Kelamin": row.gender,
+            "Jabatan": row.position_name,
+            "Tanggal": row.date,
+            "Waktu Masuk": row.time_in,
+            "Waktu Keluar": row.time_out
         })));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -214,14 +257,14 @@ const Lembur = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Data Lembur</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-                <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+                <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
                     <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Tambah
                 </Button>
                 <div>
-                    <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+                    <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
                         <i className="bi bi-funnel-fill" aria-hidden="true"></i> Filter
                     </Button>
-                    <Button variant="danger"  className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
+                    <Button variant="danger" className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
                     <Button variant="success" className='btn btn-success text-white font-weight-bold rounded-5' onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
                 </div>
@@ -245,80 +288,65 @@ const Lembur = () => {
             {/* Edit Modal */}
             <Modal show={showEditModal} onHide={handleCloseEdit}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Edit Data Gaji</Modal.Title>
+                    <Modal.Title>Edit Absensi</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="formNama">
+                            <Form.Control
+                                style={{ display: 'none' }}
+                                type="text"
+                                name="id"
+                                value={editData.id}
+                                onChange={handleInputChange}
+                            />
                             <Form.Label>Nama</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="name"
-                                value={editData.name}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formKelamin">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
                                 as="select"
-                                name="kelamin"
-                                value={editData.kelamin}
+                                name="user_id"
+                                value={editData.user_id}
                                 onChange={handleInputChange}
                             >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
+                                <option value="">Pilih nama Pegawai</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
                             </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatan">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="jabatan"
-                                value={editData.jabatan}
-                                onChange={handleInputChange}
-                            />
                         </Form.Group>
                         <Form.Group controlId="formTanggal">
                             <Form.Label>Tanggal</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="Tanggal"
-                                value={editData.tanggal}
+                                name="date"
+                                value={editData.date}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="formWaktuMasuk">
+                        <Form.Group controlId="formTimein">
                             <Form.Label>Waktu Masuk</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timein"
-                                value={editData.timein}
+                                type="text"
+                                name="time_in"
+                                value={editData.time_in}
                                 onChange={handleInputChange}
                             />
-
                         </Form.Group>
-                        <Form.Group controlId="formWaktuKeluar">
-                            <Form.Label>Waktu Masuk</Form.Label>
+                        <Form.Group controlId="formTimeout">
+                            <Form.Label>Waktu Keluar</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timeout"
-                                value={editData.timeout}
+                                type="text"
+                                name="time_out"
+                                value={editData.time_out}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseEdit}>
-                        Close
-                    </Button>
                     <Button variant="success" onClick={handleSaveEdit}>
                         Save Changes
-                    </Button>
-                    <Button variant="danger" onClick={handleFailedEdit}>
-                        Failed
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -333,73 +361,51 @@ const Lembur = () => {
                         <Form.Group controlId="formNama">
                             <Form.Label>Nama</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="name"
-                                value={newData.name}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formKelamin">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
                                 as="select"
-                                name="kelamin"
-                                value={newData.kelamin}
+                                name="user_id"
+                                value={newData.user_id}
                                 onChange={handleNewInputChange}
                             >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
+                                <option value="">Pilih nama Pegawai</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
                             </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatan">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="jabatan"
-                                value={newData.jabatan}
-                                onChange={handleNewInputChange}
-                            />
                         </Form.Group>
                         <Form.Group controlId="formTanggal">
                             <Form.Label>Tanggal</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="tanggal"
-                                value={newData.tanggal}
+                                name="date"
+                                value={newData.date}
                                 onChange={handleNewInputChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="formWaktuMasuk">
+                        <Form.Group controlId="formTimein">
                             <Form.Label>Waktu Masuk</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timein"
-                                value={newData.timein}
+                                type="text"
+                                name="time_in"
+                                value={newData.time_in}
                                 onChange={handleNewInputChange}
                             />
-
                         </Form.Group>
-                        <Form.Group controlId="formWaktuKeluar">
-                            <Form.Label>Wkatu Keluar</Form.Label>
+                        <Form.Group controlId="formTimeout">
+                            <Form.Label>Waktu Keluar</Form.Label>
                             <Form.Control
-                                type="time"
-                                name="timeout"
-                                value={newData.timeout}
+                                type="text"
+                                name="time_out"
+                                value={newData.time_out}
                                 onChange={handleNewInputChange}
                             />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseAdd}>
-                        Close
-                    </Button>
                     <Button variant="success" onClick={handleSaveAdd}>
-                        Save
-                    </Button>
-                    <Button variant="danger" onClick={handleFailedAdd}>
-                        Failed
+                        Simpan
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -433,7 +439,7 @@ const Lembur = () => {
             </Modal>
 
             {/* Filter Modal */}
-            <Modal show={showFilterModal} onHide={handleCloseFilter}>
+            <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)}>
                 <Modal.Header closeButton>
                     <Modal.Title>Filter Data</Modal.Title>
                 </Modal.Header>
@@ -444,48 +450,29 @@ const Lembur = () => {
                             <Form.Control
                                 type="date"
                                 name="date"
+                                value={filterCriteria.date}
                                 onChange={handleFilterCriteriaChange}
                             />
-                        </Form.Group>
-                        <Form.Group controlId="formKelamin">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="gender"
-                                onChange={handleFilterCriteriaChange}
-                            >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="semua">semua</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
-                            </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formJabatan">
                             <Form.Label>Jabatan</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="position"
+                                name="position_name"
+                                value={filterCriteria.position_name}
                                 onChange={handleFilterCriteriaChange}
                             >
-                                <option value="">Pilih Jenis Jabatan</option>
-                                <option value="semua">semua</option>
-                                <option value="manager">manager</option>
-                                <option value="security">security</option>
-                                <option value="staf IT">staf IT</option>
-                                <option value="staf HR">staf HR</option>
-                                <option value="sekretaris">sekretaris</option>
-                                <option value="staf keuangan">staf keuangan</option>
-                                <option value="kasir">kasir</option>
-                                <option value="driver">driver</option>
-                                <option value="staf marketing">staf marketing</option>
+                                <option value="">Pilih jabatan</option>
+                                {positions.map(position => (
+                                    <option key={position.id} value={position.position_name}>
+                                        {position.position_name}
+                                    </option>
+                                ))}
                             </Form.Control>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer style={{ borderTop: 'none' }}>
-                    <Button variant="secondary" onClick={handleCloseFilter}>
-                        Batal
-                    </Button>
                     <Button variant="primary" onClick={handleFilterButton}>
                         Filter
                     </Button>

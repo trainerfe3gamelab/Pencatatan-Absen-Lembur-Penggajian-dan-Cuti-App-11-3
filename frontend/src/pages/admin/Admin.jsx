@@ -8,7 +8,6 @@ import Pegawai from '../pegawai/pegawai';
 import Jabatan from '../jabatan/jabatan';
 import PotonganGaji from '../potonganGaji/potonganGaji';
 import Absensi from '../absensi/absensi';
-import Gaji from '../gaji/gaji';
 import Lembur from '../lembur/lembur';
 import Cuti from '../cuti/cuti';
 import RecapAbsensi from '../absensi/recapAbsensi';
@@ -73,7 +72,6 @@ const Admin = () => {
               <Route path="Hari" element={<HariLibur />} />
               <Route path="Waktu" element={<WaktuAbsensi />} />
               <Route path="Absensi" element={<Absensi />} />
-              <Route path="Gaji" element={<Gaji />} />
               <Route path="Lembur" element={<Lembur />} />
               <Route path="Cuti" element={<Cuti />} />
               <Route path="RecapAbsensi" element={<RecapAbsensi />} />

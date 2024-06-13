@@ -66,9 +66,6 @@ const MobileSidebar = () => {
                   <Nav.Link href="#action1" onClick={() => navigate('/admin/Absensi')}>
                     <p className="link_name fs-2 "> <i className='bx bxs-user-check me-3'></i> Absensi</p>
                   </Nav.Link>
-                  <Nav.Link href="#action1" onClick={() => navigate('/admin/Gaji')}>
-                    <p className="link_name fs-2 "> <i className='bx bxs-dollar-circle me-3'></i> Gaji</p>
-                  </Nav.Link>
                   <Nav.Link href="#action1" onClick={() => navigate('/admin/Lembur')}>
                     <p className="link_name fs-2 "> <i className='bx bxs-briefcase-alt-2 me-3'></i> Lembur</p>
                   </Nav.Link>

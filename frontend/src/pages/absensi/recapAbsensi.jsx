@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import SearchBox from '../../components/search/SearchBox';
 import { Modal, Button, Form } from 'react-bootstrap';
@@ -7,9 +7,81 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Excel from '../../image/Excel.png';
 import Pdf from '../../image/PDF.png';
-
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt';
 
 const RecapAbsensi = () => {
+    const [records, setRecords] = useState([]);
+    const [positions, setPositions] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showFilterModal, setShowFilterModal] = useState(false);
+    const [filteredRecords, setFilteredRecords] = useState(null);
+    const [filterCriteria, setFilterCriteria] = useState({ type: '', status: '', gender: '', position_name: '' });
+    const [addCriteria, setAddCriteria] = useState({ month: '', year: '' });
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const [responseAbsensi, responseUser, responsePosition] = await Promise.all([
+                axios.get(`${API_URL}/api/admin/attendance-reports`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/users`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/positions`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+
+            const absensiData = responseAbsensi.data.data;
+            const userData = responseUser.data.data;
+            const positionsData = responsePosition.data.data;
+            setPositions(positionsData);
+            setUsers(userData);
+
+            const records = absensiData.map(absensi => {
+                const user = userData.find(user => user.id === absensi.user_id);
+                const position = user ? positionsData.find(position => position.id === user.position_id) : null;
+                return {
+                    ...absensi,
+                    name: user ? user.name : 'Unknown User',
+                    gender: user ? user.gender : 'Unknown Gender',
+                    position_name: position ? position.position_name : 'Unknown Position',
+                };
+            });
+
+            setRecords(records);
+
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    };
+
+    useEffect(() => {
+        koneksi();
+    }, []);
+
+
+    const addAttendanceReport = async (userId, month, year) => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await axios.post(`${API_URL}/api/admin/attendance-reports`, {
+                user_id: userId,
+                month: month,
+                year: year,
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            console.log('Attendance report added:', response.data);
+            // Update the records state after adding a new report
+            koneksi();
+        } catch (error) {
+            console.error('Error adding attendance report:', error);
+        }
+    };
+
     const columns = [
         {
             name: "#",
@@ -23,22 +95,22 @@ const RecapAbsensi = () => {
         },
         {
             name: "Jenis Kelamin",
-            selector: row => row.kelamin,
+            selector: row => row.gender,
             sortable: true
         },
         {
             name: "Jabatan",
-            selector: row => row.jabatan,
+            selector: row => row.position_name,
             sortable: true
         },
         {
             name: "Bulan",
-            selector: row => row.bulan,
+            selector: row => row.month,
             sortable: true
         },
         {
             name: "Tahun",
-            selector: row => row.tahun,
+            selector: row => row.year,
             sortable: true
         },
         {
@@ -63,60 +135,41 @@ const RecapAbsensi = () => {
         },
     ];
 
-    const initialData = [
-        { id: 1, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', bulan: 'Mei', tahun: '2020', hadir: '30', sakit: '5', izin: '10', alpha: '0' },
-        { id: 2, name: 'Beta', kelamin: 'perempuan', jabatan: 'manajer', bulan: 'Juni', tahun: '2020', hadir: '28', sakit: '2', izin: '5', alpha: '1' },
-        { id: 3, name: 'Gamma', kelamin: 'laki-laki', jabatan: 'staf IT', bulan: 'Juli', tahun: '2020', hadir: '25', sakit: '3', izin: '2', alpha: '5' },
-        { id: 4, name: 'Delta', kelamin: 'perempuan', jabatan: 'staf HR', bulan: 'Agustus', tahun: '2020', hadir: '27', sakit: '4', izin: '3', alpha: '2' },
-        { id: 5, name: 'Epsilon', kelamin: 'laki-laki', jabatan: 'manajer', bulan: 'September', tahun: '2020', hadir: '26', sakit: '1', izin: '7', alpha: '3' },
-        { id: 6, name: 'Zeta', kelamin: 'perempuan', jabatan: 'staf keuangan', bulan: 'Oktober', tahun: '2020', hadir: '29', sakit: '2', izin: '4', alpha: '0' },
-        { id: 7, name: 'Eta', kelamin: 'laki-laki', jabatan: 'direktur', bulan: 'November', tahun: '2020', hadir: '30', sakit: '0', izin: '0', alpha: '0' },
-        { id: 8, name: 'Theta', kelamin: 'perempuan', jabatan: 'staf pemasaran', bulan: 'Desember', tahun: '2020', hadir: '25', sakit: '5', izin: '5', alpha: '5' },
-        { id: 9, name: 'Iota', kelamin: 'laki-laki', jabatan: 'staf admin', bulan: 'Januari', tahun: '2021', hadir: '27', sakit: '3', izin: '3', alpha: '2' },
-        { id: 10, name: 'Kappa', kelamin: 'perempuan', jabatan: 'manajer', bulan: 'Februari', tahun: '2021', hadir: '26', sakit: '2', izin: '1', alpha: '1' },
-        { id: 11, name: 'Lambda', kelamin: 'laki-laki', jabatan: 'staf IT', bulan: 'Maret', tahun: '2021', hadir: '28', sakit: '3', izin: '2', alpha: '1' },
-        { id: 12, name: 'Mu', kelamin: 'perempuan', jabatan: 'staf HR', bulan: 'April', tahun: '2021', hadir: '29', sakit: '1', izin: '4', alpha: '0' },
-        { id: 13, name: 'Nu', kelamin: 'laki-laki', jabatan: 'staf keuangan', bulan: 'Mei', tahun: '2021', hadir: '25', sakit: '4', izin: '3', alpha: '5' },
-    ];
-    
-    
-
-    const [records, setRecords] = useState(initialData);
-    const [showFilterModal, setShowFilterModal] = useState(false);
-    const [filteredRecords, setFilteredRecords] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState({ bulan: '', tahun: '', gender: '', position: '' });
-
-    const handleFilterButton = () => {
-        let filteredData = initialData;
-
-        if (filterCriteria.bulan && filterCriteria.bulan !== 'semua') {
-            filteredData = filteredData.filter(record => record.bulan === filterCriteria.bulan);
-        }
-
-        if (filterCriteria.tahun && filterCriteria.tahun !== 'semua') {
-            filteredData = filteredData.filter(record => record.tahun === filterCriteria.tahun);
-        }
-
-        if (filterCriteria.gender && filterCriteria.gender !== 'semua') {
-            filteredData = filteredData.filter(record => record.kelamin === filterCriteria.gender);
-        }
-
-        if (filterCriteria.position && filterCriteria.position !== 'semua') {
-            filteredData = filteredData.filter(record => record.jabatan === filterCriteria.position);
-        }
-
-        setFilteredRecords(filteredData);
-        setShowFilterModal(false);
-    };
+   
 
     const handleCloseFilter = () => setShowFilterModal(false);
     const handleShowFilter = () => setShowFilterModal(true);
 
+    const handleCloseAdd = () => setShowAddModal(false);
+    const handleShowAdd = () => setShowAddModal(true);
+
     const handleFilter = (event) => {
-        const newData = initialData.filter(row => {
-            return row.name.toLowerCase().includes(event.target.value.toLowerCase());
-        });
-        setRecords(newData);
+        const searchTerm = event.target.value.toLowerCase();
+        if (searchTerm === "") {
+            koneksi(); 
+        } else {
+            const newData = records.filter(row => {
+                return Object.values(row).some(value => 
+                    typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+                );
+            });
+            setRecords(newData);
+        }
+    };
+
+    const handleFilterButton = () => {
+        let newFilteredRecords = records;
+
+        if (filterCriteria.gender) {
+            newFilteredRecords = newFilteredRecords.filter(record => record.gender === filterCriteria.gender);
+        }
+
+        if (filterCriteria.position_name) { 
+            newFilteredRecords = newFilteredRecords.filter(record => record.position_name === filterCriteria.position_name); 
+        }
+
+        setFilteredRecords(newFilteredRecords);
+        setShowFilterModal(false);
     };
 
     const handleFilterCriteriaChange = (event) => {
@@ -125,13 +178,13 @@ const RecapAbsensi = () => {
     };
 
     const getFilterCriteriaText = () => {
-        const { bulan, tahun, gender, position } = filterCriteria;
+        const { month, year, gender, position_name } = filterCriteria;
         const criteriaText = [];
 
-        if (bulan && bulan !== 'semua') criteriaText.push(`Bulan: ${bulan}`);
-        if (tahun && tahun !== 'semua') criteriaText.push(`Tahun: ${tahun}`);
+        if (month && month !== 'semua') criteriaText.push(`Bulan: ${month}`);
+        if (year && year !== 'semua') criteriaText.push(`Tahun: ${year}`);
         if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
-        if (position && position !== 'semua') criteriaText.push(`Jabatan: ${position}`);
+        if (position_name && position_name !== 'semua') criteriaText.push(`Jabatan: ${position_name}`);
 
         return criteriaText.length ? criteriaText.join(', ') : 'Tidak ada filter yang diterapkan';
     };
@@ -141,7 +194,7 @@ const RecapAbsensi = () => {
         doc.autoTable({
             head: [['#', 'Nama Pegawai', 'Jenis Kelamin', 'Jabatan', 'Bulan', 'Tahun', 'Hadir', 'Sakit', 'Alpha']],
             body: (filteredRecords || records).map((row, index) => [
-                index + 1, row.name, row.kelamin, row.jabatan, row.bulan, row.tahun, row.hadir, row.sakit, row.alpha
+                index + 1, row.name, row.gender, row.position_name, row.month, row.year, row.hadir, row.sakit, row.alpha
             ])
         });
         doc.save('table.pdf');
@@ -151,10 +204,10 @@ const RecapAbsensi = () => {
         const ws = XLSX.utils.json_to_sheet((filteredRecords || records).map((row, index) => ({
             "#": index + 1,
             "Nama Pegawai": row.name,
-            "Jenis Kelamin": row.kelamin,
-            "Jabatan": row.jabatan,
-            "Bulan": row.bulan,
-            "Tahun": row.tahun,
+            "Jenis Kelamin": row.gender,
+            "Jabatan": row.position_name,
+            "Bulan": row.month,
+            "Tahun": row.year,
             "Hadir": row.hadir,
             "Sakit": row.sakit,
             "Alpha": row.alpha
@@ -164,14 +217,48 @@ const RecapAbsensi = () => {
         XLSX.writeFile(wb, "table.xlsx");
     };
 
+    const handleAddCriteriaChange = (event) => {
+        const { name, value } = event.target;
+        setAddCriteria((prevState) => ({
+            ...prevState,
+            [name]: value,
+        }));
+    };
+
+    const getAddCriteriaText = () => {
+        const { month, year } = addCriteria;
+        const criteriaText = [];
+
+        if (month && month !== 'semua') criteriaText.push(`Bulan: ${month}`);
+        if (year && year !== 'semua') criteriaText.push(`Tahun: ${year}`);
+
+        return criteriaText.length ? criteriaText.join(', ') : 'Tidak ada data yang diterapkan';
+    };
+
+    const handleAddAttendanceReport = () => {
+        if (users.length > 0) {
+            const userId = users[0].id; // Mengambil ID user pertama, sesuaikan sesuai kebutuhan Anda
+            addAttendanceReport(userId, addCriteria.month, addCriteria.year);
+            handleCloseAdd();
+        }
+    };
+
     return (
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Recap Absensi</b></h1>
             <div className='d-flex justify-content-between mb-3'>
+                <div>
+                <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+                     Tampilkan Data
+                </Button>
+                <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={koneksi}>
+                <i className="bi bi-arrow-clockwise" aria-hidden="true"></i> Reset
+                </Button>
+                </div>
+                <div>
                 <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
                     <i className="bi bi-funnel-fill" aria-hidden="true"></i> Filter
                 </Button>
-                <div>
                     <Button variant="danger" className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
                     <Button variant="success" className='btn btn-success text-white font-weight-bold rounded-5' onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
@@ -180,7 +267,7 @@ const RecapAbsensi = () => {
             {filteredRecords && (
                 <div className='mb-2'>
                     <div className='col-6 text-success'>
-                        <p>Filter berdasarkan {getFilterCriteriaText()}</p>
+                        <p>Data berdasarkan {getFilterCriteriaText() || getAddCriteriaText()}</p>
                     </div>
                 </div>
             )}
@@ -193,10 +280,10 @@ const RecapAbsensi = () => {
                 />
             </div>
 
-            {/* Filter Modal */}
-            <Modal show={showFilterModal} onHide={handleCloseFilter}>
+            {/* menampilkan Modal */}
+            <Modal show={showAddModal} onHide={handleCloseAdd}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Filter Data</Modal.Title>
+                    <Modal.Title>Tampilkan Data</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
@@ -204,33 +291,33 @@ const RecapAbsensi = () => {
                             <Form.Label>Bulan</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="bulan"
-                                value={filterCriteria.bulan}
-                                onChange={handleFilterCriteriaChange}
+                                name="month"
+                                value={addCriteria.month}
+                                onChange={handleAddCriteriaChange}
                             >
                                 <option value="">Pilih Bulan</option>
                                 <option value="semua">semua</option>
-                                <option value="Januari">Januari</option>
-                                <option value="Februari">Februari</option>
-                                <option value="Maret">Maret</option>
-                                <option value="April">April</option>
-                                <option value="Mei">Mei</option>
-                                <option value="Juni">Juni</option>
-                                <option value="Juli">Juli</option>
-                                <option value="Agustus">Agustus</option>
-                                <option value="September">September</option>
-                                <option value="Oktober">Oktober</option>
-                                <option value="November">November</option>
-                                <option value="Desember">Desember</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formTahun">
                             <Form.Label>Tahun</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="tahun"
-                                value={filterCriteria.tahun}
-                                onChange={handleFilterCriteriaChange}
+                                name="year"
+                                value={addCriteria.year}
+                                onChange={handleAddCriteriaChange}
                             >
                                 <option value="">Pilih Tahun</option>
                                 <option value="semua">semua</option>
@@ -239,6 +326,21 @@ const RecapAbsensi = () => {
                                 ))}
                             </Form.Control>
                         </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleAddAttendanceReport}>
+                        tampilkan
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            <Modal show={showFilterModal} onHide={handleCloseFilter}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Filter Data</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
                         <Form.Group controlId="formKelamin">
                             <Form.Label>Jenis Kelamin</Form.Label>
                             <Form.Control
@@ -257,21 +359,16 @@ const RecapAbsensi = () => {
                             <Form.Label>Jabatan</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="position"
-                                value={filterCriteria.position}
+                                name="position_name"
+                                value={filterCriteria.position_name}
                                 onChange={handleFilterCriteriaChange}
                             >
-                                <option value="">Pilih Jenis Jabatan</option>
-                                <option value="semua">semua</option>
-                                <option value="manager">manager</option>
-                                <option value="security">security</option>
-                                <option value="staf IT">staf IT</option>
-                                <option value="staf HR">staf HR</option>
-                                <option value="sekretaris">sekretaris</option>
-                                <option value="staf keuangan">staf keuangan</option>
-                                <option value="kasir">kasir</option>
-                                <option value="driver">driver</option>
-                                <option value="staf marketing">staf marketing</option>
+                                <option value="">Pilih jabatan</option>
+                                {positions.map(position => (
+                                    <option key={position.id} value={position.position_name}>
+                                        {position.position_name}
+                                    </option>
+                                ))}
                             </Form.Control>
                         </Form.Group>
                     </Form>

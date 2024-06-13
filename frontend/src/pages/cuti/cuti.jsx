@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import SearchBox from '../../components/search/SearchBox';
 import { Modal, Button, Form } from 'react-bootstrap';
@@ -9,9 +9,70 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Excel from '../../image/Excel.png';
 import Pdf from '../../image/PDF.png';
-
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt';
 
 const Cuti = () => {
+    const [records, setRecords] = useState([]);
+    const [positions, setPositions] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showFilterModal, setShowFilterModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showFailedModal, setShowFailedModal] = useState(false);
+    const [editData, setEditData] = useState({ id: '', user_id: '', type: '', reasoning: '', start_date: '', end_date:'', status:''});
+    const [newData, setNewData] = useState({ user_id: '', type: '', reasoning: '', start_date: '', end_date:''});
+    const [filteredRecords, setFilteredRecords] = useState(null);
+    const [filterCriteria, setFilterCriteria] = useState({ type: '', status: '' });
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const [responseAbsensi, responseUser, responsePosition] = await Promise.all([
+                axios.get(`${API_URL}/api/admin/leaves`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/users`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/positions`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+
+            const absensiData = responseAbsensi.data.data;
+            const userData = responseUser.data.data;
+            const positionsData = responsePosition.data.data;
+            setPositions(positionsData);
+            setUsers(userData);
+
+            const records = absensiData.map(absensi => {
+                const user = userData.find(user => user.id === absensi.user_id);
+                const position = user ? positionsData.find(position => position.id === user.position_id) : null;
+                return {
+                    ...absensi,
+                    name: user ? user.name : 'Unknown User',
+                    gender: user ? user.gender : 'Unknown Gender',
+                    position_name: position ? position.position_name : 'Unknown Position',
+                    status: absensi.status,
+                    time_in: absensi.time_in,
+                    time_out: absensi.time_out
+                };
+            });
+
+            setRecords(records);
+
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    };
+
+    useEffect(() => {
+        koneksi();
+    }, []);
+
+
     const columns = [
         {
             name: "#",
@@ -25,37 +86,37 @@ const Cuti = () => {
         },
         {
             name: "Jenis Kelamin",
-            selector: row => row.kelamin,
+            selector: row => row.gender,
             sortable: true
         },
         {
             name: "Jabatan",
-            selector: row => row.jabatan,
+            selector: row => row.position_name,
             sortable: true
         },
         {
             name: "Jenis Cuti",
-            selector: row => row.jeniscuti,
+            selector: row => row.type,
             sortable: true
         },
         {
             name: "Keterangan",
-            selector: row => row.keterangan,
+            selector: row => row.reasoning,
             sortable: true,
         },
         {
             name: "Mulai Tanggal",
-            selector: row => row.starttanggal,
+            selector: row => row.start_date,
             sortable: true
         },
         {
             name: "Selesai Tanggal",
-            selector: row => row.finistanggal,
+            selector: row => row.end_date,
             sortable: true
         },
         {
             name: "Pertimbangan",
-            selector: row => row.pertimbangan,
+            selector: row => row.status,
             sortable: true
         },
         {
@@ -69,54 +130,10 @@ const Cuti = () => {
         }
     ];
 
-    const initialData = [
-        { id: 1, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', jeniscuti: 'cuti tahunan', starttanggal: '11-05-2023', finistanggal: '21-07-2024', pertimbangan: 'Disetujui', keterangan: 'Liburan ke Bali' },
-        { id: 2, name: 'Beta', kelamin: 'perempuan', jabatan: 'manajer', jeniscuti: 'cuti sakit', starttanggal: '05-03-2023', finistanggal: '15-03-2023', pertimbangan: 'Disetujui', keterangan: 'Pemulihan setelah operasi' },
-        { id: 3, name: 'Gamma', kelamin: 'laki-laki', jabatan: 'staf IT', jeniscuti: 'cuti melahirkan', starttanggal: '01-06-2023', finistanggal: '01-09-2023', pertimbangan: 'Mengajukan', keterangan: 'Menunggu persetujuan' },
-        { id: 4, name: 'Delta', kelamin: 'perempuan', jabatan: 'staf HR', jeniscuti: 'cuti tahunan', starttanggal: '07-07-2023', finistanggal: '21-07-2023', pertimbangan: 'Disetujui', keterangan: 'Liburan keluarga' },
-        { id: 5, name: 'Epsilon', kelamin: 'laki-laki', jabatan: 'manajer', jeniscuti: 'cuti besar', starttanggal: '08-08-2023', finistanggal: '08-08-2024', pertimbangan: 'Tidak Disetujui', keterangan: 'Alasan tidak mencukupi' },
-        { id: 6, name: 'Zeta', kelamin: 'perempuan', jabatan: 'staf keuangan', jeniscuti: 'cuti duka', starttanggal: '09-09-2023', pertimbangan: 'Disetujui', keterangan: 'Meninggalnya orang tua' },
-        { id: 7, name: 'Eta', kelamin: 'laki-laki', jabatan: 'direktur', jeniscuti: 'cuti pendidikan', starttanggal: '10-10-2023', finistanggal: '10-12-2023', pertimbangan: 'Mengajukan', keterangan: 'Kursus profesional' },
-        { id: 8, name: 'Theta', kelamin: 'perempuan', jabatan: 'staf pemasaran', jeniscuti: 'cuti tanpa gaji', starttanggal: '11-11-2023', finistanggal: '11-01-2024', pertimbangan: 'Disetujui', keterangan: 'Perjalanan pribadi' },
-        { id: 9, name: 'Iota', kelamin: 'laki-laki', jabatan: 'manajer', jeniscuti: 'cuti tahunan', starttanggal: '12-12-2023', finistanggal: '26-12-2023', pertimbangan: 'Mengajukan', keterangan: 'Liburan akhir tahun' },
-        { id: 10, name: 'Kappa', kelamin: 'perempuan', jabatan: 'staf admin', jeniscuti: 'cuti pernikahan', starttanggal: '13-01-2024', finistanggal: '20-01-2024', pertimbangan: 'Disetujui', keterangan: 'Pernikahan' },
-        { id: 11, name: 'Lambda', kelamin: 'laki-laki', jabatan: 'staf IT', jeniscuti: 'cuti ayah', starttanggal: '14-02-2024', finistanggal: '21-02-2024', pertimbangan: 'Tidak Disetujui', keterangan: 'Alasan administrasi' },
-        { id: 12, name: 'Mu', kelamin: 'perempuan', jabatan: 'staf HR', jeniscuti: 'cuti tahunan', starttanggal: '15-03-2024', finistanggal: '29-03-2024', pertimbangan: 'Mengajukan', keterangan: 'Liburan musim semi' },
-        { id: 13, name: 'Nu', kelamin: 'laki-laki', jabatan: 'staf keuangan', jeniscuti: 'cuti ibadah', starttanggal: '16-04-2024', finistanggal: '16-05-2024', pertimbangan: 'Disetujui', keterangan: 'Ibadah umroh' }
-    ];
+    
 
-    const [records, setRecords] = useState(initialData);
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [showFilterModal, setShowFilterModal] = useState(false);
-    const [showSuccessModal, setShowSuccessModal] = useState(false);
-    const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', kelamin: '', jabatan: '', jeniscuti: '', keterangan: '', starttanggal: '', finistanggal: '', pertimbangan: '' });
-    const [newData, setNewData] = useState({ name: '', kelamin: '', jabatan: '', jeniscuti: '', keterangan: '', starttanggal: '', finistanggal: '', pertimbangan: '' });
-    const [filteredRecords, setFilteredRecords] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState({ gender: '', position: '', jeniscuti: '', pertimbangan: '' });
-
-    const handleFilterButton = () => {
-        let filteredData = initialData;
-
-
-        if (filterCriteria.gender && filterCriteria.gender !== 'semua') {
-            filteredData = filteredData.filter(record => record.kelamin === filterCriteria.gender);
-        }
-
-        if (filterCriteria.position && filterCriteria.position !== 'semua') {
-            filteredData = filteredData.filter(record => record.jabatan === filterCriteria.position);
-        }
-        if (filterCriteria.jeniscuti && filterCriteria.jeniscuti !== 'semua') {
-            filteredData = filteredData.filter(record => record.jeniscuti === filterCriteria.jeniscuti);
-        }
-        if (filterCriteria.pertimbangan && filterCriteria.pertimbangan !== 'semua') {
-            filteredData = filteredData.filter(record => record.pertimbangan === filterCriteria.pertimbangan);
-        }
-
-        setFilteredRecords(filteredData);
-        setShowFilterModal(false);
-    };
+    
+    
 
     const handleCloseEdit = () => setShowEditModal(false);
     const handleShowEdit = () => setShowEditModal(true);
@@ -138,14 +155,48 @@ const Cuti = () => {
         handleShowEdit();
     };
 
-    const handleSaveEdit = () => {
-        setRecords(records.map(record => (record.id === editData.id ? editData : record)));
-        handleCloseEdit();
-        handleShowSuccess();
+    const handleSaveEdit = async () => {
+        const token = localStorage.getItem('token');
+        const userId = editData.id;
+        const updatedUserData = {
+            user_id: editData.user_id, 
+            type: editData.type,
+            reasoning: editData.reasoning,
+            start_date: editData.start_date,
+            end_date: editData.end_date,
+            status: editData.status,
+        };
+
+        try {
+            await axios.put(`${API_URL}/api/admin/leaves/${userId}`, updatedUserData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            handleCloseEdit();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error updating user data:", error);
+            handleCloseEdit();
+            handleShowFailed();
+        }
     };
 
-    const handleDelete = (id) => {
-        setRecords(records.filter(record => record.id !== id));
+    const handleDelete = async (id) => {
+        const token = localStorage.getItem('token');
+        try {
+            await axios.delete(`${API_URL}/api/admin/leaves/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            setRecords(records.filter(record => record.id !== id));
+        } catch (error) {
+            console.error("Error deleting data:", error);
+        }
     };
 
     const handleInputChange = (event) => {
@@ -158,12 +209,30 @@ const Cuti = () => {
         setNewData({ ...newData, [name]: value });
     };
 
-    const handleSaveAdd = () => {
-        const newId = records.length ? records[records.length - 1].id + 1 : 1;
-        const newRecord = { id: newId, ...newData };
-        setRecords([...records, newRecord]);
-        handleCloseAdd();
-        handleShowSuccess();
+    const handleSaveAdd = async () => {
+        try {
+            const token = localStorage.getItem('token'); 
+            const requestData = {
+                user_id: newData.user_id,
+                type: newData.type,
+                reasoning: newData.reasoning,
+                start_date: newData.start_date,
+                end_date: newData.end_date
+            };
+            await axios.post(`${API_URL}/api/admin/leaves`, requestData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            handleCloseAdd();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error adding attendance data:", error);
+            handleCloseAdd();
+            handleShowFailed();
+        }
     };
 
     const handleFailedAdd = () => {
@@ -177,10 +246,17 @@ const Cuti = () => {
     };
 
     const handleFilter = (event) => {
-        const newData = initialData.filter(row => {
-            return row.name.toLowerCase().includes(event.target.value.toLowerCase());
-        });
-        setRecords(newData);
+        const searchTerm = event.target.value.toLowerCase();
+        if (searchTerm === "") {
+            koneksi(); 
+        } else {
+            const newData = records.filter(row => {
+                return Object.values(row).some(value => 
+                    typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+                );
+            });
+            setRecords(newData);
+        }
     };
 
     const handleFilterCriteriaChange = (event) => {
@@ -188,14 +264,27 @@ const Cuti = () => {
         setFilterCriteria({ ...filterCriteria, [name]: value });
     };
 
+    const handleFilterButton = () => {
+        let newFilteredRecords = records;
+
+        if (filterCriteria.type) {
+            newFilteredRecords = newFilteredRecords.filter(record => record.type === filterCriteria.type);
+        }
+
+        if (filterCriteria.status) { 
+            newFilteredRecords = newFilteredRecords.filter(record => record.status === filterCriteria.status); 
+        }
+
+        setFilteredRecords(newFilteredRecords);
+        setShowFilterModal(false);
+    };
+
     const getFilterCriteriaText = () => {
-        const { gender, position, jeniscuti, pertimbangan } = filterCriteria;
+        const { type, status } = filterCriteria;
         const criteriaText = [];
 
-        if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
-        if (position && position !== 'semua') criteriaText.push(`Jabatan: ${position}`);
-        if (jeniscuti && jeniscuti !== 'semua') criteriaText.push(`Jenis Cuti: ${jeniscuti}`);
-        if (pertimbangan && pertimbangan !== 'semua') criteriaText.push(`Pertimbangan: ${pertimbangan}`);
+        if (type && type !== 'semua') criteriaText.push(`Jenis Cuti: ${type}`);
+        if (status && status !== 'semua') criteriaText.push(`Pertimbangan: ${status}`);
 
         return criteriaText.length ? criteriaText.join(', ') : 'Tidak ada filter yang diterapkan';
     };
@@ -203,8 +292,8 @@ const Cuti = () => {
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.autoTable({
-            head: [['#', 'Nama', 'Jenis Kelamin', 'Jabatan', 'Jenis Cuti', 'Mulai Tanggal', 'Selesai Tanggal', 'Pertimbangan']],
-            body: (filteredRecords || records).map((row, index) => [index + 1, row.name, row.kelamin, row.jabatan, row.jeniscuti, row.starttanggal, row.finistanggal, row.pertimbangan])
+            head: [['#', 'Nama', 'Jenis Kelamin', 'Jabatan', 'Jenis Cuti','Keterangan', 'Mulai Tanggal', 'Selesai Tanggal', 'Pertimbangan']],
+            body: (filteredRecords || records).map((row, index) => [index + 1, row.name, row.gender, row.position_name, row.type, row.reasoning, row.start_date, row.end_date, row.status])
         });
         doc.save('table.pdf');
     };
@@ -213,12 +302,13 @@ const Cuti = () => {
         const ws = XLSX.utils.json_to_sheet((filteredRecords || records).map((row, index) => ({
             "#": index + 1,
             "Nama": row.name,
-            "Jenis Kelamin": row.kelamin,
-            "Jabatan": row.jabatan,
-            "Jenis Cuti": row.jeniscuti,
-            "Mulai Tanggal": row.starttanggal,
-            "Selesai Tanggal": row.finistanggal,
-            "Pertimbangan": row.pertimbangan
+            "Jenis Kelamin": row.gender,
+            "Jabatan": row.position_name,
+            "Jenis Cuti": row.type,
+            "Keterangan": row.reasoning,
+            "Mulai Tanggal": row.start_date,
+            "Selesai Tanggal": row.end_date,
+            "Pertimbangan": row.status
         })));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -265,55 +355,39 @@ const Cuti = () => {
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="formNamaEdit">
+                        <Form.Control
+                                style={{ display: 'none' }}
+                                type="text"
+                                name="id"
+                                value={editData.id}
+                                onChange={handleInputChange}
+                            />
                             <Form.Label>Nama</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="name"
-                                value={editData.name}
-                                onChange={handleInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formKelaminEdit">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
                                 as="select"
-                                name="kelamin"
-                                value={editData.kelamin}
+                                name="user_id"
+                                value={editData.user_id}
                                 onChange={handleInputChange}
                             >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
+                                <option value="">Pilih nama Pegawai</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
                             </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatanEdit">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="jabatan"
-                                value={editData.jabatan}
-                                onChange={handleInputChange}
-                            />
                         </Form.Group>
                         <Form.Group controlId="formJenisCutiEdit">
                             <Form.Label>Jenis Cuti</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="jeniscuti"
-                                value={editData.jeniscuti}
+                                name="type"
+                                value={editData.type}
                                 onChange={handleInputChange}
                             >
                                 <option value="">Pilih Jenis Cuti</option>
-                                <option value="cuti tahunan">Cuti Tahunan</option>
-                                <option value="cuti sakit">Cuti Sakit</option>
-                                <option value="cuti melahirkan">Cuti Melahirkan</option>
-                                <option value="cuti besar">Cuti Besar</option>
-                                <option value="cuti duka">Cuti Duka</option>
-                                <option value="cuti pendidikan">Cuti Pendidikan</option>
-                                <option value="cuti tanpa gaji">Cuti Tanpa Gaji</option>
-                                <option value="cuti pernikahan">Cuti Pernikahan</option>
-                                <option value="cuti ayah">Cuti Ayah</option>
-                                <option value="cuti ibadah">Cuti Ibadah</option>
+                                <option value="sakit">sakit</option>
+                                <option value="izin">izin</option>
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formKeteranganEdit">
@@ -321,8 +395,8 @@ const Cuti = () => {
                             <Form.Control
                                 as="textarea"
                                 rows={3}
-                                name="keterangan"
-                                value={editData.keterangan}
+                                name="reasoning"
+                                value={editData.reasoning}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
@@ -330,8 +404,8 @@ const Cuti = () => {
                             <Form.Label>Mulai Tanggal</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="starttanggal"
-                                value={editData.starttanggal}
+                                name="start_date"
+                                value={editData.start_date}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
@@ -340,7 +414,7 @@ const Cuti = () => {
                             <Form.Control
                                 type="date"
                                 name="finistanggal"
-                                value={editData.finistanggal}
+                                value={editData.end_date}
                                 onChange={handleInputChange}
                             />
                         </Form.Group>
@@ -348,26 +422,21 @@ const Cuti = () => {
                             <Form.Label>Pertimbangan</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="pertimbangan"
-                                value={editData.pertimbangan}
+                                name="status"
+                                value={editData.status}
                                 onChange={handleInputChange}
                             >
                                 <option value="">Pilih</option>
-                                <option value="Disetujui">Disetujui</option>
-                                <option value="Tidak Disetujui">Tidak Disetujui</option>
+                                <option value="diproses">diproses</option>
+                                <option value="disetujui">disetujui</option>
+                                <option value="ditolak">ditolak</option>
                             </Form.Control>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseEdit}>
-                        Close
-                    </Button>
                     <Button variant="success" onClick={handleSaveEdit}>
-                        Save Changes
-                    </Button>
-                    <Button variant="danger" onClick={handleFailedEdit}>
-                        Failed
+                        simpan
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -379,56 +448,33 @@ const Cuti = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group controlId="formNamaAdd">
+                    <Form.Group controlId="formNamaAdd">
                             <Form.Label>Nama</Form.Label>
                             <Form.Control
-                                type="text"
-                                name="name"
-                                value={newData.name}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formKelaminAdd">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
                                 as="select"
-                                name="kelamin"
-                                value={newData.kelamin}
+                                name="user_id"
+                                value={newData.user_id}
                                 onChange={handleNewInputChange}
                             >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
+                                <option value="">Pilih nama Pegawai</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
                             </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatanAdd">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="jabatan"
-                                value={newData.jabatan}
-                                onChange={handleNewInputChange}
-                            />
                         </Form.Group>
                         <Form.Group controlId="formJenisCutiAdd">
                             <Form.Label>Jenis Cuti</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="jeniscuti"
-                                value={newData.jeniscuti}
+                                name="type"
+                                value={newData.type}
                                 onChange={handleNewInputChange}
                             >
-                                <option value="">Pilih Jenis Cuti</option>
-                                <option value="cuti tahunan">Cuti Tahunan</option>
-                                <option value="cuti sakit">Cuti Sakit</option>
-                                <option value="cuti melahirkan">Cuti Melahirkan</option>
-                                <option value="cuti besar">Cuti Besar</option>
-                                <option value="cuti duka">Cuti Duka</option>
-                                <option value="cuti pendidikan">Cuti Pendidikan</option>
-                                <option value="cuti tanpa gaji">Cuti Tanpa Gaji</option>
-                                <option value="cuti pernikahan">Cuti Pernikahan</option>
-                                <option value="cuti ayah">Cuti Ayah</option>
-                                <option value="cuti ibadah">Cuti Ibadah</option>
+                                  <option value="">Pilih Jenis Cuti</option>
+                                <option value="sakit">sakit</option>
+                                <option value="izin">izin</option>
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formKeteranganAdd">
@@ -436,8 +482,8 @@ const Cuti = () => {
                             <Form.Control
                                 as="textarea"
                                 rows={3}
-                                name="keterangan"
-                                value={newData.keterangan}
+                                name="reasoning"
+                                value={newData.reasoning}
                                 onChange={handleNewInputChange}
                             />
                         </Form.Group>
@@ -445,8 +491,8 @@ const Cuti = () => {
                             <Form.Label>Mulai Tanggal</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="starttanggal"
-                                value={newData.starttanggal}
+                                name="start_date"
+                                value={newData.start_date}
                                 onChange={handleNewInputChange}
                             />
                         </Form.Group>
@@ -454,35 +500,16 @@ const Cuti = () => {
                             <Form.Label>Selesai Tanggal</Form.Label>
                             <Form.Control
                                 type="date"
-                                name="finistanggal"
-                                value={newData.finistanggal}
+                                name="end_date"
+                                value={newData.end_date}
                                 onChange={handleNewInputChange}
                             />
-                        </Form.Group>
-                        <Form.Group controlId="formPertimbanganAdd">
-                            <Form.Label>Pertimbangan</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="pertimbangan"
-                                value={newData.pertimbangan}
-                                onChange={handleNewInputChange}
-                            >
-                                <option value="">Pilih</option>
-                                <option value="Disetujui">Disetujui</option>
-                                <option value="Tidak Disetujui">Tidak Disetujui</option>
-                            </Form.Control>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseAdd}>
-                        Close
-                    </Button>
                     <Button variant="success" onClick={handleSaveAdd}>
-                        Save
-                    </Button>
-                    <Button variant="danger" onClick={handleFailedAdd}>
-                        Failed
+                        Simpan
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -522,68 +549,29 @@ const Cuti = () => {
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
-                        <Form.Group controlId="formKelaminFilter">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="gender"
-                                onChange={handleFilterCriteriaChange}
-                            >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="semua">Semua</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatanFilter">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="position"
-                                onChange={handleFilterCriteriaChange}
-                            >
-                                <option value="">Pilih Jenis Jabatan</option>
-                                <option value="semua">Semua</option>
-                                <option value="staf admin">Staf Admin</option>
-                                <option value="manajer">Manajer</option>
-                                <option value="staf IT">Staf IT</option>
-                                <option value="staf HR">Staf HR</option>
-                                <option value="direktur">Direktur</option>
-                                <option value="staf pemasaran">Staf Pemasaran</option>
-                                <option value="staf keuangan">Staf Keuangan</option>
-                            </Form.Control>
-                        </Form.Group>
                         <Form.Group controlId="formJenisCutiEdit">
                             <Form.Label>Jenis Cuti</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="jeniscuti"
+                                name="type"
                                 onChange={handleFilterCriteriaChange}
                             >
-                                <option value="">Pilih Jenis Cuti</option>
-                                <option value="cuti tahunan">Cuti Tahunan</option>
-                                <option value="cuti sakit">Cuti Sakit</option>
-                                <option value="cuti melahirkan">Cuti Melahirkan</option>
-                                <option value="cuti besar">Cuti Besar</option>
-                                <option value="cuti duka">Cuti Duka</option>
-                                <option value="cuti pendidikan">Cuti Pendidikan</option>
-                                <option value="cuti tanpa gaji">Cuti Tanpa Gaji</option>
-                                <option value="cuti pernikahan">Cuti Pernikahan</option>
-                                <option value="cuti ayah">Cuti Ayah</option>
-                                <option value="cuti ibadah">Cuti Ibadah</option>
+                              <option value="">Pilih Jenis Cuti</option>
+                                <option value="sakit">sakit</option>
+                                <option value="izin">izin</option>
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formPertimbanganEdit">
                             <Form.Label>Pertimbangan</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="pertimbangan"
+                                name="status"
                                 onChange={handleFilterCriteriaChange}
                             >
                                 <option value="">Pilih</option>
-                                <option value="Disetujui">Disetujui</option>
-                                <option value="Mengajukan">Mengajukan</option>
-                                <option value="Tidak Disetujui">Tidak Disetujui</option>
+                                <option value="diproses">diproses</option>
+                                <option value="disetujui">disetujui</option>
+                                <option value="ditolak">ditolak</option>
                             </Form.Control>
                         </Form.Group>
                     </Form>

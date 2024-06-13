@@ -102,15 +102,6 @@ const Sidebar = ({ isOpen }) => {
           </ul>
         </li>
         <li>
-        <Link to="/admin/Gaji">
-          <i className='bx bxs-dollar-circle'></i>
-            <span className="link_name">Gaji</span>
-          </Link>
-          <ul className="sub-menu blank">
-            <li><a className="link_name" href="#" onClick={() => navigate('/admin/Gaji')}>Gaji</a></li>
-          </ul>
-        </li>
-        <li>
         <Link to="/admin/Lembur">
           <i className='bx bxs-briefcase-alt-2'></i>
             <span className="link_name">Lembur</span>

@@ -93,6 +93,7 @@ const RecapGaji = () => {
 
     const [records, setRecords] = useState(initialData);
     const [showFilterModal, setShowFilterModal] = useState(false);
+    const [showAddModal, setShowAddModal] = useState(false);
     const [filteredRecords, setFilteredRecords] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState({ date: '', gender: '', position: '' });
 
@@ -124,7 +125,8 @@ const RecapGaji = () => {
     const handleCloseFilter = () => setShowFilterModal(false);
     const handleShowFilter = () => setShowFilterModal(true);
 
-
+    const handleCloseAdd = () => setShowAddModal(false);
+    const handleShowAdd = () => setShowAddModal(true);
    
 
     const handleFilter = (event) => {
@@ -184,10 +186,14 @@ const RecapGaji = () => {
         <div className='container'>
             <h1 className='mt-3 mb-3'><b>Recap Gaji</b></h1>
             <div className='d-flex justify-content-between mb-3'>
-            <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
+            <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
+                    <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Generate Gaji
+                </Button>
+            
+                <div>
+                <Button variant="primary" className="text-white me-2 " style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowFilter}>
                 <i class="bi bi-funnel-fill" aria-hidden="true"></i> Filter
         </Button>
-                <div>
                 <Button variant="danger"  className='btn btn-warning mx-3 text-white font-weight-bold rounded-5' onClick={exportToPDF}> <img src={Pdf} alt="" width={18} /> PDF</Button>
                     <Button variant="success" className='btn btn-success text-white font-weight-bold rounded-5' onClick={exportToExcel}> <img src={Excel} alt="" width={18} /> Excel</Button>
                     <SearchBox onChange={handleFilter} />
