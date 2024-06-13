@@ -179,6 +179,9 @@ const createWageReports = async (userId, targetMonth, targetYear) => {
 
   return {
     user_id: user.id,
+    base_salary,
+    transport_allowance,
+    meal_allowance,
     net_salary,
     overtimes: overtimePay,
     cuts: totalCut,

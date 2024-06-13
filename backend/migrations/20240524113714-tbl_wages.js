@@ -31,6 +31,18 @@ module.exports = {
           max: 2100, // adjust as needed
         },
       },
+      base_salary: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      transport_allowance: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      meal_allowance: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       overtimes: {
         type: Sequelize.INTEGER,
         allowNull: false,

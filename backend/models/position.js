@@ -55,7 +55,7 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Position.associate = function (models) {
-    Position.hasMany(models.User, { foreignKey: "position_id" });
+    Position.hasMany(models.User, { foreignKey: "position_id", as: "users" });
   };
 
   return Position;

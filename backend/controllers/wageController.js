@@ -44,15 +44,17 @@ const wageController = {
   // Retrieve all wage
   findAll: async (req, res) => {
     try {
-      const wage = await Wage.findAll({
+      let wage = await Wage.findAll({
         where: { archived: false },
-        include: {
-          model: User,
-          as: "user",
-          where: { archived: false },
-          required: false,
-          attributes: ["name"],
-        },
+        include: [
+          {
+            model: User,
+            as: "user",
+            where: { archived: false },
+            required: false,
+            attributes: ["name"],
+          },
+        ],
       });
       res.status(200).json({ status: "sukses", data: wage });
     } catch (error) {
