@@ -235,13 +235,63 @@ const RecapAbsensi = () => {
         return criteriaText.length ? criteriaText.join(', ') : 'Tidak ada data yang diterapkan';
     };
 
-    const handleAddAttendanceReport = () => {
-        if (users.length > 0) {
-            const userId = users[0].id; // Mengambil ID user pertama, sesuaikan sesuai kebutuhan Anda
-            addAttendanceReport(userId, addCriteria.month, addCriteria.year);
+    // const handleAddAttendanceReport = () => {
+
+    //     if (users.length > 0) {
+    //         const userId = users[0].id; // Mengambil ID user pertama, sesuaikan sesuai kebutuhan Anda
+    //         addAttendanceReport(userId, addCriteria.month, addCriteria.year);
+    //         handleCloseAdd();
+    //     }
+    // };
+
+    const handleAddAttendanceReport = async () => {
+        const token = localStorage.getItem('token'); // Retrieve token from localStorage
+        const { month, year } = addCriteria;
+
+        try {
+            const response = await axios.post(`${API_URL}/api/admin/attendance-reports/all`, {
+                month: month === 'semua' ? undefined : parseInt(month),
+                year: year === 'semua' ? undefined : parseInt(year)
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                    'accept': 'application/json'
+                }
+            });
+
+            console.log('Response:', response.data);
+            koneksi();
             handleCloseAdd();
+            // Handle the response here (e.g., show success message, update state)
+        } catch (error) {
+            console.error('Error fetching attendance reports:', error);
+            // Handle error here (e.g., show error message)
         }
     };
+
+
+    const handleDeleteAttendanceReport = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          await axios.delete(`${API_URL}/api/admin/attendance-reports`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            data: {
+              month: addCriteria.month,
+              year: addCriteria.year
+            }
+          });
+        //   alert('Data successfully deleted');
+        koneksi()
+        handleCloseAdd();
+        } catch (error) {
+          console.error('Error deleting data:', error);
+          alert('Failed to delete data');
+        }
+      };
 
     return (
         <div className='container'>
@@ -250,9 +300,6 @@ const RecapAbsensi = () => {
                 <div>
                 <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={handleShowAdd}>
                      Tampilkan Data
-                </Button>
-                <Button variant="primary" className="text-white me-2" style={{ borderRadius: '15px', height: '30px', backgroundColor: '#18C89E' }} onClick={koneksi}>
-                <i className="bi bi-arrow-clockwise" aria-hidden="true"></i> Reset
                 </Button>
                 </div>
                 <div>
@@ -329,7 +376,10 @@ const RecapAbsensi = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer style={{ borderTop: 'none' }}>
-                    <Button variant="primary" onClick={handleAddAttendanceReport}>
+                    <Button variant="susccess" onClick={handleDeleteAttendanceReport}>
+                    <i className="bi bi-arrow-clockwise" aria-hidden="true"></i> Reset
+                    </Button>
+                    <Button variant="success" onClick={handleAddAttendanceReport}>
                         tampilkan
                     </Button>
                 </Modal.Footer>

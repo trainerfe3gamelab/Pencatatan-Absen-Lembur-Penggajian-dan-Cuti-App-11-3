@@ -86,6 +86,7 @@ const Pengaturan = () => {
 
       console.log("Form data submitted:", response.data);
       handleShowSuccess();
+      window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
       handleShowFailed();
@@ -312,9 +313,6 @@ const Pengaturan = () => {
                     <p>Data berhasil disimpan</p>
                 </Modal.Body>
                 <Modal.Footer style={{ borderTop: 'none' }}>
-                    <Button variant="primary" onClick={handleCloseSuccess}>
-                        Tutup
-                    </Button>
                 </Modal.Footer>
             </Modal>
 
