@@ -5,6 +5,7 @@ router.get("/", wageController.findAll);
 router.post("/", wageController.create);
 router.get("/:id", wageController.findOne);
 router.put("/:id", wageController.update);
-router.delete("/:id", wageController.delete);
+router.delete("/", wageController.delete);
+router.delete("/:id", wageController.deleteById);
 
 module.exports = router;
