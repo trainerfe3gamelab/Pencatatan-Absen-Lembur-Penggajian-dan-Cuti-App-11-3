@@ -1,11 +1,62 @@
-// MobileSidebar.jsx
-import React from 'react';
+import React, { useState, useEffect } from "react";
 import { Offcanvas, Navbar, Container, Nav, NavDropdown } from 'react-bootstrap';
 import logo from '../../image/lg-kecil.png';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import { API_URL } from "../../helpers/networt";
+import { jwtDecode } from "jwt-decode";
 
 const MobileSidebar = () => {
   const navigate = useNavigate();
+  const [profile, setProfile] = useState({});
+  const [decodedToken, setDecodedToken] = useState("");
+  const [profilePicture, setProfilePicture] = useState(false);
+
+  const koneksi = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setDecodedToken(decoded);
+        const response = await axios.get(
+          `${API_URL}/api/admin/users/${decoded.id}`,
+          {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          }
+        );
+        const {
+          email,
+          password,
+          gender,
+          name,
+          address,
+          phone_number,
+          profile_picture,
+        } = response.data.data;
+        setProfile({
+          email,
+          password,
+          gender,
+          name,
+          address,
+          phone_number,
+          profile_picture,
+          password: "",
+        });
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    }
+  };
+
+
+  useEffect(() => {
+    koneksi();
+  }, []);
+
+
   return (
     <>
       {[false].map((expand) => (
@@ -17,9 +68,15 @@ const MobileSidebar = () => {
             </Navbar.Brand>
             <Navbar.Brand href="#">
               <div className="wrapperuser">
-                <p className="pt-4 nameuser">Ucup</p>
+                <p className="pt-4 nameuser">{profile.name}</p>
                 <div className="user">
-                  <img className="pp" src="" alt="" />
+                  <img className="pp" src={
+                      profilePicture !== false
+                        ? profilePicture
+                        : profile.profile_picture
+                          ? `${API_URL}/${profile.profile_picture}`
+                          : profilePicture
+                    } alt="" />
                 </div>
               </div>
             </Navbar.Brand>

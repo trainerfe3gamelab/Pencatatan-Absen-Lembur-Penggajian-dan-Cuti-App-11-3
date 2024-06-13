@@ -14,8 +14,16 @@ import RecapAbsensi from '../absensi/recapAbsensi';
 import RecapGaji from '../gaji/recapGaji';
 import HariLibur from '../hariLibur/HariLibur';
 import WaktuAbsensi from '../waktuAbsensi/WaktuAbsensi';
+import axios from "axios";
+import { API_URL } from "../../helpers/networt";
+import { jwtDecode } from "jwt-decode";
 
 const Admin = () => {
+  const [profile, setProfile] = useState({});
+  const [decodedToken, setDecodedToken] = useState("");
+  const [profilePicture, setProfilePicture] = useState(false);
+ 
+
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const toggleSidebar = () => {
     setSidebarOpen(!isSidebarOpen);
@@ -41,6 +49,51 @@ const Admin = () => {
     };
   }, []);
 
+  const koneksi = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setDecodedToken(decoded);
+        const response = await axios.get(
+          `${API_URL}/api/admin/users/${decoded.id}`,
+          {
+            headers: {
+              "Authorization": `Bearer ${token}`,
+            },
+          }
+        );
+        const {
+          email,
+          password,
+          gender,
+          name,
+          address,
+          phone_number,
+          profile_picture,
+        } = response.data.data;
+        setProfile({
+          email,
+          password,
+          gender,
+          name,
+          address,
+          phone_number,
+          profile_picture,
+          password: "",
+        });
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    koneksi();
+  }, []);
+
+
+  
   return (
     <div>
       {showSidebar && <MobileSidebar className='sticky-sidebar' />}
@@ -55,9 +108,15 @@ const Admin = () => {
               <div className='wrapper'>
                 <p className="admjd">Admin</p>
                 <div className="wrapperuser">
-                  <p className="pt-4 nameuser">Ucup</p>
+                  <p className="pt-4 nameuser">{profile.name}</p>
                   <div className="user">
-                    <img className="pp" src="" alt="" />
+                    <img className="pp" src={
+                      profilePicture !== false
+                        ? profilePicture
+                        : profile.profile_picture
+                          ? `${API_URL}/${profile.profile_picture}`
+                          : profilePicture
+                    } alt="Profile" />
                   </div>
                 </div>
               </div>
@@ -77,7 +136,7 @@ const Admin = () => {
               <Route path="RecapAbsensi" element={<RecapAbsensi />} />
               <Route path="RecapGaji" element={<RecapGaji />} />
               <Route path="pengaturan" element={<Pengaturan />} />
-              <Route path="*" element={<Dashboard />} /> 
+              <Route path="*" element={<Dashboard />} />
             </Routes>
           </div>
         </div>

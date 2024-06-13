@@ -1,6 +1,6 @@
-'use client';
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt'; // Adjust the path as necessary
 import {
   BarChart,
   Bar,
@@ -8,79 +8,71 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
+  XAxis,
+  YAxis,
 } from 'recharts';
 
-const salesData = [
-  {
-    name: 'Jan',
-    revenue: 4000,
-    profit: 2400,
-  },
-  {
-    name: 'Feb',
-    revenue: 3000,
-    profit: 1398,
-  },
-  {
-    name: 'Mar',
-    revenue: 9800,
-    profit: 2000,
-  },
-  {
-    name: 'Apr',
-    revenue: 3908,
-    profit: 2780,
-  },
-  {
-    name: 'May',
-    revenue: 4800,
-    profit: 1890,
-  },
-  {
-    name: 'Jun',
-    revenue: 3800,
-    profit: 2390,
-  },
-];
-
 const BarChartComponent = () => {
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Retrieve token from localStorage
+        const response = await axios.get(`${API_URL}/api/admin/dashboards`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log('API Response:', response.data); // Log the entire response data
+        
+        const { data } = response.data;
+
+        // Map API data to chartData structure
+        const newData = {
+          name: 'API Data',
+          employees: parseInt(data.employees) || 0,
+          admins: parseInt(data.admins) || 0,
+          positions: parseInt(data.positions) || 0,
+          attendances: parseInt(data.attendances) || 0,
+        };
+
+        console.log('New Data:', newData); // Log the transformed newData
+
+        setChartData([newData]);
+      } catch (error) {
+        console.error('Error fetching data', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <ResponsiveContainer width={300} height={200}>
+    <ResponsiveContainer width={400} height={200}>
       <BarChart
-        width={300}
-        height={200}
-        data={salesData}
+        width={400}
+        height={300}
+        data={chartData}
         margin={{
+          top: 20,
           right: 30,
+          left: 20,
+          bottom: 5,
         }}
       >
         <CartesianGrid strokeDasharray="3 3" />
-        <Tooltip content={<CustomTooltip />} />
+        <XAxis dataKey="name" />
+        <YAxis />
+        <Tooltip />
         <Legend />
-        <Bar dataKey="revenue" fill="#2563eb" />
-        <Bar dataKey="profit" fill="#8b5cf6" />
+        <Bar dataKey="employees" fill="#2563eb" />
+        <Bar dataKey="admins" fill="#8b5cf6" />
+        <Bar dataKey="positions" fill="#82ca9d" />
+        <Bar dataKey="attendances" fill="#ffc658" />
       </BarChart>
     </ResponsiveContainer>
   );
-};
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="p-4 bg-slate-900 flex flex-col gap-4 rounded-md">
-        <p className="text-medium text-lg">{label}</p>
-        <p className="text-sm text-blue-400">
-          Revenue:
-          <span className="ml-2">${payload[0].value}</span>
-        </p>
-        <p className="text-sm text-indigo-400">
-          Profit:
-          <span className="ml-2">${payload[1].value}</span>
-        </p>
-      </div>
-    );
-  }
-  return null;
 };
 
 export default BarChartComponent;
