@@ -9,54 +9,54 @@ const {
 } = require("../models");
 const { Op, fn, col, literal } = require("sequelize");
 const moment = require("moment-timezone");
-const createWageReports = async (userId, targetMonth, targetYear) => {
-  const user = await User.findOne({
-    where: { id: userId, archived: false, role: "employee" },
-    attributes: [
-      "id",
-      [
-        fn(
-          "SUM",
-          literal(`CASE WHEN attendances.status = 'alpha' THEN 1 ELSE 0 END`)
-        ),
-        "totalAlpha",
-      ],
-      [
-        fn(
-          "SUM",
-          literal(
-            `CASE WHEN attendances.status = 'telat' OR attendances.status = 'hadir' THEN 1 ELSE 0 END`
-          )
-        ),
-        "totalPresence",
-      ],
-      [
-        fn(
-          "COUNT",
-          literal(
-            `CASE WHEN overtimes.status = 'disetujui' THEN overtimes.id ELSE NULL END`
-          )
-        ),
-        "totalOvertime",
-      ],
-      [
-        fn(
-          "SUM",
-          literal("TIMESTAMPDIFF(HOUR, overtimes.time_in, overtimes.time_out) ")
-        ),
-        "totalOvertimeHours",
-      ],
-      [
-        fn(
-          "SUM",
-          literal(
-            `CASE WHEN leaves.status = 'disetujui' THEN DATEDIFF(leaves.end_date, leaves.start_date) + 1 ELSE 0 END`
-          )
-        ),
-        "totalLeaveDays",
-      ],
+
+const data = {
+  attributes: [
+    "id",
+    [
+      fn(
+        "SUM",
+        literal(`CASE WHEN attendances.status = 'alpha' THEN 1 ELSE 0 END`)
+      ),
+      "totalAlpha",
     ],
-    include: [
+    [
+      fn(
+        "SUM",
+        literal(
+          `CASE WHEN attendances.status = 'telat' OR attendances.status = 'hadir' THEN 1 ELSE 0 END`
+        )
+      ),
+      "totalPresence",
+    ],
+    [
+      fn(
+        "COUNT",
+        literal(
+          `CASE WHEN overtimes.status = 'disetujui' THEN overtimes.id ELSE NULL END`
+        )
+      ),
+      "totalOvertime",
+    ],
+    [
+      fn(
+        "SUM",
+        literal("TIMESTAMPDIFF(HOUR, overtimes.time_in, overtimes.time_out) ")
+      ),
+      "totalOvertimeHours",
+    ],
+    [
+      fn(
+        "SUM",
+        literal(
+          `CASE WHEN leaves.status = 'disetujui' THEN DATEDIFF(leaves.end_date, leaves.start_date) + 1 ELSE 0 END`
+        )
+      ),
+      "totalLeaveDays",
+    ],
+  ],
+  include: (targetMonth, targetYear, targetStartDate, targetEndDate) => {
+    return [
       {
         model: Position,
         as: "position",
@@ -103,23 +103,121 @@ const createWageReports = async (userId, targetMonth, targetYear) => {
           [Op.and]: [
             {
               start_date: {
-                [Op.lte]: moment([targetYear, targetMonth - 1])
-                  .endOf("month")
-                  .toDate(),
+                [Op.lte]: targetEndDate.toDate(),
               },
             },
             {
               end_date: {
-                [Op.gte]: moment([targetYear, targetMonth - 1])
-                  .startOf("month")
-                  .toDate(),
+                [Op.gte]: targetStartDate.toDate(),
               },
             },
           ],
         },
         required: false,
       },
+    ];
+  },
+};
+
+const createWageReportsForAllUsers = async (targetMonth, targetYear) => {
+  const targetStartDate = moment([targetYear, targetMonth - 1, 1]);
+  const targetEndDate = moment(targetStartDate).endOf("month");
+
+  const users = await User.findAll({
+    where: { archived: false, role: "employee" },
+    attributes: data.attributes,
+    include: data.include(
+      targetMonth,
+      targetYear,
+      targetStartDate,
+      targetEndDate
+    ),
+    group: [
+      "User.id",
+      "position.id",
+      "position.base_salary",
+      "position.transport_allowance",
+      "position.meal_allowance",
+      "leaves.id",
+      "leaves.type",
+      "leaves.start_date",
+      "leaves.end_date",
     ],
+  });
+
+  const salaryCuts = await getSalaryCuts();
+  const holidays = await getTotalHoliday(targetYear, targetMonth);
+
+  const reports = users.map((user) => {
+    const totalLeaveDays = user.leaves.reduce((total, leave) => {
+      const leaveStartDate = moment(leave.start_date);
+      const leaveEndDate = moment(leave.end_date);
+
+      const effectiveStartDate = leaveStartDate.isBefore(targetStartDate)
+        ? targetStartDate
+        : leaveStartDate;
+      const effectiveEndDate = leaveEndDate.isAfter(targetEndDate)
+        ? targetEndDate
+        : leaveEndDate;
+
+      const leaveDays = effectiveEndDate.diff(effectiveStartDate, "days") + 1;
+
+      return (
+        total +
+        (leaveStartDate.isBefore(targetEndDate) &&
+        leaveEndDate.isAfter(targetStartDate)
+          ? leaveDays
+          : 0)
+      );
+    }, 0);
+
+    const overtimePay = calculateOvertimePay(
+      user.getDataValue("totalOvertimeHours"),
+      user.position.base_salary
+    );
+
+    const totalCut = calculateCut(
+      targetMonth,
+      targetYear,
+      user.getDataValue("totalPresence"),
+      totalLeaveDays,
+      holidays,
+      salaryCuts
+    );
+
+    const { base_salary, transport_allowance, meal_allowance } = user.position;
+
+    const net_salary =
+      base_salary +
+      transport_allowance +
+      meal_allowance +
+      overtimePay -
+      totalCut;
+
+    return {
+      user_id: user.id,
+      base_salary,
+      transport_allowance,
+      meal_allowance,
+      net_salary,
+      overtimes: overtimePay,
+      cuts: totalCut,
+    };
+  });
+
+  return reports.filter((report) => report !== null);
+};
+
+const createWageReports = async (userId, targetMonth, targetYear) => {
+  const user = await User.findOne({
+    where: { id: userId, archived: false, role: "employee" },
+    attributes: data.attributes,
+    include: data.include(
+      targetMonth,
+      targetYear,
+      targetStartDate,
+      targetEndDate
+    ),
     group: ["User.id", "position.id", "leaves.id"],
   });
 
@@ -128,11 +226,9 @@ const createWageReports = async (userId, targetMonth, targetYear) => {
   const targetStartDate = moment([targetYear, targetMonth - 1, 1]);
   const targetEndDate = moment(targetStartDate).endOf("month");
 
-  //dapatkan data potongan dan data hari libur dalam bulan dan tahun yang ditentukan
   const salaryCuts = await getSalaryCuts();
   const holidays = await getTotalHoliday(targetYear, targetMonth);
 
-  //dapatkan total cuti dalam bulan dan tahun yang ditentukan
   const totalLeaveDays = user.leaves.reduce((total, leave) => {
     const leaveStartDate = moment(leave.start_date);
     const leaveEndDate = moment(leave.end_date);
@@ -155,13 +251,11 @@ const createWageReports = async (userId, targetMonth, targetYear) => {
     );
   }, 0);
 
-  //dapatkan uang lebmur
   const overtimePay = calculateOvertimePay(
     user.dataValues.totalOvertimeHours,
     user.position.base_salary
   );
 
-  //dapatkan uang potongan
   const totalCut = calculateCut(
     targetMonth,
     targetYear,
@@ -173,7 +267,6 @@ const createWageReports = async (userId, targetMonth, targetYear) => {
 
   const { base_salary, transport_allowance, meal_allowance } = user.position;
 
-  //hitung gaji bersih
   const net_salary =
     base_salary + transport_allowance + meal_allowance + overtimePay - totalCut;
 
@@ -267,5 +360,10 @@ const calculateCut = (
 };
 
 module.exports = {
+  createWageReportsForAllUsers,
+};
+
+module.exports = {
   createWageReports,
+  createWageReportsForAllUsers,
 };
