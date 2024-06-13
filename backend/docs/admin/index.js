@@ -8,6 +8,7 @@ const wageDocumentation = require("./wageDocumentation");
 const leavedocumentation = require("./leaveDocumentation");
 const overtimeDocumentation = require("./overtimeDocumentation");
 const attendanceDocumentation = require("./attendanceDocumentation");
+const dashboardDocumentation = require("./dashboardDocumentation");
 
 module.exports = {
   paths: {
@@ -21,6 +22,7 @@ module.exports = {
     ...leavedocumentation.paths,
     ...overtimeDocumentation.paths,
     ...attendanceDocumentation.paths,
+    ...dashboardDocumentation.paths,
   },
   schemas: {
     ...holidayDocumentation.schemas,
@@ -33,5 +35,6 @@ module.exports = {
     ...leavedocumentation.schemas,
     ...overtimeDocumentation.schemas,
     ...attendanceDocumentation.schemas,
+    ...dashboardDocumentation.schemas,
   },
 };
