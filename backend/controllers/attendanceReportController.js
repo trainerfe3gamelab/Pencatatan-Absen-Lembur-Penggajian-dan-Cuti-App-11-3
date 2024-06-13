@@ -11,7 +11,7 @@ const attendanceReportController = {
     // Validate request body
     const optionalattendanceReportValidator = attendanceReportValidator.fork(
       ["hadir", "sakit", "izin", "alpha"],
-      (schema) => schema.optional()
+      (schema) => schema.forbidden()
     );
     const { error, value } = optionalattendanceReportValidator.validate(
       req.body
@@ -176,8 +176,45 @@ const attendanceReportController = {
     }
   },
 
-  // Delete a attendanceReport
   delete: async (req, res) => {
+    // Validate request body
+    const optionalattendanceReportValidator = attendanceReportValidator.fork(
+      ["user_id", "hadir", "sakit", "izin", "alpha"],
+      (schema) => schema.forbidden()
+    );
+    const { error, value } = optionalattendanceReportValidator.validate(
+      req.body
+    );
+    if (error) return handleFailed(res, 400, error.details[0].message);
+    try {
+      const data = await AttendanceReport.update(
+        {
+          archived: true,
+        },
+        {
+          where: {
+            id: req.params.id,
+            archived: false,
+            month: value.month,
+            year: value.year,
+          },
+        }
+      );
+      if (data[0] == 0)
+        return handleFailed(res, 400, "Data Laporan absensi gagal dihapus");
+
+      res.status(200).json({
+        status: "sukses",
+        message: "Laporan absensi berhasil dihapus",
+      });
+    } catch (error) {
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
+    }
+  },
+
+  // Delete a attendanceReport
+  deleteById: async (req, res) => {
     try {
       const data = await AttendanceReport.update(
         {
