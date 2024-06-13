@@ -11,7 +11,7 @@ const wageController = {
     // Validate request body
     const optionalwageValidator = wageValidator.fork(
       ["overtimes", "cuts", "net_salary"],
-      (schema) => schema.optional()
+      (schema) => schema.forbidden()
     );
     const { error, value } = optionalwageValidator.validate(req.body);
     if (error) return handleFailed(res, 400, error.details[0].message);
@@ -165,8 +165,42 @@ const wageController = {
     }
   },
 
-  // Delete a wage
   delete: async (req, res) => {
+    const optionalwageValidator = wageValidator.fork(
+      ["user_id", "overtimes", "cuts", "net_salary"],
+      (schema) => schema.forbidden()
+    );
+    const { error, value } = optionalwageValidator.validate(req.body);
+    if (error) return handleFailed(res, 400, error.details[0].message);
+    try {
+      const data = await Wage.update(
+        {
+          archived: true,
+        },
+        {
+          where: {
+            id: req.params.id,
+            archived: false,
+            month: value.month,
+            year: value.year,
+          },
+        }
+      );
+      if (data[0] == 0)
+        return handleFailed(res, 400, "Data Gaji gagal dihapus");
+
+      res.status(200).json({
+        status: "sukses",
+        message: "Gaji berhasil dihapus",
+      });
+    } catch (error) {
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
+    }
+  },
+
+  // Delete a wage
+  deleteById: async (req, res) => {
     try {
       const data = await Wage.update(
         {
