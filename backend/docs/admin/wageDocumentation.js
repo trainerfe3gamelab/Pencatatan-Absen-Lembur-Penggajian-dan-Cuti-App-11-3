@@ -105,6 +105,72 @@ const wageDocumentation = {
           },
         },
       },
+      delete: {
+        tags: ["Admin"],
+        summary: "Delete a wage",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/WageDelete" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Gaji berhasil dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "sukses" },
+                    message: {
+                      type: "string",
+                      example: "Gaji berhasil dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Gaji tidak ditemukan atau gagal dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Data Gaji gagal dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     "/admin/wages/{id}": {
       get: {
@@ -253,7 +319,7 @@ const wageDocumentation = {
       },
       delete: {
         tags: ["Admin"],
-        summary: "Delete a wage",
+        summary: "Delete a wage by id",
         security: [{ bearerAuth: [] }],
         parameters: [
           {
@@ -351,6 +417,13 @@ const wageDocumentation = {
       type: "object",
       properties: {
         user_id: { type: "string", example: "tes1" },
+        month: { type: "integer", example: 6 },
+        year: { type: "integer", example: 2024 },
+      },
+    },
+    WageDelete: {
+      type: "object",
+      properties: {
         month: { type: "integer", example: 6 },
         year: { type: "integer", example: 2024 },
       },
