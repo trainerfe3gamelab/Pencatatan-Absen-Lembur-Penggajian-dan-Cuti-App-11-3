@@ -172,6 +172,71 @@ const wageDocumentation = {
         },
       },
     },
+    "/admin/wages/all": {
+      post: {
+        tags: ["Admin"],
+        summary: "Create a new wage for all user",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/WageCreateAll" },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Gaji berhasil dibuat",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "sukses" },
+                    data: { $ref: "#/components/schemas/Wage" },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Validasi gagal",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Pesan error validasi",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/admin/wages/{id}": {
       get: {
         tags: ["Admin"],
@@ -434,7 +499,13 @@ const wageDocumentation = {
         user_id: { type: "string", example: "tes1" },
         month: { type: "integer", example: 6 },
         year: { type: "integer", example: 2024 },
-        cuts: { type: "integer", example: 235 },
+      },
+    },
+    WageCreateAll: {
+      type: "object",
+      properties: {
+        month: { type: "integer", example: 6 },
+        year: { type: "integer", example: 2024 },
       },
     },
   },

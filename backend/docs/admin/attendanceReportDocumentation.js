@@ -181,6 +181,77 @@ const attendanceReportDocumentation = {
         },
       },
     },
+    "/admin/attendance-reports/all": {
+      post: {
+        tags: ["Admin"],
+        summary: "Buat laporan absensi baru untuk semua user",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/CreateAllAttendanceReport",
+              },
+              example: {
+                month: 6,
+                year: 2024,
+              },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Laporan absensi berhasil dibuat",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "sukses" },
+                    data: { $ref: "#/components/schemas/AttendanceReport" },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Validasi gagal",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Detail error validasi",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
     "/admin/attendance-reports/{id}": {
       get: {
         tags: ["Admin"],
@@ -433,6 +504,13 @@ const attendanceReportDocumentation = {
       type: "object",
       properties: {
         user_id: { type: "string", example: "tes1" },
+        month: { type: "integer", example: 6 },
+        year: { type: "integer", example: 2024 },
+      },
+    },
+    CreateAllAttendanceReport: {
+      type: "object",
+      properties: {
         month: { type: "integer", example: 6 },
         year: { type: "integer", example: 2024 },
       },
