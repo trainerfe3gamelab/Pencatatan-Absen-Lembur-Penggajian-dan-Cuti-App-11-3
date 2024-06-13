@@ -216,7 +216,6 @@ const wageController = {
         },
         {
           where: {
-            id: req.params.id,
             archived: false,
             month: value.month,
             year: value.year,
