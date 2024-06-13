@@ -137,29 +137,11 @@ const Absensi = () => {
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [showFailedModal, setShowFailedModal] = useState(false);
-    const [editData, setEditData] = useState({ id: '', name: '', gender: '', position_id: '', status: '', date: '', time_in: '', time_out: '' });
-    const [newData, setNewData] = useState({ name: '', gender: '', position_id: '', status: '', date: '', time_in: '', time_out: '' });
+    const [editData, setEditData] = useState({ id:'', user_id: '', name: '', gender: '', position_id: '', status: '', date: '', time_in: '', time_out: '' });
+    const [newData, setNewData] = useState({user_id: '', name: '', gender: '', position_id: '', status: '', date: '', time_in: '', time_out: ''  });
     const [filteredRecords, setFilteredRecords] = useState(null);
     const [filterCriteria, setFilterCriteria] = useState({ date: '', gender: '', position: '' });
 
-    const handleFilterButton = () => {
-        let filteredData = initialData;
-
-        if (filterCriteria.date) {
-            filteredData = filteredData.filter(record => record.tanggal === filterCriteria.date);
-        }
-
-        if (filterCriteria.gender && filterCriteria.gender !== 'semua') {
-            filteredData = filteredData.filter(record => record.kelamin === filterCriteria.gender);
-        }
-
-        if (filterCriteria.position && filterCriteria.position !== 'semua') {
-            filteredData = filteredData.filter(record => record.jabatan === filterCriteria.position);
-        }
-
-        setFilteredRecords(filteredData);
-        setShowFilterModal(false);
-    };
 
     const handleCloseEdit = () => setShowEditModal(false);
     const handleShowEdit = () => setShowEditModal(true);
@@ -181,11 +163,38 @@ const Absensi = () => {
         handleShowEdit();
     };
 
-    const handleSaveEdit = () => {
-        setRecords(records.map(record => (record.id === editData.id ? editData : record)));
-        handleCloseEdit();
-        handleShowSuccess();
+    const handleSaveEdit = async () => {
+        const token = localStorage.getItem('token');
+        const userId = editData.id;
+        const updatedUserData = {
+            user_id: editData.user_id, 
+            status: editData.status,
+            date: editData.date,
+            time_in: editData.time_in,
+            time_out: editData.time_out,
+        };
+    
+        console.log("id=", userId);
+        console.log("Updated Data=", updatedUserData);
+        
+        try {
+            const response = await axios.put(`${API_URL}/api/admin/attendances/${userId}`, updatedUserData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log("User data updated successfully:", response.data);
+            handleCloseEdit();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error updating user data:", error);
+            handleCloseEdit();
+            handleShowFailed();
+        }
     };
+    
 
     const handleDelete = async (id) => {
         const token = localStorage.getItem('token');
@@ -217,23 +226,44 @@ const Absensi = () => {
         setNewData({ ...newData, [name]: value });
     };
 
-    const handleSaveAdd = () => {
-        const newId = records.length ? records[records.length - 1].id + 1 : 1;
-        const newRecord = { id: newId, ...newData };
-        setRecords([...records, newRecord]);
-        handleCloseAdd();
-        handleShowSuccess();
-    };
 
-    const handleFailedAdd = () => {
-        handleCloseAdd();
-        handleShowFailed();
-    };
 
-    const handleFailedEdit = () => {
-        handleCloseEdit();
-        handleShowFailed();
+
+
+
+    const handleSaveAdd = async () => {
+        try {
+            const token = localStorage.getItem('token'); 
+    
+            const requestData = {
+                user_id: newData.user_id,
+                status: newData.status,
+                date: newData.date,
+                time_in: newData.time_in,
+                time_out: newData.time_out
+            };
+    
+            const response = await axios.post(`${API_URL}/api/admin/attendances`, requestData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+    
+            console.log('Response:', response.data);
+    
+            handleCloseAdd();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error adding attendance data:", error);
+            handleCloseAdd();
+            handleShowFailed();
+        }
     };
+    
+
+    
 
     const handleFilter = (event) => {
         const searchTerm = event.target.value.toLowerCase();
@@ -254,13 +284,29 @@ const Absensi = () => {
         setFilterCriteria({ ...filterCriteria, [name]: value });
     };
 
+    const handleFilterButton = () => {
+        let newFilteredRecords = records;
+
+        if (filterCriteria.date) {
+            newFilteredRecords = newFilteredRecords.filter(record => record.date === filterCriteria.date);
+        }
+
+        if (filterCriteria.status) {
+            newFilteredRecords = newFilteredRecords.filter(record => record.status === filterCriteria.status);
+        }
+
+
+        setFilteredRecords(newFilteredRecords);
+        setShowFilterModal(false);
+    };
+
     const getFilterCriteriaText = () => {
-        const { date, gender, position } = filterCriteria;
+        const { date, status,  } = filterCriteria;
         const criteriaText = [];
 
         if (date) criteriaText.push(`Tanggal: ${date}`);
-        if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
-        if (position && position !== 'semua') criteriaText.push(`Jabatan: ${position}`);
+        if (status) criteriaText.push(`Status: ${status}`);
+       
 
         return criteriaText.length ? criteriaText.join(', ') : 'Tidak ada filter yang diterapkan';
     };
@@ -307,6 +353,13 @@ const Absensi = () => {
                 <Modal.Body>
                     <Form>
                         <Form.Group controlId="formNama">
+                        <Form.Control
+                        style={{ display: 'none' }}
+                                type="text"
+                                name="id"
+                                value={editData.id}
+                                onChange={handleInputChange}
+                            />
                             <Form.Label>Nama</Form.Label>
                             <Form.Control
                                 as="select"
@@ -318,35 +371,6 @@ const Absensi = () => {
                                 {users.map(user => (
                                     <option key={user.id} value={user.id}>
                                         {user.name}
-                                    </option>
-                                ))}
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formKelamin">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="gender"
-                                value={editData.gender}
-                                onChange={handleInputChange}
-                            >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatan">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="position_id"
-                                value={editData.position_id}
-                                onChange={handleInputChange}
-                            >
-                                <option value="">Pilih jabatan</option>
-                                {positions.map(position => (
-                                    <option key={position.id} value={position.id}>
-                                        {position.position_name}
                                     </option>
                                 ))}
                             </Form.Control>
@@ -372,7 +396,7 @@ const Absensi = () => {
                         <Form.Group controlId="formTimein">
                             <Form.Label>Waktu Masuk</Form.Label>
                             <Form.Control
-                                type="time"
+                                type="text"
                                 name="time_in"
                                 value={editData.time_in}
                                 onChange={handleInputChange}
@@ -381,7 +405,7 @@ const Absensi = () => {
                         <Form.Group controlId="formTimeout">
                             <Form.Label>Waktu Keluar</Form.Label>
                             <Form.Control
-                                type="time"
+                                type="text"
                                 name="time_out"
                                 value={editData.time_out}
                                 onChange={handleInputChange}
@@ -398,92 +422,73 @@ const Absensi = () => {
 
             {/* Add Modal */}
             <Modal show={showAddModal} onHide={handleCloseAdd}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Tambah Data</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="formNama">
-                            <Form.Label>Nama</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="name"
-                                value={newData.name}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formKelamin">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="kelamin"
-                                value={newData.kelamin}
-                                onChange={handleNewInputChange}
-                            >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatan">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="jabatan"
-                                value={newData.jabatan}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formStatus">
-                            <Form.Label>Status</Form.Label>
-                            <Form.Control
-                                type="text"
-                                name="status"
-                                value={newData.status}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formTanggal">
-                            <Form.Label>Tanggal</Form.Label>
-                            <Form.Control
-                                type="date"
-                                name="tanggal"
-                                value={newData.tanggal}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formTimein">
-                            <Form.Label>Waktu Masuk</Form.Label>
-                            <Form.Control
-                                type="time"
-                                name="timein"
-                                value={newData.timein}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                        <Form.Group controlId="formTimeout">
-                            <Form.Label>Waktu Keluar</Form.Label>
-                            <Form.Control
-                                type="time"
-                                name="timeout"
-                                value={newData.timeout}
-                                onChange={handleNewInputChange}
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseAdd}>
-                        Close
-                    </Button>
-                    <Button variant="success" onClick={handleSaveAdd}>
-                        Save
-                    </Button>
-                    <Button variant="danger" onClick={handleFailedAdd}>
-                        Failed
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+    <Modal.Header closeButton>
+        <Modal.Title>Tambah Data</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+        <Form>
+            <Form.Group controlId="formNama">
+                <Form.Label>Nama</Form.Label>
+                <Form.Control
+                    as="select"
+                    name="user_id"
+                    value={newData.user_id}
+                    onChange={handleNewInputChange}
+                >
+                    <option value="">Pilih nama Pegawai</option>
+                    {users.map(user => (
+                        <option key={user.id} value={user.id}>
+                            {user.name}
+                        </option>
+                    ))}
+                </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="formStatus">
+                <Form.Label>Status</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="status"
+                    value={newData.status}
+                    onChange={handleNewInputChange}
+                />
+            </Form.Group>
+            <Form.Group controlId="formTanggal">
+                <Form.Label>Tanggal</Form.Label>
+                <Form.Control
+                    type="date"
+                    name="date"
+                    value={newData.date}
+                    onChange={handleNewInputChange}
+                />
+            </Form.Group>
+            <Form.Group controlId="formTimein">
+                <Form.Label>Waktu Masuk</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="time_in"
+                    value={newData.time_in}
+                    onChange={handleNewInputChange}
+                />
+            </Form.Group>
+            <Form.Group controlId="formTimeout">
+                <Form.Label>Waktu Keluar</Form.Label>
+                <Form.Control
+                    type="text"
+                    name="time_out"
+                    value={newData.time_out}
+                    onChange={handleNewInputChange}
+                />
+            </Form.Group>
+        </Form>
+    </Modal.Body>
+    <Modal.Footer>
+        <Button variant="success" onClick={handleSaveAdd}>
+            Simpan
+        </Button>
+    </Modal.Footer>
+</Modal>
+
+
 
             {/* Success Modal */}
             <Modal show={showSuccessModal} onHide={handleCloseSuccess}>
@@ -528,45 +533,17 @@ const Absensi = () => {
                                 onChange={handleFilterCriteriaChange}
                             />
                         </Form.Group>
-                        <Form.Group controlId="formKelamin">
-                            <Form.Label>Jenis Kelamin</Form.Label>
+                        <Form.Group controlId="formTanggal">
+                            <Form.Label>Status</Form.Label>
                             <Form.Control
-                                as="select"
-                                name="gender"
+                                type="text"
+                                name="status"
                                 onChange={handleFilterCriteriaChange}
-                            >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="semua">semua</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formJabatan">
-                            <Form.Label>Jabatan</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="position"
-                                onChange={handleFilterCriteriaChange}
-                            >
-                                <option value="">Pilih Jenis Jabatan</option>
-                                <option value="semua">semua</option>
-                                <option value="manager">manager</option>
-                                <option value="security">security</option>
-                                <option value="staf IT">staf IT</option>
-                                <option value="staf HR">staf HR</option>
-                                <option value="sekretaris">sekretaris</option>
-                                <option value="staf keuangan">staf keuangan</option>
-                                <option value="kasir">kasir</option>
-                                <option value="driver">driver</option>
-                                <option value="staf marketing">staf marketing</option>
-                            </Form.Control>
+                            />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer style={{ borderTop: 'none' }}>
-                    <Button variant="secondary" onClick={handleCloseFilter}>
-                        Batal
-                    </Button>
                     <Button variant="primary" onClick={handleFilterButton}>
                         Filter
                     </Button>
