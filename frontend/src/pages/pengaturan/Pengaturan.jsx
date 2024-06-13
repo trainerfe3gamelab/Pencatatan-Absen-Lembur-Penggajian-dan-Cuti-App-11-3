@@ -64,11 +64,7 @@ const Pengaturan = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-<<<<<<< HEAD
-            "Authorization": `Bearer ${token}`,
-=======
             Authorization: `Bearer ${token}`,
->>>>>>> 39b37eafba2a73a2a711fa43cfcedf894d507870
           },
         }
       );
@@ -105,11 +101,7 @@ const Pengaturan = () => {
           `${API_URL}/api/admin/users/${decoded.id}`,
           {
             headers: {
-<<<<<<< HEAD
-              "Authorization": `Bearer ${token}`,
-=======
               Authorization: `Bearer ${token}`,
->>>>>>> 39b37eafba2a73a2a711fa43cfcedf894d507870
             },
           }
         );
