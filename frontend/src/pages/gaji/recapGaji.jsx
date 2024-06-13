@@ -1,15 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import SearchBox from '../../components/search/SearchBox';
+import Success from '../../image/success.png';
+import Failed from '../../image/failed.png';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Excel from '../../image/Excel.png';
 import Pdf from '../../image/PDF.png';
+import axios from 'axios';
+import { API_URL } from '../../helpers/networt';
 
 
 const RecapGaji = () => {
+
+    const [records, setRecords] = useState([]);
+    const [positions, setPositions] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [showFailedModal, setShowFailedModal] = useState(false);
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [newData, setNewData] = useState({ user_id: '', month: '', year: '', cuts: ''});
+    
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const [responseAbsensi, responseUser, responsePosition] = await Promise.all([
+                axios.get(`${API_URL}/api/admin/wages`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/users`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                }),
+                axios.get(`${API_URL}/api/admin/positions`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            ]);
+
+            const absensiData = responseAbsensi.data.data;
+            const userData = responseUser.data.data;
+            const positionsData = responsePosition.data.data;
+            setPositions(positionsData);
+            setUsers(userData);
+
+            const records = absensiData.map(absensi => {
+                const user = userData.find(user => user.id === absensi.user_id);
+                const position = user ? positionsData.find(position => position.id === user.position_id) : null;
+                return {
+                    ...absensi,
+                    name: user ? user.name : 'Unknown User',
+                    gender: user ? user.gender : 'Unknown Gender',
+                    position_name: position ? position.position_name : 'Unknown Position',
+                };
+            });
+
+            setRecords(records);
+
+        } catch (error) {
+            console.error("Error fetching data", error);
+        }
+    };
+
+    useEffect(() => {
+        koneksi();
+    }, []);
+
     const columns = [
         {
             name: "#",
@@ -23,103 +79,75 @@ const RecapGaji = () => {
         },
         {
             name: "Jenis Kelamin",
-            selector: row => row.kelamin,
+            selector: row => row.gender,
             sortable: true
         },
         {
             name: "Jabatan",
-            selector: row => row.jabatan,
+            selector: row => row.position_name,
             sortable: true
         },
         {
             name: "Bulan",
-            selector: row => row.bulan,
+            selector: row => row.month,
             sortable: true
         },
         {
             name: "Tahun",
-            selector: row => row.tahun,
+            selector: row => row.year,
             sortable: true
         },
         {
             name: "Gaji Pokok",
-            selector: row => row.hadir,
+            selector: row => row.base_salary,
             sortable: true
         },
         {
             name: "Tunjangan Transportasi",
-            selector: row => row.sakit,
+            selector: row => row.transport_allowance,
             sortable: true
         },
         {
             name: "Uang Makan",
-            selector: row => row.izin,
+            selector: row => row.meal_allowance,
             sortable: true
         },
         {
             name: "Lembur",
-            selector: row => row.alpha,
+            selector: row => row.overtimes,
             sortable: true
         },
         {
             name: "Potongan Gaji",
-            selector: row => row.alpha,
+            selector: row => row.cuts,
             sortable: true
         },
         {
             name: "Jumlah Gaji",
-            selector: row => row.alpha,
+            selector: row => row.net_salary,
             sortable: true
         },
+        {
+            name: "Actions",
+            cell: row => (
+                <>
+                    <Button variant="danger" onClick={() => handleDelete(row.id)} ><i className="bi bi-trash3-fill"></i></Button>
+                </>
+            )
+        }
     ];
 
-    const initialData = [
-        { id: 1, name: 'Alpa', kelamin: 'laki-laki', jabatan: 'staf admin', bulan: 'Mei', tahun: '2020', hadir: '30', sakit: '5', izin: '10', alpha: '0' },
-        { id: 2, name: 'Beta', kelamin: 'perempuan', jabatan: 'manajer', bulan: 'Juni', tahun: '2020', hadir: '28', sakit: '2', izin: '5', alpha: '1' },
-        { id: 3, name: 'Gamma', kelamin: 'laki-laki', jabatan: 'staf IT', bulan: 'Juli', tahun: '2020', hadir: '25', sakit: '3', izin: '2', alpha: '5' },
-        { id: 4, name: 'Delta', kelamin: 'perempuan', jabatan: 'staf HR', bulan: 'Agustus', tahun: '2020', hadir: '27', sakit: '4', izin: '3', alpha: '2' },
-        { id: 5, name: 'Epsilon', kelamin: 'laki-laki', jabatan: 'manajer', bulan: 'September', tahun: '2020', hadir: '26', sakit: '1', izin: '7', alpha: '3' },
-        { id: 6, name: 'Zeta', kelamin: 'perempuan', jabatan: 'staf keuangan', bulan: 'Oktober', tahun: '2020', hadir: '29', sakit: '2', izin: '4', alpha: '0' },
-        { id: 7, name: 'Eta', kelamin: 'laki-laki', jabatan: 'direktur', bulan: 'November', tahun: '2020', hadir: '30', sakit: '0', izin: '0', alpha: '0' },
-        { id: 8, name: 'Theta', kelamin: 'perempuan', jabatan: 'staf pemasaran', bulan: 'Desember', tahun: '2020', hadir: '25', sakit: '5', izin: '5', alpha: '5' },
-        { id: 9, name: 'Iota', kelamin: 'laki-laki', jabatan: 'staf admin', bulan: 'Januari', tahun: '2021', hadir: '27', sakit: '3', izin: '3', alpha: '2' },
-        { id: 10, name: 'Kappa', kelamin: 'perempuan', jabatan: 'manajer', bulan: 'Februari', tahun: '2021', hadir: '26', sakit: '2', izin: '1', alpha: '1' },
-        { id: 11, name: 'Lambda', kelamin: 'laki-laki', jabatan: 'staf IT', bulan: 'Maret', tahun: '2021', hadir: '28', sakit: '3', izin: '2', alpha: '1' },
-        { id: 12, name: 'Mu', kelamin: 'perempuan', jabatan: 'staf HR', bulan: 'April', tahun: '2021', hadir: '29', sakit: '1', izin: '4', alpha: '0' },
-        { id: 13, name: 'Nu', kelamin: 'laki-laki', jabatan: 'staf keuangan', bulan: 'Mei', tahun: '2021', hadir: '25', sakit: '4', izin: '3', alpha: '5' },
-    ];
+    
     
     
 
-    const [records, setRecords] = useState(initialData);
+   
     const [showFilterModal, setShowFilterModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [filteredRecords, setFilteredRecords] = useState(null);
-    const [filterCriteria, setFilterCriteria] = useState({ date: '', gender: '', position: '' });
+    const [filterCriteria, setFilterCriteria] = useState({ month: '', year: '', position_name: '' });
 
-    const handleFilterButton = () => {
-        let filteredData = initialData;
-
-        if (filterCriteria.bulan && filterCriteria.bulan !== 'semua') {
-            filteredData = filteredData.filter(record => record.bulan === filterCriteria.bulan);
-        }
-
-        if (filterCriteria.tahun && filterCriteria.tahun !== 'semua') {
-            filteredData = filteredData.filter(record => record.tahun === filterCriteria.tahun);
-        }
-
-        if (filterCriteria.gender && filterCriteria.gender !== 'semua') {
-            filteredData = filteredData.filter(record => record.kelamin === filterCriteria.gender);
-        }
-
-        if (filterCriteria.position && filterCriteria.position !== 'semua') {
-            filteredData = filteredData.filter(record => record.jabatan === filterCriteria.position);
-        }
-
-        setFilteredRecords(filteredData);
-        setShowFilterModal(false);
-    };
-
+   
    
 
     const handleCloseFilter = () => setShowFilterModal(false);
@@ -127,13 +155,57 @@ const RecapGaji = () => {
 
     const handleCloseAdd = () => setShowAddModal(false);
     const handleShowAdd = () => setShowAddModal(true);
+
+    const handleCloseSuccess = () => setShowSuccessModal(false);
+    const handleShowSuccess = () => setShowSuccessModal(true);
+
+    const handleCloseFailed = () => setShowFailedModal(false);
+    const handleShowFailed = () => setShowFailedModal(true);
+
+    const handleNewInputChange = (event) => {
+        const { name, value } = event.target;
+        setNewData({ ...newData, [name]: value });
+    };
+
+
+    const handleSaveAdd = async () => {
+        try {
+            const token = localStorage.getItem('token'); 
+            const requestData = {
+                user_id: newData.user_id,
+                month: newData.month,
+                year: newData.year,
+                cuts: newData.cuts
+            };
+            await axios.post(`${API_URL}/api/admin/wages`, requestData, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            handleCloseAdd();
+            koneksi();
+            handleShowSuccess();
+        } catch (error) {
+            console.error("Error adding attendance data:", error);
+            handleCloseAdd();
+            handleShowFailed();
+        }
+    };
    
 
     const handleFilter = (event) => {
-        const newData = initialData.filter(row => {
-            return row.name.toLowerCase().includes(event.target.value.toLowerCase());
-        });
-        setRecords(newData);
+        const searchTerm = event.target.value.toLowerCase();
+        if (searchTerm === "") {
+            koneksi(); 
+        } else {
+            const newData = records.filter(row => {
+                return Object.values(row).some(value => 
+                    typeof value === 'string' && value.toLowerCase().includes(searchTerm)
+                );
+            });
+            setRecords(newData);
+        }
     };
 
     const handleFilterCriteriaChange = (event) => {
@@ -141,15 +213,32 @@ const RecapGaji = () => {
         setFilterCriteria({ ...filterCriteria, [name]: value });
     };
 
+    const handleFilterButton = () => {
+        let newFilteredRecords = records;
+
+        if (filterCriteria.month && filterCriteria.month !== 'semua') {
+            newFilteredRecords = newFilteredRecords.filter(record => record.month === parseInt(filterCriteria.month));
+        }
+
+        if (filterCriteria.year && filterCriteria.year !== 'semua') {
+            newFilteredRecords = newFilteredRecords.filter(record => record.year === parseInt(filterCriteria.year));
+        }
+
+        if (filterCriteria.position_name) {
+            newFilteredRecords = newFilteredRecords.filter(record => record.position_name === filterCriteria.position_name);
+        }
+
+        setFilteredRecords(newFilteredRecords);
+        setShowFilterModal(false);
+    };
+
     const getFilterCriteriaText = () => {
-        const { bulan, tahun, gender, position } = filterCriteria;
+        const { month, year, position_name } = filterCriteria;
         const criteriaText = [];
 
-       
-        if (bulan && bulan !== 'semua') criteriaText.push(`Bulan: ${bulan}`);
-        if (tahun && tahun !== 'semua') criteriaText.push(`Tahun: ${tahun}`);
-        if (gender && gender !== 'semua') criteriaText.push(`Jenis Kelamin: ${gender}`);
-        if (position && position !== 'semua') criteriaText.push(`Jabatan: ${position}`);
+        if (month && month !== 'semua') criteriaText.push(`Bulan: ${month}`);
+        if (year && year !== 'semua') criteriaText.push(`Tahun: ${year}`);
+        if (position_name) criteriaText.push(`Jabatan: ${position_name}`);
 
         return criteriaText.length ? criteriaText.join(', ') : 'Tidak ada filter yang diterapkan';
     };
@@ -157,25 +246,57 @@ const RecapGaji = () => {
     const exportToPDF = () => {
         const doc = new jsPDF();
         doc.autoTable({
-            head: [['#', 'Nama Pegawai', 'Jenis Kelamin', 'Jabatan', 'Bulan', 'Tahun', 'Hadir', 'Sakit', 'Alpha']],
+            head: [
+                ['#', 'Nama Pegawai', 'Jenis Kelamin', 'Jabatan', 'Bulan', 'Tahun', 'Gaji Pokok', 'Tunjangan Transportasi', 'Uang Makan', 'Lembur', 'Potongan Gaji', 'Jumlah Gaji']
+            ],
             body: (filteredRecords || records).map((row, index) => [
-                index + 1, row.name, row.kelamin, row.jabatan, row.bulan, row.tahun, row.hadir, row.sakit, row.alpha
-            ])
+                index + 1,
+                row.name,
+                row.gender,
+                row.position_name,
+                row.month,
+                row.year,
+                row.base_salary,
+                row.transport_allowance,
+                row.meal_allowance,
+                row.overtimes,
+                row.cuts,
+                row.net_salary
+            ]),
         });
         doc.save('table.pdf');
+    };
+
+
+    const handleDelete = async (id) => {
+        const token = localStorage.getItem('token');
+        try {
+            await axios.delete(`${API_URL}/api/admin/wages/${id}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            setRecords(records.filter(record => record.id !== id));
+        } catch (error) {
+            console.error("Error deleting data:", error);
+        }
     };
 
     const exportToExcel = () => {
         const ws = XLSX.utils.json_to_sheet((filteredRecords || records).map((row, index) => ({
             "#": index + 1,
-            "Nama Pegawai": row.name,
-            "Jenis Kelamin": row.kelamin,
-            "Jabatan": row.jabatan,
-            "Bulan": row.bulan,
-            "Tahun": row.tahun,
-            "Hadir": row.hadir,
-            "Sakit": row.sakit,
-            "Alpha": row.alpha
+        "Nama Pegawai": row.name,
+        "Jenis Kelamin": row.gender,
+        "Jabatan": row.position_name,
+        "Bulan": row.month,
+        "Tahun": row.year,
+        "Gaji Pokok": row.base_salary,
+        "Tunjangan Transportasi": row.transport_allowance,
+        "Uang Makan": row.meal_allowance,
+        "Lembur": row.overtimes,
+        "Potongan Gaji": row.cuts,
+        "Jumlah Gaji": row.net_salary
         })));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
@@ -215,6 +336,85 @@ const RecapGaji = () => {
                 />
             </div>
 
+
+            <Modal show={showAddModal} onHide={handleCloseAdd}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Tambah Data</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="formNama">
+                            <Form.Label>Nama</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="user_id"
+                                value={newData.user_id}
+                                onChange={handleNewInputChange}
+                            >
+                                <option value="">Pilih nama Pegawai</option>
+                                {users.map(user => (
+                                    <option key={user.id} value={user.id}>
+                                        {user.name}
+                                    </option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group controlId="formBulan">
+                            <Form.Label>Bulan</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="month"
+                                value={newData.month}
+                                onChange={handleNewInputChange}
+                            >
+                                <option value="">Pilih Bulan</option>
+                                <option value="semua">semua</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group controlId="formTahun">
+                            <Form.Label>Tahun</Form.Label>
+                            <Form.Control
+                                as="select"
+                                name="year"
+                                value={newData.year}
+                                onChange={handleNewInputChange}
+                            >
+                                <option value="">Pilih Tahun</option>
+                                <option value="semua">semua</option>
+                                {Array.from({ length: 50 }, (_, i) => 2000 + i).map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </Form.Control>
+                        </Form.Group>
+                        <Form.Group controlId="formPotongan">
+                            <Form.Label>Potongan</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="cuts"
+                                value={newData.cuts}
+                                onChange={handleNewInputChange}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="success" onClick={handleSaveAdd}>
+                        Simpan
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             
 
             {/* Filter Modal */}
@@ -226,77 +426,87 @@ const RecapGaji = () => {
                     <Form>
                         <Form.Group controlId="formBulan">
                             <Form.Label>Bulan</Form.Label>
-                            <Form.Control as="select" name="bulan" onChange={handleFilterCriteriaChange}>
+                            <Form.Control as="select" name="month" onChange={handleFilterCriteriaChange}>
                                 <option value="">Pilih Bulan</option>
-                                <option value="semua">semua</option>
-                                <option value="Januari">Januari</option>
-                                <option value="Februari">Februari</option>
-                                <option value="Maret">Maret</option>
-                                <option value="April">April</option>
-                                <option value="Mei">Mei</option>
-                                <option value="Juni">Juni</option>
-                                <option value="Juli">Juli</option>
-                                <option value="Agustus">Agustus</option>
-                                <option value="september">September</option>
-                                <option value="Oktober">Oktober</option>
-                                <option value="November">November</option>
-                                <option value="Desember">Desember</option>
+                                <option value="semua">Semua</option>
+                                <option value="1">Januari</option>
+                                <option value="2">Februari</option>
+                                <option value="3">Maret</option>
+                                <option value="4">April</option>
+                                <option value="5">Mei</option>
+                                <option value="6">Juni</option>
+                                <option value="7">Juli</option>
+                                <option value="8">Agustus</option>
+                                <option value="9">September</option>
+                                <option value="10">Oktober</option>
+                                <option value="11">November</option>
+                                <option value="12">Desember</option>
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formTahun">
                             <Form.Label>Tahun</Form.Label>
-                            <Form.Control as="select" name="tahun" onChange={handleFilterCriteriaChange}>
+                            <Form.Control as="select" name="year" onChange={handleFilterCriteriaChange}>
                                 <option value="">Pilih Tahun</option>
-                                <option value="semua">semua</option>
+                                <option value="semua">Semua</option>
                                 {Array.from({ length: 50 }, (_, i) => 2000 + i).map(year => (
                                     <option key={year} value={year}>{year}</option>
                                 ))}
-                            </Form.Control>
-                        </Form.Group>
-                        <Form.Group controlId="formKelamin">
-                            <Form.Label>Jenis Kelamin</Form.Label>
-                            <Form.Control
-                                as="select"
-                                name="gender"
-                                onChange={handleFilterCriteriaChange}
-                            >
-                                <option value="">Pilih Jenis Kelamin</option>
-                                <option value="semua">semua</option>
-                                <option value="laki-laki">Laki-laki</option>
-                                <option value="perempuan">Perempuan</option>
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formJabatan">
                             <Form.Label>Jabatan</Form.Label>
                             <Form.Control
                                 as="select"
-                                name="position"
+                                name="position_name"
+                                value={filterCriteria.position_name}
                                 onChange={handleFilterCriteriaChange}
                             >
-                                <option value="">Pilih Jenis Jabatan</option>
-                                <option value="semua">semua</option>
-                                <option value="manager">manager</option>
-                                <option value="security">security</option>
-                                <option value="staf IT">staf IT</option>
-                                <option value="staf HR">staf HR</option>
-                                <option value="sekretaris">sekretaris</option>
-                                <option value="staf keuangan">staf keuangan</option>
-                                <option value="kasir">kasir</option>
-                                <option value="driver">driver</option>
-                                <option value="staf marketing">staf marketing</option>
+                                <option value="">Pilih jabatan</option>
+                                {positions.map(position => (
+                                    <option key={position.id} value={position.position_name}>
+                                        {position.position_name}
+                                    </option>
+                                ))}
                             </Form.Control>
                         </Form.Group>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer style={{ borderTop: 'none' }}>
-                    <Button variant="secondary" onClick={handleCloseFilter}>
-                        Batal
-                    </Button>
                     <Button variant="primary" onClick={handleFilterButton}>
                         Filter
                     </Button>
                 </Modal.Footer>
             </Modal>
+
+
+             {/* Success Modal */}
+             <Modal show={showSuccessModal} onHide={handleCloseSuccess}>
+                <Modal.Body className="text-center mt-5">
+                    <img src={Success} alt="success" width={70} />
+                    <h5 className="mt-3">Berhasil</h5>
+                    <p>Data berhasil disimpan</p>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleCloseSuccess}>
+                        Tutup
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Failed Modal */}
+            <Modal show={showFailedModal} onHide={handleCloseFailed}>
+                <Modal.Body className="text-center mt-5">
+                    <img src={Failed} alt="Failed" width={70} />
+                    <h5 className="mt-3">Gagal</h5>
+                    <p>Data gagal disimpan</p>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleCloseFailed}>
+                        Tutup
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
         </div>
     );
 };
