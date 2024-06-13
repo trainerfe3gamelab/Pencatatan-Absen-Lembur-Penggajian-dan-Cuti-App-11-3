@@ -79,6 +79,7 @@ const Pengaturan = () => {
             "Content-Type": "multipart/form-data",
             "Authorization": `Bearer ${token}`,
 
+
           },
         }
       );
@@ -118,6 +119,7 @@ const Pengaturan = () => {
           {
             headers: {
               "Authorization": `Bearer ${token}`,
+
             },
           }
         );

@@ -105,6 +105,137 @@ const wageDocumentation = {
           },
         },
       },
+      delete: {
+        tags: ["Admin"],
+        summary: "Delete a wage",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/WageDelete" },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Gaji berhasil dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "sukses" },
+                    message: {
+                      type: "string",
+                      example: "Gaji berhasil dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Gaji tidak ditemukan atau gagal dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Data Gaji gagal dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    "/admin/wages/all": {
+      post: {
+        tags: ["Admin"],
+        summary: "Create a new wage for all user",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/WageCreateAll" },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: "Gaji berhasil dibuat",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "sukses" },
+                    data: { $ref: "#/components/schemas/Wage" },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Validasi gagal",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Pesan error validasi",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: { type: "string", example: "error" },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     "/admin/wages/{id}": {
       get: {
@@ -253,7 +384,7 @@ const wageDocumentation = {
       },
       delete: {
         tags: ["Admin"],
-        summary: "Delete a wage",
+        summary: "Delete a wage by id",
         security: [{ bearerAuth: [] }],
         parameters: [
           {
@@ -355,13 +486,26 @@ const wageDocumentation = {
         year: { type: "integer", example: 2024 },
       },
     },
+    WageDelete: {
+      type: "object",
+      properties: {
+        month: { type: "integer", example: 6 },
+        year: { type: "integer", example: 2024 },
+      },
+    },
     WageCreate: {
       type: "object",
       properties: {
         user_id: { type: "string", example: "tes1" },
         month: { type: "integer", example: 6 },
         year: { type: "integer", example: 2024 },
-        cuts: { type: "integer", example: 235 },
+      },
+    },
+    WageCreateAll: {
+      type: "object",
+      properties: {
+        month: { type: "integer", example: 6 },
+        year: { type: "integer", example: 2024 },
       },
     },
   },

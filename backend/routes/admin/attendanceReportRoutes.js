@@ -3,8 +3,10 @@ const attendanceReportController = require("../../controllers/attendanceReportCo
 
 router.get("/", attendanceReportController.findAll);
 router.post("/", attendanceReportController.create);
+router.post("/all", attendanceReportController.createAll);
 router.get("/:id", attendanceReportController.findOne);
 router.put("/:id", attendanceReportController.update);
-router.delete("/:id", attendanceReportController.delete);
+router.delete("/:id", attendanceReportController.deleteById);
+router.delete("/", attendanceReportController.delete);
 
 module.exports = router;
