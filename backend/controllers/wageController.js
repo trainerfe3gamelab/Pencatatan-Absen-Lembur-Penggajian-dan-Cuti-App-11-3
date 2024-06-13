@@ -1,9 +1,12 @@
-const { Wage, User, Position } = require("../models");
+const { Wage, User } = require("../models");
 const wageValidator = require("../utils/validator/wageValidator");
 const moment = require("moment-timezone");
 const { v4: uuidv4 } = require("uuid");
 const { handleFailed, handleError } = require("../utils/response");
-const { createWageReports } = require("../utils/wage");
+const {
+  createWageReports,
+  createWageReportsForAllUsers,
+} = require("../utils/wage");
 
 const wageController = {
   // Create a new wage
@@ -34,6 +37,40 @@ const wageController = {
         create_id: uuidv4(),
         update_id: uuidv4(),
       });
+      res.status(201).json({ status: "sukses", data: data });
+    } catch (error) {
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
+    }
+  },
+
+  createAll: async (req, res) => {
+    // Validate request body
+    const optionalWageValidator = wageValidator.fork(
+      ["user_id", "overtimes", "cuts", "net_salary"],
+      (schema) => schema.forbidden()
+    );
+    const { error, value } = optionalWageValidator.validate(req.body);
+    if (error) return handleFailed(res, 400, error.details[0].message);
+
+    try {
+      const wageReports = await createWageReportsForAllUsers(
+        value.month,
+        value.year
+      );
+
+      const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
+      const dataToCreate = wageReports.map((report) => ({
+        ...report,
+        month: value.month,
+        year: value.year,
+        creation_time: now,
+        update_time: now,
+        create_id: uuidv4(),
+        update_id: uuidv4(),
+      }));
+
+      const data = await Wage.bulkCreate(dataToCreate);
       res.status(201).json({ status: "sukses", data: data });
     } catch (error) {
       console.log(error.message);
