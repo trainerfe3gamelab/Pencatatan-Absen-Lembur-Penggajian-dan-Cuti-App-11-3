@@ -72,6 +72,11 @@ const userController = {
       const data = await User.findAll({
         where: { archived: false },
         attributes: { exclude: ["password"] },
+        include: {
+          model: Position,
+          as: "position",
+          attributes: ["position_name"],
+        },
       });
       res.status(200).json({
         status: "sukses",
@@ -87,6 +92,11 @@ const userController = {
     try {
       const data = await User.findOne({
         where: { archived: false, id: req.params.id },
+        include: {
+          model: Position,
+          as: "position",
+          attributes: ["position_name"],
+        },
         attributes: { exclude: ["password"] },
       });
       if (data == null) return handleFailed(res, 404, "User tidak ditemukan");
