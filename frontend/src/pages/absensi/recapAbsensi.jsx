@@ -24,7 +24,10 @@ const RecapAbsensi = () => {
     gender: "",
     position_name: "",
   });
-  const [addCriteria, setAddCriteria] = useState({ month: "", year: "" });
+  const [addCriteria, setAddCriteria] = useState({
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
+  });
 
   const koneksi = async () => {
     const token = localStorage.getItem("token");
@@ -164,6 +167,11 @@ const RecapAbsensi = () => {
       selector: (row) => row.alpha,
       sortable: true,
     },
+    {
+      name: "Dibuat",
+      selector: (row) => row.creation_time,
+      sortable: true,
+    },
   ];
 
   const handleCloseFilter = () => setShowFilterModal(false);
@@ -245,6 +253,7 @@ const RecapAbsensi = () => {
           "Hadir",
           "Sakit",
           "Alpha",
+          "Dibuat",
         ],
       ],
       body: (filteredRecords || records).map((row, index) => [
@@ -257,6 +266,7 @@ const RecapAbsensi = () => {
         row.hadir,
         row.sakit,
         row.alpha,
+        row.creation_time,
       ]),
     });
     doc.save("table.pdf");
@@ -408,8 +418,6 @@ const RecapAbsensi = () => {
                 value={addCriteria.month}
                 onChange={handleAddCriteriaChange}
               >
-                <option value="">Pilih Bulan</option>
-                <option value="semua">semua</option>
                 <option value="1">Januari</option>
                 <option value="2">Februari</option>
                 <option value="3">Maret</option>
@@ -432,8 +440,6 @@ const RecapAbsensi = () => {
                 value={addCriteria.year}
                 onChange={handleAddCriteriaChange}
               >
-                <option value="">Pilih Tahun</option>
-                <option value="semua">semua</option>
                 {Array.from({ length: 50 }, (_, i) => 2000 + i).map((year) => (
                   <option key={year} value={year}>
                     {year}
@@ -465,8 +471,6 @@ const RecapAbsensi = () => {
                 value={addCriteria.month}
                 onChange={handleAddCriteriaChange}
               >
-                <option value="">Pilih Bulan</option>
-                <option value="semua">semua</option>
                 <option value="1">Januari</option>
                 <option value="2">Februari</option>
                 <option value="3">Maret</option>
@@ -489,8 +493,6 @@ const RecapAbsensi = () => {
                 value={addCriteria.year}
                 onChange={handleAddCriteriaChange}
               >
-                <option value="">Pilih Tahun</option>
-                <option value="semua">semua</option>
                 {Array.from({ length: 50 }, (_, i) => 2000 + i).map((year) => (
                   <option key={year} value={year}>
                     {year}

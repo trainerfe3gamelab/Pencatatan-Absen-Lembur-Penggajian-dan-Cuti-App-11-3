@@ -69,8 +69,13 @@ const userController = {
 
   findAll: async (req, res) => {
     try {
+      const role = req.query.user || "";
+      const whereClause = role
+        ? { archived: false, role: role }
+        : { archived: false };
+
       const data = await User.findAll({
-        where: { archived: false },
+        where: whereClause,
         attributes: { exclude: ["password"] },
         include: {
           model: Position,
@@ -78,13 +83,17 @@ const userController = {
           attributes: ["position_name"],
         },
       });
+
       res.status(200).json({
-        status: "sukses",
+        status: "success",
         data: data,
       });
     } catch (error) {
-      console.log(error.message);
-      handleError(res, 500, "Terjadi error pada server");
+      console.error(error.message);
+      res.status(500).json({
+        status: "error",
+        message: "Terjadi error pada server",
+      });
     }
   },
 
