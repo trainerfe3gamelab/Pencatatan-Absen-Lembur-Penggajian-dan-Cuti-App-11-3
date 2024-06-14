@@ -20,9 +20,8 @@ const RecapGaji = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [newData, setNewData] = useState({
     user_id: "",
-    month: "",
-    year: "",
-    cuts: "",
+    month: new Date().getMonth() + 1,
+    year: new Date().getFullYear(),
   });
 
   const koneksi = async () => {
@@ -33,7 +32,7 @@ const RecapGaji = () => {
           axios.get(`${API_URL}/api/admin/wages`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get(`${API_URL}/api/admin/users`, {
+          axios.get(`${API_URL}/api/admin/users/?user=employee`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
           axios.get(`${API_URL}/api/admin/positions`, {
@@ -132,6 +131,11 @@ const RecapGaji = () => {
       sortable: true,
     },
     {
+      name: "Dibuat",
+      selector: (row) => row.creation_time,
+      sortable: true,
+    },
+    {
       name: "Actions",
       cell: (row) => (
         <>
@@ -143,8 +147,10 @@ const RecapGaji = () => {
     },
   ];
 
+  const [selectAll, setSelectAll] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
   const [filteredRecords, setFilteredRecords] = useState(null);
   const [filterCriteria, setFilterCriteria] = useState({
     month: "",
@@ -164,20 +170,39 @@ const RecapGaji = () => {
   const handleCloseFailed = () => setShowFailedModal(false);
   const handleShowFailed = () => setShowFailedModal(true);
 
+  const handleCloseReset = () => setShowResetModal(false);
+  const handleShowReset = () => setShowResetModal(true);
+
   const handleNewInputChange = (event) => {
     const { name, value } = event.target;
     setNewData({ ...newData, [name]: value });
   };
 
+  const handleSelectAllChange = () => {
+    setSelectAll(!selectAll);
+    setNewData({
+      ...newData,
+      user_id: !selectAll ? "semua" : "",
+    });
+  };
+
   const handleSaveAdd = async () => {
     try {
       const token = localStorage.getItem("token");
-      const requestData = {
-        user_id: newData.user_id,
-        month: newData.month,
-        year: newData.year,
-      };
-      await axios.post(`${API_URL}/api/admin/wages`, requestData, {
+      const requestData = selectAll
+        ? {
+            month: newData.month,
+            year: newData.year,
+          }
+        : {
+            user_id: newData.user_id,
+            month: newData.month,
+            year: newData.year,
+          };
+      const api = selectAll
+        ? `${API_URL}/api/admin/wages/all`
+        : `${API_URL}/api/admin/wages`;
+      await axios.post(api, requestData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
@@ -189,6 +214,29 @@ const RecapGaji = () => {
     } catch (error) {
       console.error("Error adding attendance data:", error);
       handleCloseAdd();
+      handleShowFailed();
+    }
+  };
+
+  const handleReset = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_URL}/api/admin/wages`, {
+        data: {
+          month: newData.month,
+          year: newData.year,
+        },
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      handleCloseReset();
+      koneksi();
+      handleShowSuccess();
+    } catch (error) {
+      console.error("Error adding attendance data:", error);
+      handleCloseReset();
       handleShowFailed();
     }
   };
@@ -269,6 +317,7 @@ const RecapGaji = () => {
           "Lembur",
           "Potongan Gaji",
           "Jumlah Gaji",
+          "Dibuat",
         ],
       ],
       body: (filteredRecords || records).map((row, index) => [
@@ -284,6 +333,7 @@ const RecapGaji = () => {
         row.overtimes,
         row.cuts,
         row.net_salary,
+        row.creation_time,
       ]),
     });
     doc.save("table.pdf");
@@ -319,6 +369,7 @@ const RecapGaji = () => {
         Lembur: row.overtimes,
         "Potongan Gaji": row.cuts,
         "Jumlah Gaji": row.net_salary,
+        Dibuat: row.creation_time,
       }))
     );
     const wb = XLSX.utils.book_new();
@@ -332,19 +383,33 @@ const RecapGaji = () => {
         <b>Recap Gaji</b>
       </h1>
       <div className="d-flex justify-content-between mb-3">
-        <Button
-          variant="primary"
-          className="text-white me-2 "
-          style={{
-            borderRadius: "15px",
-            height: "30px",
-            backgroundColor: "#18C89E",
-          }}
-          onClick={handleShowAdd}
-        >
-          <i className="bi bi-plus-circle-fill" aria-hidden="true"></i> Generate
-          Gaji
-        </Button>
+        <div>
+          <Button
+            variant="primary"
+            className="text-white me-2 "
+            style={{
+              borderRadius: "15px",
+              height: "30px",
+              backgroundColor: "#18C89E",
+            }}
+            onClick={handleShowAdd}
+          >
+            <i className="bi bi-plus-circle-fill" aria-hidden="true"></i>{" "}
+            Generate Gaji
+          </Button>
+          <Button
+            variant="primary"
+            className="text-white me-2"
+            style={{
+              borderRadius: "15px",
+              height: "30px",
+              backgroundColor: "#18C89E",
+            }}
+            onClick={handleShowReset}
+          >
+            <i className="bi bi-arrow-clockwise" aria-hidden="true"></i> Reset
+          </Button>
+        </div>
 
         <div>
           <Button
@@ -402,11 +467,18 @@ const RecapGaji = () => {
           <Form>
             <Form.Group controlId="formNama">
               <Form.Label>Nama</Form.Label>
+              <Form.Check
+                type="checkbox"
+                label="Semua Pegawai"
+                checked={selectAll}
+                onChange={handleSelectAllChange}
+              />
               <Form.Control
                 as="select"
                 name="user_id"
                 value={newData.user_id}
                 onChange={handleNewInputChange}
+                disabled={selectAll}
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -424,8 +496,6 @@ const RecapGaji = () => {
                 value={newData.month}
                 onChange={handleNewInputChange}
               >
-                <option value="">Pilih Bulan</option>
-                <option value="semua">semua</option>
                 <option value="1">Januari</option>
                 <option value="2">Februari</option>
                 <option value="3">Maret</option>
@@ -448,8 +518,6 @@ const RecapGaji = () => {
                 value={newData.year}
                 onChange={handleNewInputChange}
               >
-                <option value="">Pilih Tahun</option>
-                <option value="semua">semua</option>
                 {Array.from({ length: 50 }, (_, i) => 2000 + i).map((year) => (
                   <option key={year} value={year}>
                     {year}
@@ -561,6 +629,59 @@ const RecapGaji = () => {
         <Modal.Footer style={{ borderTop: "none" }}>
           <Button variant="primary" onClick={handleCloseFailed}>
             Tutup
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* menampilkan Modal reset data*/}
+      <Modal show={showResetModal} onHide={handleCloseReset}>
+        <Modal.Header closeButton>
+          <Modal.Title>Reset Data</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formBulan">
+              <Form.Label>Bulan</Form.Label>
+              <Form.Control
+                as="select"
+                name="month"
+                value={newData.month}
+                onChange={handleNewInputChange}
+              >
+                <option value="1">Januari</option>
+                <option value="2">Februari</option>
+                <option value="3">Maret</option>
+                <option value="4">April</option>
+                <option value="5">Mei</option>
+                <option value="6">Juni</option>
+                <option value="7">Juli</option>
+                <option value="8">Agustus</option>
+                <option value="9">September</option>
+                <option value="10">Oktober</option>
+                <option value="11">November</option>
+                <option value="12">Desember</option>
+              </Form.Control>
+            </Form.Group>
+            <Form.Group controlId="formTahun">
+              <Form.Label>Tahun</Form.Label>
+              <Form.Control
+                as="select"
+                name="year"
+                value={newData.year}
+                onChange={handleNewInputChange}
+              >
+                {Array.from({ length: 50 }, (_, i) => 2000 + i).map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="success" onClick={handleReset}>
+            Reset
           </Button>
         </Modal.Footer>
       </Modal>
