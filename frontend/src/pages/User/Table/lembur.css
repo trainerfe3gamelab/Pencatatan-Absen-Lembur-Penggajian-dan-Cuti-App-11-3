@@ -1,0 +1,34 @@
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    
+  }
+  
+  @media (max-width: 768px) {
+    .table-container {
+      overflow-x: auto;
+      max-height: 75px; /* Height for mobile views */
+    }
+  
+    table {
+      width: 100%;
+    }
+  
+    .rdt_TableHeader,
+    .rdt_TableBody {
+      width: 100%;
+    }
+    
+    .btn.btn-filter {
+        font-size: 8px; /* Mengurangi ukuran font */
+        padding: 1px 6px; /* Mengurangi padding */
+        position: relative;
+        bottom: 10px;
+      }
+    .btn.btn-plus {
+        font-size: 8px; /* Mengurangi ukuran font */
+        padding: 1px 6px; /* Mengurangi padding */
+        position: relative;
+        bottom: 10px;
+      }
+  }

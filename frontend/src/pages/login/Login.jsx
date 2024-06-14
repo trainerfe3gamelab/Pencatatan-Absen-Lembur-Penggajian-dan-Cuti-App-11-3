@@ -22,10 +22,17 @@ const Login = () => {
         email,
         password,
       });
-
-      if (response.data.user.role != "admin") throw Error("Login Failed");
+      const userRole = response.data.user.role;
       localStorage.setItem("token", response.data.token);
-      navigate("/Admin");
+      
+  
+      if (userRole === "admin") {
+        navigate("/Admin");
+      } else if (userRole === "employee") {
+        navigate("/User");
+      } else {
+        throw Error("Invalid Role");
+      }
     } catch (error) {
       console.error("Login failed:", error);
       alert("Login failed!");

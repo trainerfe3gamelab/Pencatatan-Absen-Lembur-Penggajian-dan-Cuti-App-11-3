@@ -579,4 +579,246 @@ Navbar{
   text-align: center;
 }
 
+/* userrr */
+
+.user-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+  position: relative; /* Position relative to allow positioning of the overlay */
+}
+
+.overlay {
+  position: absolute;
+  top: 35px;
+  left: 20;
+  width: 90%;
+  height: 90%;
+  background-color: rgba(217, 217, 217, 0.3); /* Warna dan transparansi latar belakang */
+  z-index: 1; /* Pastikan overlay berada di atas user-container */
+  border-radius: 15px; /* Mengatur sudut tumpul */
+}
+
+.image-rect146, .image-rect147, .image-rect148, .image-rect150 {
+  position: relative;
+  width: 100px;
+  height: auto;
+  margin: 10px;
+}
+
+
+.card-navbar {
+  position: absolute;
+  top: 230px;
+  left: 350px; /* Sesuaikan margin kiri agar sama dengan .card-presensi */
+  width: 860px !important; /* Sesuaikan lebar agar sama dengan .card-presensi */
+  height: 54%;
+  background-color: white; /* Tambahkan ini jika ingin memiliki latar belakang */
+  z-index: 2; /* Pastikan card-navbar berada di atas overlay */
+  border-radius: 5px; /* Sesuaikan dengan .card-presensi jika diperlukan */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Menambahkan bayangan agar konsisten dengan .card-presensi */
+}
+
+
+
+/* Media Queries for Responsive Design */
+
+/* Tablet Portrait and Above */
+@media (min-width: 600px) {
+  .image-rect146, .image-rect147, .image-rect148, .image-rect150 {
+    width: 45%;
+  }
+
+  .image-rect146 {
+    top: 20vh;
+    left: 5vw;
+  }
+
+  .image-rect147 {
+    top: 5vh;
+    left: 10vw;
+  }
+
+  .image-rect148 {
+    top: 25vh;
+    left: 20vw;
+  }
+
+  .image-rect150 {
+    bottom: 15vh;
+    right: 10vw;
+  }
+}
+
+/* Tablet Landscape and Above */
+@media (min-width: 768px) {
+  .image-rect146, .image-rect147, .image-rect148, .image-rect150 {
+    width: 30%;
+  }
+
+  .image-rect146 {
+    top: 25vh;
+    left: 10vw;
+  }
+
+  .image-rect147 {
+    top: 10vh;
+    left: 20vw;
+  }
+
+  .image-rect148 {
+    top: 30vh;
+    left: 30vw;
+  }
+
+  .image-rect150 {
+    bottom: 20vh;
+    right: 15vw;
+  }
+}
+
+/* Small Desktop and Above */
+@media (min-width: 1024px) {
+  .image-rect146 {
+    top: 267px;
+    left: 963px;
+    width: 150px;
+  }
+
+  .image-rect147 {
+    top: 50px;
+    left: 793px;
+    width: 150px;
+  }
+
+  .image-rect148 {
+    top: 280px;
+    left: 370px;
+    width: 150px;
+  }
+
+  .image-rect150 {
+    bottom: 200px;
+    right: 763px;
+    width: 350px;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 640px) {
+  .user-container {
+    flex-direction: column;
+    position: relative;
+    height: 860px !important;
+  }
+
+  .image-rect146, .image-rect147, .image-rect148{
+    width: 20%;
+    margin: 10px 0;
+  }
+
+  .image-rect146 {
+    width: 28%;
+    top: 80vh;
+    left: 38vw;
+  }
+
+  .image-rect147 {
+    width: 30%;
+    top: 46vh;
+    left: 40vw;
+  }
+
+  .image-rect148 {
+    width: 30%;
+    top: 52vh;
+    left: 1vw;
+  }
+
+  .image-rect150 {
+    width: 45%;
+    bottom: 75vh;
+    right: 30vw;
+  }
+  .header .logo{
+    top: 25px;
+    width: 5rem;
+    height: 5%;
+  }
+  .header-overlay{
+    position: relative;
+    left: 30px;
+  }
+  .card-navbar{
+    position: absolute;
+    width: 280px !important;
+    height: 40% !important;
+    left: 1.7rem;
+    top: 27.5rem;
+  }
+  
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  background-color: rgba(255, 255, 255, 0.8); /* Warna dan transparansi latar belakang header */
+  border-radius: 10px; /* Mengatur sudut tumpul header */
+  z-index: 2; /* Pastikan header berada di atas overlay */
+  width: calc(100% - 40px);
+  margin: 20px;
+}
+
+.logo {
+  height: 55px; /* Sesuaikan dengan kebutuhan Anda */
+  width: 125px !important;
+  position: relative;
+  left: 40px;
+  margin-top: 3px;
+}
+
+.header-overlay {
+  background-color: rgba(217, 217, 217, 0.5);
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+}
+
+.header-overlay.right {
+  margin-left: auto;
+  margin-right: 20px;
+  height: 35px;
+  width: 100px;
+  border-radius: 5px;
+}
+.header-overlay.right span{
+  margin-left: 15px;
+  color: black;
+}
+
+.content {
+  display: flex;
+  /* justify-content: center; Pusatkan card secara horizontal */
+  /* align-items: center; Pusatkan card secara vertikal */
+  margin-top: -478px; 
+  margin-left: 350px;
+  height: 55%; /* Atur tinggi card */
+}
+
+.card-navbar{
+  background-color: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Tambahkan bayangan pada card */
+  border-radius: 10px; /* Buat sudut card menjadi melengkung */
+  padding: 20px; /* Tambahkan padding pada card */
+  bottom: 10px;
+  width: 98%;
+  height: 54%;
+}
+
+
 

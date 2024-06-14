@@ -1,0 +1,72 @@
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn i {
+    margin-right: 8px; /* Jarak antara ikon dan teks */
+    font-size: 20px;
+}
+
+.btn-plus {
+    background-color: #E0F7FA; /* Warna latar belakang untuk tombol tambah */
+    color: #004E5E;
+}
+
+.btn-filter {
+    background-color: #E0F7FA; /* Warna latar belakang untuk tombol filter */
+    color: #004E5E;
+}
+
+.btn-plus:hover, .btn-filter:hover {
+    background-color: #B2EBF2; /* Warna latar belakang saat hover */
+}
+
+.btn-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.left-btns {
+    display: flex;
+    gap: 45px; /* Jarak antara tombol-tombol di sebelah kiri */
+}
+
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    
+  }
+  
+  @media (max-width: 768px) {
+    .table-container {
+      overflow-x: auto;
+      max-height: 475px; /* Height for mobile views */
+    }
+  
+    table {
+      width: 100%;
+    }
+  
+    .rdt_TableHeader,
+    .rdt_TableBody {
+      width: 100%;
+    }
+    
+    .btn.btn-filter {
+        font-size: 8px; /* Mengurangi ukuran font */
+        padding: 1px 6px; /* Mengurangi padding */
+        position: relative;
+        bottom: 10px;
+      }
+  }
+  
+  

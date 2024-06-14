@@ -1,0 +1,200 @@
+.profil-container {
+  display: flex;
+  flex-wrap: wrap;
+  position: relative; /* Tambahkan properti position */
+  top: -20px; /* Sesuaikan nilai top sesuai kebutuhan */
+  left: 5px;
+  gap: 20px; 
+  padding: 20px;
+  width: 350px; /* Lebar card */
+  height: 505px; /* Tinggi card */
+  margin-bottom: 50px;
+}  
+.card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Mengatur gambar dan konten ke tengah secara horizontal */
+  text-align: center;
+}
+
+
+  .card h4{
+    color: #004E5E;
+  }
+  
+  .image-container {
+    width: 141px !important;
+    height: 121px;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  
+  .card-content h3 {
+    margin: 0;
+    font-size: 1.5em;
+    color: rgba(6, 76, 86, 0.5);
+  }
+  
+  .card-content p {
+    margin: 10px 0 0;
+    color: rgba(6, 76, 86, 0.5);
+    font-size: 15px;
+  }
+
+  .sub-content p{
+    color: #004E5E;
+
+  }
+  .sub-content h6{
+    color:  rgba(6, 76, 86, 0.5);
+    padding-top: 10px;
+  }
+
+  .sub-content {
+    padding-top: 15px;
+    display: flex; /* Menggunakan display flex untuk mengatur posisi sejajar */
+    justify-content: space-between;
+    align-items: flex-start; /* Mengatur elemen untuk berada di sebelah kiri */
+    border-bottom: 1px solid #ccc; /* Menambahkan garis bawah dengan warna abu-abu */
+  
+  }
+
+  .button-profil {
+    display: flex;
+    justify-content: center;
+    padding-top: 20px;
+  }
+  
+  .custom-button-profil {
+    background: linear-gradient(135deg, #0CAD7F, #5AC9C3); /* Warna latar belakang */
+    border: none; /* Menghapus border default */
+    color: white; /* Warna teks */
+    padding: 10px 20px; /* Padding untuk memperbesar tombol */
+    text-align: center; /* Mengatur teks ke tengah */
+    text-decoration: none; /* Menghapus garis bawah pada teks */
+    display: inline-block; /* Mengatur tampilan inline-block */
+    font-size: 16px; /* Ukuran font */
+    margin: 4px 2px; /* Margin untuk spasi */
+    cursor: pointer; /* Mengubah kursor saat di-hover */
+    border-radius: 5px; /* Membuat sudut tombol melengkung */
+    transition: background-color 0.3s, transform 0.2s; /* Animasi transisi */
+}
+
+.custom-button-profil:hover {
+    background: #D9D9D9; /* Warna latar belakang saat di-hover */
+    color: #004E5E;
+    transform: scale(1.05); /* Sedikit memperbesar tombol saat di-hover */
+}
+
+.custom-button-profil:active {
+    background: linear-gradient(135deg, #0CAD7F, #5AC9C3);  /* Warna latar belakang saat tombol ditekan */
+    transform: scale(1); /* Kembali ke ukuran semula saat ditekan */
+}
+  
+  /* Media Queries for Responsive Design */
+  
+  /* Tablet Portrait and Above */
+  @media (min-width: 600px) {
+    .profil-container {
+      gap: 30px; /* Spasi antar card untuk tablet dan di atasnya */
+    }
+  }
+  
+  /* Tablet Landscape and Above */
+  @media (min-width: 768px) {
+    .card {
+      width: 250px; /* Lebar card untuk tablet landscape dan di atasnya */
+    }
+  }
+  
+  /* Small Desktop and Above */
+  @media (min-width: 1024px) {
+    .card {
+      width: 300px; /* Lebar card untuk desktop kecil dan di atasnya */
+    }
+  }
+  
+  /* Mobile Devices */
+  @media (max-width: 640px) {
+    .profil-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .card h4{
+      font-size: 12px;
+      position: relative;
+      right: 4.8rem;
+      top: 0.5rem;
+    }
+     .image-container{
+      width: 68px !important;
+      height: 60px;
+      position: relative;
+      top: 0.5rem;
+      right: 4.8rem;
+      border-radius: 50%;
+     }
+     .card-content h3{
+      font-size: 14px;
+      position: absolute;
+      left: 9rem;
+      top: 3rem;
+     }
+     .card-content p{
+      font-size: 9px;
+      position: absolute;
+      left: 8rem;
+      top: 3.5rem;
+     }
+     .sub-content p {
+      font-size: 11px; /* Menyesuaikan ukuran font yang diinginkan */
+      position: relative; /* Tetap absolute jika diperlukan */
+      top: 5px; /* Menyesuaikan posisi vertikal */
+      left: 70px; /* Menyesuaikan posisi horizontal */
+      
+    } 
+     .sub-content h6 {
+      font-size: 14px; /* Menyesuaikan ukuran font yang diinginkan */
+      position: relative; /* Tetap absolute jika diperlukan */
+      top: 5px; /* Menyesuaikan posisi vertikal */
+      left: 8px; /* Menyesuaikan posisi horizontal */
+    } 
+    .sub-content{
+      padding-top: 1px;
+      position: relative;
+      top: 5px;
+      right: 2.5rem;
+    }
+    .sub-content::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; /* Atur ke bawah satu piksel dari border yang ada */
+      left: 0;
+      width: 155%; /* Memanjangkan ke lebar kontainer */
+      border-bottom: 1px solid #ccc; /* Atur border bottom */
+    }
+    .custom-button-profil {
+      font-size: 12px !important; /* Menyesuaikan ukuran font button */
+      padding: 5px 10px; /* Menyesuaikan padding button */
+    }
+
+    .card {
+      width: 91%;
+    }
+  }
+  
+  

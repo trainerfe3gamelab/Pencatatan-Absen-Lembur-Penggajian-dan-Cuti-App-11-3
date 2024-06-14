@@ -1,0 +1,87 @@
+.navbar-container {
+    position: relative;
+    padding-top: 5px; /* Adjust as needed */
+  }
+  
+  .custom-button {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 10px 15px;
+    font-size: 12px;
+    background: linear-gradient(135deg, #0CAD7F, #5AC9C3);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+  }
+  
+  .custom-button:hover {
+    background: #d9d9d9;
+    color: #004E5E;
+  }
+  
+  .button-icon {
+    width: 20px; /* Adjust size as needed */
+    height: 20px; /* Adjust size as needed */
+    margin-right: 8px; /* Space between icon and text */
+  }
+ 
+  /* Style untuk tombol utama */
+.btn {
+  display: inline-flex; /* Untuk mengatur isi tombol secara horizontal */
+  align-items: center; /* Untuk memusatkan konten vertikal dalam tombol */
+  padding: 10px 20px; /* Spasi di dalam tombol */
+  font-size: 14px; /* Ukuran font */
+  font-weight: bold; /* Ketebalan font */
+  text-align: center; /* Teks di tengah */
+  text-decoration: none; /* Menghilangkan garis bawah */
+  border-radius: 5px; /* Sudut tombol melengkung */
+  border: none; /* Menghilangkan border */
+  cursor: pointer; /* Menambahkan kursor pointer */
+  transition: background-color 0.3s ease; /* Animasi perubahan warna */
+}
+
+.btn-plus {
+  background: linear-gradient(135deg, #0CAD7F, #5AC9C3);
+  color: #ffffff;
+}
+
+.btn-plus:hover {
+  background: #d9d9d9;
+  color: #004E5E;
+}
+/* Style for gaji tab */
+.nav-tabs .nav-item .nav-link.active.gaji {
+    background-color: green !important; /* Change to desired color */
+    color: white !important; /* Text color */
+    border-color: green !important; /* Border color */
+  }
+  
+  /* Style for lembur tab */
+  .nav-tabs .nav-item .nav-link.active.lembur {
+    background-color: blue !important; /* Change to desired color */
+    color: white !important; /* Text color */
+    border-color: blue !important; /* Border color */
+  }
+  
+  /* Style for cuti tab */
+  .nav-tabs .nav-item .nav-link.active.cuti {
+    background-color: red !important; /* Change to desired color */
+    color: white !important; /* Text color */
+    border-color: red !important; /* Border color */
+  }
+
+  @media(max-width: 640px){
+    .navbar-container{
+      font-size: 7px; /* Contoh: Memperkecil ukuran font */
+      position: relative;
+      bottom: 20px;
+      
+    }
+  }
+  
+  
+  
