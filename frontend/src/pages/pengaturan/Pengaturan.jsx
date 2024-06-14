@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
-import Success from '../../image/success.png';
-import Failed from '../../image/failed.png';
+import Success from "../../image/success.png";
+import Failed from "../../image/failed.png";
 
 import axios from "axios";
 import { API_URL } from "../../helpers/networt";
@@ -15,13 +15,11 @@ const Pengaturan = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showFailedModal, setShowFailedModal] = useState(false);
 
-
   const handleCloseSuccess = () => setShowSuccessModal(false);
   const handleShowSuccess = () => setShowSuccessModal(true);
 
   const handleCloseFailed = () => setShowFailedModal(false);
   const handleShowFailed = () => setShowFailedModal(true);
-
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
@@ -77,9 +75,7 @@ const Pengaturan = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${token}`,
-
-
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -119,8 +115,7 @@ const Pengaturan = () => {
           `${API_URL}/api/admin/users/${decoded.id}`,
           {
             headers: {
-              "Authorization": `Bearer ${token}`,
-
+              Authorization: `Bearer ${token}`,
             },
           }
         );
@@ -301,34 +296,29 @@ const Pengaturan = () => {
         </div>
       </Form>
 
+      {/* Success Modal */}
+      <Modal show={showSuccessModal} onHide={handleCloseSuccess}>
+        <Modal.Body className="text-center mt-5">
+          <img src={Success} alt="success" width={70} />
+          <h5 className="mt-3">Berhasil</h5>
+          <p>Data berhasil disimpan</p>
+        </Modal.Body>
+        <Modal.Footer style={{ borderTop: "none" }}></Modal.Footer>
+      </Modal>
 
-
-
-
-       {/* Success Modal */}
-       <Modal show={showSuccessModal} onHide={handleCloseSuccess}>
-                <Modal.Body className="text-center mt-5">
-                    <img src={Success} alt="success" width={70} />
-                    <h5 className="mt-3">Berhasil</h5>
-                    <p>Data berhasil disimpan</p>
-                </Modal.Body>
-                <Modal.Footer style={{ borderTop: 'none' }}>
-                </Modal.Footer>
-            </Modal>
-
-            {/* Failed Modal */}
-            <Modal show={showFailedModal} onHide={handleCloseFailed}>
-                <Modal.Body className="text-center mt-5">
-                    <img src={Failed} alt="Failed" width={70} />
-                    <h5 className="mt-3">Gagal</h5>
-                    <p>Data gagal disimpan</p>
-                </Modal.Body>
-                <Modal.Footer style={{ borderTop: 'none' }}>
-                    <Button variant="primary" onClick={handleCloseFailed}>
-                        Tutup
-                    </Button>
-                </Modal.Footer>
-            </Modal>
+      {/* Failed Modal */}
+      <Modal show={showFailedModal} onHide={handleCloseFailed}>
+        <Modal.Body className="text-center mt-5">
+          <img src={Failed} alt="Failed" width={70} />
+          <h5 className="mt-3">Gagal</h5>
+          <p>Data gagal disimpan</p>
+        </Modal.Body>
+        <Modal.Footer style={{ borderTop: "none" }}>
+          <Button variant="primary" onClick={handleCloseFailed}>
+            Tutup
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
