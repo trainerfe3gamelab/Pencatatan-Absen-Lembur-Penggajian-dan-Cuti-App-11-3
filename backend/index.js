@@ -16,9 +16,12 @@ app.use(
   express.static(path.join(__dirname, "public/uploads/users"))
 );
 app.use("/img", express.static(path.join(__dirname, "public/img")));
-
 swaggerDocs(app);
 app.use("/api", index);
+
+app.get("/", (_, res) => {
+  res.send("Hello World");
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
