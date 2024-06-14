@@ -49,7 +49,7 @@ const Admin = () => {
     };
   }, []);
 
-  const koneksi = async () => {
+  const koneksiuser = async () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
@@ -64,23 +64,12 @@ const Admin = () => {
           }
         );
         const {
-          email,
-          password,
-          gender,
           name,
-          address,
-          phone_number,
           profile_picture,
         } = response.data.data;
         setProfile({
-          email,
-          password,
-          gender,
           name,
-          address,
-          phone_number,
           profile_picture,
-          password: "",
         });
       } catch (error) {
         console.error("Error fetching data", error);
@@ -89,11 +78,11 @@ const Admin = () => {
   };
 
   useEffect(() => {
-    koneksi();
+    koneksiuser();
   }, []);
 
 
-  
+
   return (
     <div>
       {showSidebar && <MobileSidebar className='sticky-sidebar' />}
