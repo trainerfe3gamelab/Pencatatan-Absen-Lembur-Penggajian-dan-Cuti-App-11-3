@@ -4,6 +4,7 @@ import Admin from './pages/admin/Admin';
 import Login from './pages/login/Login';
 import NotFound from './pages/NotFound/NotFound';
 import Index from './pages/LandingPage';
+import Lupapassword from './pages/login/lupapassword';
 
 const App = () => {
   return (
@@ -11,6 +12,7 @@ const App = () => {
       <Routes>
         <Route path="/*" element={<Index />} />
         <Route path="/Login" element={<Login />} />
+        <Route path="/forgot-password" element={<Lupapassword />} />
         <Route path="/admin/*" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
