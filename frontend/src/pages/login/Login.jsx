@@ -76,16 +76,16 @@ const Login = () => {
               </i>
             </div>
             <div className="remember-forgot">
-              <label>
+              {/* <label>
                 <input type="checkbox" /> Remember Me
-              </label>
+              </label> */}
             </div>
             <button type="submit" className="btn">
               Login
             </button>
             <div className="register-link">
               <p>
-                <a href="#">klik disini </a> jika anda lupa sandi
+                <a href="#" onClick={() => navigate('/forgot-password')}>klik disini </a> jika anda lupa sandi
               </p>
             </div>
           </form>

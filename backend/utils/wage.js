@@ -209,6 +209,8 @@ const createWageReportsForAllUsers = async (targetMonth, targetYear) => {
 };
 
 const createWageReports = async (userId, targetMonth, targetYear) => {
+  const targetStartDate = moment([targetYear, targetMonth - 1, 1]);
+  const targetEndDate = moment(targetStartDate).endOf("month");
   const user = await User.findOne({
     where: { id: userId, archived: false, role: "employee" },
     attributes: data.attributes,
@@ -222,9 +224,6 @@ const createWageReports = async (userId, targetMonth, targetYear) => {
   });
 
   if (!user) return null;
-
-  const targetStartDate = moment([targetYear, targetMonth - 1, 1]);
-  const targetEndDate = moment(targetStartDate).endOf("month");
 
   const salaryCuts = await getSalaryCuts();
   const holidays = await getTotalHoliday(targetYear, targetMonth);
@@ -322,11 +321,7 @@ const calculateOvertimePay = (hours, base_salary) => {
   const baseSalary = parseFloat(base_salary) || 0;
   const hourlyRate = baseSalary / 173;
 
-  return Math.ceil(
-    overtimeHours > 0
-      ? hourlyRate * 1.5 + (overtimeHours - 1) * hourlyRate * 2
-      : 0
-  );
+  return Math.ceil(overtimeHours > 0 ? hourlyRate * 1.5 * overtimeHours : 0);
 };
 
 const calculateCut = (
@@ -357,10 +352,6 @@ const calculateCut = (
   );
 
   return totalAlphaCut + totalCut;
-};
-
-module.exports = {
-  createWageReportsForAllUsers,
 };
 
 module.exports = {

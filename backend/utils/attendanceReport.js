@@ -1,4 +1,4 @@
-const { User, Leave, Attendance } = require("../models");
+const { User, Leave, Attendance, Holiday } = require("../models");
 const { Op, fn, col, literal } = require("sequelize");
 const moment = require("moment-timezone");
 
@@ -83,10 +83,29 @@ const data = {
   },
 };
 
+const calculateAlpha = (
+  days,
+  weekends,
+  holidays,
+  totalPresence,
+  totalLeave
+) => {
+  return Math.max(0, days - weekends - holidays - totalPresence - totalLeave);
+};
+
 const createAttendanceReports = async (userId, targetDate) => {
   const targetMoment = moment(targetDate).tz("Asia/Jakarta");
   const targetMonth = targetMoment.month() + 1; // months are 0-based
   const targetYear = targetMoment.year();
+
+  const daysInMonth = targetMoment.daysInMonth();
+  const weekends = Array.from(
+    { length: daysInMonth },
+    (_, i) => new Date(targetYear, targetMonth - 1, i + 1)
+  ).filter((date) => date.getDay() === 0 || date.getDay() === 6).length;
+
+  // Get holidays from the database
+  const holidays = await getHolidaysForMonth(targetYear, targetMonth);
 
   const user = await User.findOne({
     where: { id: userId, archived: false, role: "employee" },
@@ -97,12 +116,26 @@ const createAttendanceReports = async (userId, targetDate) => {
 
   if (!user) return null;
 
+  const hadir = parseInt(user.getDataValue("hadir")) || 0;
+  const sakit = parseInt(user.getDataValue("sakit")) || 0;
+  const izin = parseInt(user.getDataValue("izin")) || 0;
+  const totalPresence = hadir;
+  const totalLeave = sakit + izin;
+
+  const alpha = calculateAlpha(
+    daysInMonth,
+    weekends,
+    holidays,
+    totalPresence,
+    totalLeave
+  );
+
   return {
     user_id: user.id,
-    alpha: parseInt(user.getDataValue("alpha")) || 0,
-    hadir: parseInt(user.getDataValue("hadir")) || 0,
-    sakit: parseInt(user.getDataValue("sakit")) || 0,
-    izin: parseInt(user.getDataValue("izin")) || 0,
+    alpha,
+    hadir,
+    sakit,
+    izin,
   };
 };
 
@@ -111,6 +144,15 @@ const createAttendanceReportsForAllUsers = async (targetDate) => {
   const targetMonth = targetMoment.month() + 1; // months are 0-based
   const targetYear = targetMoment.year();
 
+  const daysInMonth = targetMoment.daysInMonth();
+  const weekends = Array.from(
+    { length: daysInMonth },
+    (_, i) => new Date(targetYear, targetMonth - 1, i + 1)
+  ).filter((date) => date.getDay() === 0 || date.getDay() === 6).length;
+
+  // Get holidays from the database
+  const holidays = await getHolidaysForMonth(targetYear, targetMonth);
+
   const users = await User.findAll({
     where: { archived: false, role: "employee" },
     attributes: data.attributes,
@@ -118,16 +160,62 @@ const createAttendanceReportsForAllUsers = async (targetDate) => {
     group: ["User.id"],
   });
 
-  const reports = users.map((user) => ({
-    user_id: user.id,
-    alpha: parseInt(user.getDataValue("alpha")) || 0,
-    hadir: parseInt(user.getDataValue("hadir")) || 0,
-    sakit: parseInt(user.getDataValue("sakit")) || 0,
-    izin: parseInt(user.getDataValue("izin")) || 0,
-  }));
+  const reports = users.map((user) => {
+    const hadir = parseInt(user.getDataValue("hadir")) || 0;
+    const sakit = parseInt(user.getDataValue("sakit")) || 0;
+    const izin = parseInt(user.getDataValue("izin")) || 0;
+    const totalPresence = hadir;
+    const totalLeave = sakit + izin;
+
+    const alpha = calculateAlpha(
+      daysInMonth,
+      weekends,
+      holidays,
+      totalPresence,
+      totalLeave
+    );
+
+    return {
+      user_id: user.id,
+      alpha,
+      hadir,
+      sakit,
+      izin,
+    };
+  });
 
   return reports;
 };
+
+const getHolidaysForMonth = async (year, month) => {
+  const startDate = moment(`${year}-${month}-01`).startOf("month").toDate();
+  const endDate = moment(startDate).endOf("month").toDate();
+  const holidays = await Holiday.findAll({
+    where: {
+      archived: false,
+      [Op.or]: [
+        { start_date: { [Op.between]: [startDate, endDate] } },
+        { end_date: { [Op.between]: [startDate, endDate] } },
+        {
+          [Op.and]: [
+            { start_date: { [Op.lte]: startDate } },
+            { end_date: { [Op.gte]: endDate } },
+          ],
+        },
+      ],
+    },
+  });
+
+  return holidays.reduce((total, holiday) => {
+    const holidayStart = moment.max(
+      moment(holiday.start_date),
+      moment(startDate)
+    );
+    const holidayEnd = moment.min(moment(holiday.end_date), moment(endDate));
+    return total + holidayEnd.diff(holidayStart, "days") + 1;
+  }, 0);
+};
+
 module.exports = {
   createAttendanceReports,
   createAttendanceReportsForAllUsers,
