@@ -7,12 +7,7 @@ const { handleFailed, handleError } = require("../utils/response");
 const overtimeController = {
   // Create a new overtime
   create: async (req, res) => {
-    // Validate request body
-    const optionalOvertimeValidator = overtimeValidator.fork(
-      ["status"],
-      (schema) => schema.forbidden()
-    );
-    const { error, value } = optionalOvertimeValidator.validate(req.body);
+    const { error, value } = overtimeValidator.validate(req.body);
     if (error) return handleFailed(res, 400, error.details[0].message);
 
     // Check if the user exists
