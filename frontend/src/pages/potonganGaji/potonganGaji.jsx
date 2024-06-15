@@ -222,7 +222,6 @@ const PotonganGaji = () => {
         </Button>
         <div>
           <SearchBox onChange={handleFilter} />
-          required
         </div>
       </div>
       <div className="bg-white border rounded-4">
