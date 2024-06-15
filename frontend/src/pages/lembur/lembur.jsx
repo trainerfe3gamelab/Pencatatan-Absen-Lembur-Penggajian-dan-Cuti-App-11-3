@@ -211,6 +211,7 @@ const Lembur = () => {
         date: newData.date,
         time_in: newData.time_in,
         time_out: newData.time_out,
+        status: newData.status
        
       };
       await axios.post(`${API_URL}/api/admin/overtimes`, requestData, {
@@ -525,7 +526,20 @@ const Lembur = () => {
                 onChange={handleNewInputChange}
               />
             </Form.Group>
-            
+            <Form.Group controlId="formPertimbanganEdit">
+              <Form.Label>Pertimbangan</Form.Label>
+              <Form.Control
+                as="select"
+                name="status"
+                value={newData.status}
+                onChange={handleNewInputChange}
+              >
+                <option value="">Pilih</option>
+                <option value="diproses">diproses</option>
+                <option value="disetujui">disetujui</option>
+                <option value="ditolak">ditolak</option>
+              </Form.Control>
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
