@@ -12,4 +12,6 @@ router.put(
   userController.update
 );
 
+router.get("/", userController.findOneForUser);
+
 module.exports = router;
