@@ -248,6 +248,7 @@ const Cuti = () => {
         reasoning: newData.reasoning,
         start_date: newData.start_date,
         end_date: newData.end_date,
+        status: newData.status,
       };
       await axios.post(`${API_URL}/api/admin/leaves`, requestData, {
         headers: {
