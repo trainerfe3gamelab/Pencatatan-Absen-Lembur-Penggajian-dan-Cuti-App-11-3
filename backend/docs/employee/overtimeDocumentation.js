@@ -273,10 +273,6 @@ const overtimeDocumentation = {
     OvertimeInput: {
       type: "object",
       properties: {
-        user_id: {
-          type: "string",
-          example: "1",
-        },
         date: {
           type: "string",
           example: "2024-06-01",

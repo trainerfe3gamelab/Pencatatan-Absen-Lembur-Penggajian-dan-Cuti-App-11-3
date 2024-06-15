@@ -11,7 +11,13 @@ const overtimeController = {
     if (error) return handleFailed(res, 400, error.details[0].message);
 
     // Check if the user exists
-    const user = await User.findByPk(value.user_id);
+    const user = await User.findOne({
+      where: {
+        id: value.user_id,
+        role: "employee",
+        archived: false,
+      },
+    });
     if (!user)
       return handleFailed(
         res,
@@ -31,7 +37,48 @@ const overtimeController = {
       });
       res.status(201).json({ status: "sukses", data: newOvertime });
     } catch (err) {
-      console.log(error.message);
+      console.log(err.message);
+      handleError(res, 500, "Terjadi error pada server");
+    }
+  },
+
+  createForUser: async (req, res) => {
+    const optionalOvertimeValidator = overtimeValidator.fork(
+      ["user_id", "status"],
+      (schema) => schema.forbidden()
+    );
+    const { error, value } = optionalOvertimeValidator.validate(req.body);
+    if (error) return handleFailed(res, 400, error.details[0].message);
+
+    // Check if the user exists
+    const user = await User.findOne({
+      where: {
+        id: req.user.id,
+        role: "employee",
+        archived: false,
+      },
+    });
+    if (!user)
+      return handleFailed(
+        res,
+        400,
+        "User tidak ditemukan. Gagal insert data lembur"
+      );
+
+    try {
+      const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
+      const newOvertime = await Overtime.create({
+        ...value,
+        user_id: req.user.id,
+        status: "diproses",
+        creation_time: now,
+        create_id: uuidv4(),
+        update_time: now,
+        update_id: uuidv4(),
+      });
+      res.status(201).json({ status: "sukses", data: newOvertime });
+    } catch (err) {
+      console.log(err.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
@@ -43,8 +90,8 @@ const overtimeController = {
         where: { archived: false },
       });
       res.status(200).json({ status: "sukses", data: overtime });
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.log(err.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
@@ -62,8 +109,8 @@ const overtimeController = {
         attributes: ["id", "email", "role"],
       });
       res.status(200).json({ status: "sukses", data: overtime });
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.log(err.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
@@ -82,8 +129,8 @@ const overtimeController = {
         return handleFailed(res, 400, "Data lembur tidak ditemukan");
 
       res.status(200).json({ status: "sukses", data: overtime });
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.log(err.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
@@ -101,8 +148,8 @@ const overtimeController = {
         return handleFailed(res, 400, "Data lembur tidak ditemukan");
 
       res.status(200).json({ status: "sukses", data: overtime });
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.log(err.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
@@ -140,8 +187,8 @@ const overtimeController = {
         status: "sukses",
         message: "Data lembur berhasil diperbarui.",
       });
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.log(err.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
@@ -167,8 +214,8 @@ const overtimeController = {
         status: "sukses",
         message: "Lembur berhasil dihapus",
       });
-    } catch (error) {
-      console.log(error.message);
+    } catch (err) {
+      console.log(err.message);
       handleError(res, 500, "Terjadi error pada server");
     }
   },
