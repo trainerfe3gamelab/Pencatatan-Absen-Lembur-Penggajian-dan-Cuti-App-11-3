@@ -175,7 +175,8 @@ const Absensi = () => {
     handleShowEdit();
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
     const token = localStorage.getItem("token");
     const userId = editData.id;
     const updatedUserData = {
@@ -244,7 +245,8 @@ const Absensi = () => {
     setNewData({ ...newData, [name]: value });
   };
 
-  const handleSaveAdd = async () => {
+  const handleSaveAdd = async (e) => {
+    e.preventDefault();
     try {
       const token = localStorage.getItem("token");
 
@@ -388,7 +390,7 @@ const Absensi = () => {
           <Modal.Title>Edit Absensi</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSaveEdit}>
             <Form.Group controlId="formNama">
               <Form.Control
                 style={{ display: "none" }}
@@ -396,6 +398,7 @@ const Absensi = () => {
                 name="id"
                 value={editData.id}
                 onChange={handleInputChange}
+                required
               />
               <Form.Label>Nama</Form.Label>
               <Form.Control
@@ -403,6 +406,7 @@ const Absensi = () => {
                 name="user_id"
                 value={editData.user_id}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -419,6 +423,7 @@ const Absensi = () => {
                 name="status"
                 value={editData.status}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Pilih</option>
                 <option value="hadir">hadir</option>
@@ -433,6 +438,7 @@ const Absensi = () => {
                 name="date"
                 value={editData.date}
                 onChange={handleInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formTimein">
@@ -442,6 +448,7 @@ const Absensi = () => {
                 name="time_in"
                 value={editData.time_in}
                 onChange={handleInputChange}
+                required
                 placeholder="08:00:00"
               />
             </Form.Group>
@@ -452,16 +459,20 @@ const Absensi = () => {
                 name="time_out"
                 value={editData.time_out}
                 onChange={handleInputChange}
+                required
                 placeholder="16:00:00"
               />
             </Form.Group>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseEdit}>
+                Close
+              </Button>
+              <Button variant="success" type="submit">
+                Save Changes
+              </Button>
+            </Modal.Footer>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveEdit}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Add Modal */}
@@ -470,7 +481,7 @@ const Absensi = () => {
           <Modal.Title>Tambah Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSaveAdd}>
             <Form.Group controlId="formNama">
               <Form.Label>Nama</Form.Label>
               <Form.Control
@@ -478,6 +489,7 @@ const Absensi = () => {
                 name="user_id"
                 value={newData.user_id}
                 onChange={handleNewInputChange}
+                required
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -494,6 +506,7 @@ const Absensi = () => {
                 name="status"
                 value={newData.status}
                 onChange={handleNewInputChange}
+                required
               >
                 <option value="">Pilih</option>
                 <option value="hadir">hadir</option>
@@ -508,6 +521,7 @@ const Absensi = () => {
                 name="date"
                 value={newData.date}
                 onChange={handleNewInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formTimein">
@@ -517,6 +531,7 @@ const Absensi = () => {
                 name="time_in"
                 value={newData.time_in}
                 onChange={handleNewInputChange}
+                required
                 placeholder="08:00:00"
               />
             </Form.Group>
@@ -527,16 +542,20 @@ const Absensi = () => {
                 name="time_out"
                 value={newData.time_out}
                 onChange={handleNewInputChange}
+                required
                 placeholder="16:00:00"
               />
             </Form.Group>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseEdit}>
+                Close
+              </Button>
+              <Button variant="success" type="submit">
+                Simpan
+              </Button>
+            </Modal.Footer>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveAdd}>
-            Simpan
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Success Modal */}

@@ -143,7 +143,8 @@ const Lembur = () => {
     handleShowEdit();
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
     const token = localStorage.getItem("token");
     const userId = editData.id;
     const updatedUserData = {
@@ -203,7 +204,8 @@ const Lembur = () => {
     setNewData({ ...newData, [name]: value });
   };
 
-  const handleSaveAdd = async () => {
+  const handleSaveAdd = async (e) => {
+    e.preventDefault();
     try {
       const token = localStorage.getItem("token");
       const requestData = {
@@ -211,8 +213,7 @@ const Lembur = () => {
         date: newData.date,
         time_in: newData.time_in,
         time_out: newData.time_out,
-        status: newData.status
-       
+        status: newData.status,
       };
       await axios.post(`${API_URL}/api/admin/overtimes`, requestData, {
         headers: {
@@ -402,7 +403,7 @@ const Lembur = () => {
           <Modal.Title>Edit Absensi</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSaveEdit}>
             <Form.Group controlId="formNama">
               <Form.Control
                 style={{ display: "none" }}
@@ -410,6 +411,7 @@ const Lembur = () => {
                 name="id"
                 value={editData.id}
                 onChange={handleInputChange}
+                required
               />
               <Form.Label>Nama</Form.Label>
               <Form.Control
@@ -417,6 +419,7 @@ const Lembur = () => {
                 name="user_id"
                 value={editData.user_id}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -433,6 +436,7 @@ const Lembur = () => {
                 name="date"
                 value={editData.date}
                 onChange={handleInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formTimein">
@@ -440,8 +444,10 @@ const Lembur = () => {
               <Form.Control
                 type="text"
                 name="time_in"
+                placeholder="18:00:00"
                 value={editData.time_in}
                 onChange={handleInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formTimeout">
@@ -449,8 +455,10 @@ const Lembur = () => {
               <Form.Control
                 type="text"
                 name="time_out"
+                placeholder="21:00:00"
                 value={editData.time_out}
                 onChange={handleInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formPertimbanganEdit">
@@ -460,6 +468,7 @@ const Lembur = () => {
                 name="status"
                 value={editData.status}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Pilih</option>
                 <option value="diproses">diproses</option>
@@ -467,13 +476,16 @@ const Lembur = () => {
                 <option value="ditolak">ditolak</option>
               </Form.Control>
             </Form.Group>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseEdit}>
+                Close
+              </Button>
+              <Button variant="success" type="submit">
+                Save Changes
+              </Button>
+            </Modal.Footer>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveEdit}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Add Modal */}
@@ -482,7 +494,7 @@ const Lembur = () => {
           <Modal.Title>Tambah Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSaveAdd}>
             <Form.Group controlId="formNama">
               <Form.Label>Nama</Form.Label>
               <Form.Control
@@ -490,6 +502,7 @@ const Lembur = () => {
                 name="user_id"
                 value={newData.user_id}
                 onChange={handleNewInputChange}
+                required
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -506,6 +519,7 @@ const Lembur = () => {
                 name="date"
                 value={newData.date}
                 onChange={handleNewInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formTimein">
@@ -513,8 +527,10 @@ const Lembur = () => {
               <Form.Control
                 type="text"
                 name="time_in"
+                placeholder="18:00:00"
                 value={newData.time_in}
                 onChange={handleNewInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formTimeout">
@@ -522,8 +538,10 @@ const Lembur = () => {
               <Form.Control
                 type="text"
                 name="time_out"
+                placeholder="21:00:00"
                 value={newData.time_out}
                 onChange={handleNewInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formPertimbanganEdit">
@@ -533,6 +551,7 @@ const Lembur = () => {
                 name="status"
                 value={newData.status}
                 onChange={handleNewInputChange}
+                required
               >
                 <option value="">Pilih</option>
                 <option value="diproses">diproses</option>
@@ -540,13 +559,16 @@ const Lembur = () => {
                 <option value="ditolak">ditolak</option>
               </Form.Control>
             </Form.Group>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseEdit}>
+                Close
+              </Button>
+              <Button variant="success" type="submit">
+                Simpan
+              </Button>
+            </Modal.Footer>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveAdd}>
-            Simpan
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Success Modal */}
@@ -591,6 +613,7 @@ const Lembur = () => {
                 name="date"
                 value={filterCriteria.date}
                 onChange={handleFilterCriteriaChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formJabatan">
@@ -600,6 +623,7 @@ const Lembur = () => {
                 name="position_name"
                 value={filterCriteria.position_name}
                 onChange={handleFilterCriteriaChange}
+                required
               >
                 <option value="">Pilih jabatan</option>
                 {positions.map((position) => (

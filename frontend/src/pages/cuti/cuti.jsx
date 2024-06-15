@@ -178,7 +178,8 @@ const Cuti = () => {
     handleShowEdit();
   };
 
-  const handleSaveEdit = async () => {
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
     const token = localStorage.getItem("token");
     const userId = editData.id;
     const updatedUserData = {
@@ -239,7 +240,8 @@ const Cuti = () => {
     setNewData({ ...newData, [name]: value });
   };
 
-  const handleSaveAdd = async () => {
+  const handleSaveAdd = async (e) => {
+    e.preventDefault();
     try {
       const token = localStorage.getItem("token");
       const requestData = {
@@ -248,6 +250,7 @@ const Cuti = () => {
         reasoning: newData.reasoning,
         start_date: newData.start_date,
         end_date: newData.end_date,
+        status: newData.status,
       };
       await axios.post(`${API_URL}/api/admin/leaves`, requestData, {
         headers: {
@@ -451,7 +454,7 @@ const Cuti = () => {
           <Modal.Title>Edit Data Cuti</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSaveEdit}>
             <Form.Group controlId="formNamaEdit">
               <Form.Control
                 style={{ display: "none" }}
@@ -459,6 +462,7 @@ const Cuti = () => {
                 name="id"
                 value={editData.id}
                 onChange={handleInputChange}
+                required
               />
               <Form.Label>Nama</Form.Label>
               <Form.Control
@@ -466,6 +470,7 @@ const Cuti = () => {
                 name="user_id"
                 value={editData.user_id}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -482,6 +487,7 @@ const Cuti = () => {
                 name="type"
                 value={editData.type}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Pilih Jenis Cuti</option>
                 <option value="sakit">sakit</option>
@@ -496,6 +502,7 @@ const Cuti = () => {
                 name="reasoning"
                 value={editData.reasoning}
                 onChange={handleInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formMulaiTanggalEdit">
@@ -505,6 +512,7 @@ const Cuti = () => {
                 name="start_date"
                 value={editData.start_date}
                 onChange={handleInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formSelesaiTanggalEdit">
@@ -514,6 +522,7 @@ const Cuti = () => {
                 name="finistanggal"
                 value={editData.end_date}
                 onChange={handleInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formPertimbanganEdit">
@@ -523,6 +532,7 @@ const Cuti = () => {
                 name="status"
                 value={editData.status}
                 onChange={handleInputChange}
+                required
               >
                 <option value="">Pilih</option>
                 <option value="diproses">diproses</option>
@@ -530,13 +540,16 @@ const Cuti = () => {
                 <option value="ditolak">ditolak</option>
               </Form.Control>
             </Form.Group>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseEdit}>
+                Close
+              </Button>
+              <Button variant="success" type="submit">
+                simpan
+              </Button>
+            </Modal.Footer>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveEdit}>
-            simpan
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Add Modal */}
@@ -545,7 +558,7 @@ const Cuti = () => {
           <Modal.Title>Tambah Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSaveAdd}>
             <Form.Group controlId="formNamaAdd">
               <Form.Label>Nama</Form.Label>
               <Form.Control
@@ -553,6 +566,7 @@ const Cuti = () => {
                 name="user_id"
                 value={newData.user_id}
                 onChange={handleNewInputChange}
+                required
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -569,6 +583,7 @@ const Cuti = () => {
                 name="type"
                 value={newData.type}
                 onChange={handleNewInputChange}
+                required
               >
                 <option value="">Pilih Jenis Cuti</option>
                 <option value="sakit">sakit</option>
@@ -583,6 +598,7 @@ const Cuti = () => {
                 name="reasoning"
                 value={newData.reasoning}
                 onChange={handleNewInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formMulaiTanggalAdd">
@@ -592,6 +608,7 @@ const Cuti = () => {
                 name="start_date"
                 value={newData.start_date}
                 onChange={handleNewInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formSelesaiTanggalAdd">
@@ -601,6 +618,7 @@ const Cuti = () => {
                 name="end_date"
                 value={newData.end_date}
                 onChange={handleNewInputChange}
+                required
               />
             </Form.Group>
             <Form.Group controlId="formPertimbanganEdit">
@@ -610,6 +628,7 @@ const Cuti = () => {
                 name="status"
                 value={newData.status}
                 onChange={handleNewInputChange}
+                required
               >
                 <option value="">Pilih</option>
                 <option value="diproses">diproses</option>
@@ -617,13 +636,16 @@ const Cuti = () => {
                 <option value="ditolak">ditolak</option>
               </Form.Control>
             </Form.Group>
+            <Modal.Footer>
+              <Button variant="secondary" onClick={handleCloseEdit}>
+                Close
+              </Button>
+              <Button variant="success" type="submit">
+                Simpan
+              </Button>
+            </Modal.Footer>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveAdd}>
-            Simpan
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Success Modal */}
@@ -667,6 +689,7 @@ const Cuti = () => {
                 as="select"
                 name="type"
                 onChange={handleFilterCriteriaChange}
+                required
               >
                 <option value="">Pilih Jenis Cuti</option>
                 <option value="sakit">sakit</option>
@@ -679,6 +702,7 @@ const Cuti = () => {
                 as="select"
                 name="status"
                 onChange={handleFilterCriteriaChange}
+                required
               >
                 <option value="">Pilih</option>
                 <option value="diproses">diproses</option>
