@@ -7,11 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const leaveController = {
   // Create a new leave
   create: async (req, res) => {
-    // Validate request body
-    const optionalLeaveValidator = leaveValidator.fork(["status"], (schema) =>
-      schema.forbidden()
-    );
-    const { error, value } = optionalLeaveValidator.validate(req.body);
+    const { error, value } = leaveValidator.validate(req.body);
     if (error) return handleFailed(res, 400, error.details[0].message);
 
     // Check if the user exists
@@ -42,7 +38,50 @@ const leaveController = {
       res
         .status(201)
         .json({ status: "sukses", message: "Berhasil insert data cuti" });
-    } catch (err) {
+    } catch (error) {
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
+    }
+  },
+
+  createForUser: async (req, res) => {
+    const optionalLeaveValidator = leaveValidator.fork(
+      ["user_id", "status"],
+      (schema) => schema.forbidden()
+    );
+    const { error, value } = optionalLeaveValidator.validate(req.body);
+    if (error) return handleFailed(res, 400, error.details[0].message);
+
+    // Check if the user exists
+    const user = await User.findOne({
+      where: {
+        id: req.user.id,
+        role: "employee",
+        archived: false,
+      },
+    });
+    if (!user)
+      return handleFailed(
+        res,
+        400,
+        "Karyawan tidak ditemukan. Gagal insert data cuti."
+      );
+
+    try {
+      const now = moment().tz("Asia/Jakarta").format("YYYY-MM-DD HH:mm:ss");
+      await Leave.create({
+        ...value,
+        user_id: req.user.id,
+        status: "diproses",
+        creation_time: now,
+        create_id: uuidv4(),
+        update_time: now,
+        update_id: uuidv4(),
+      });
+      res
+        .status(201)
+        .json({ status: "sukses", message: "Berhasil insert data cuti" });
+    } catch (error) {
       console.log(error.message);
       handleError(res, 500, "Terjadi error pada server");
     }

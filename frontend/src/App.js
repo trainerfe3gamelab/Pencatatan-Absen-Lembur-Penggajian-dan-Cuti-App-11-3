@@ -6,20 +6,32 @@ import NotFound from './pages/NotFound/NotFound';
 import Index from './pages/LandingPage';
 import User from './pages/User/user';
 import Lupapassword from './pages/login/lupapassword';
+import ProtectedRoute from "./components/protectedRoute";
+import PublicRoute from "./components/publicRoute";
+
 
 const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/*" element={<Index />} />
-        <Route path="/Login" element={<Login />} />
-        <Route path="/forgot-password" element={<Lupapassword />} />
-        <Route path="/admin/*" element={<Admin />} />
-        <Route path="/User/*" element={<User />} />
+        <Route path="/*" element={<PublicRoute element={Index} />} />
+        <Route path="/login" element={<PublicRoute element={Login} />} />
+        <Route
+          path="/forgot-password"
+          element={<PublicRoute element={Lupapassword} />}
+        />
+        <Route
+          path="/admin/*"
+          element={<ProtectedRoute element={Admin} role="admin" />}
+        />
+        <Route
+          path="/User/*"
+          element={<ProtectedRoute element={User} role="employee" />}
+        />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
-}
+};
 
 export default App;

@@ -120,6 +120,29 @@ const userController = {
     }
   },
 
+  findOneForUser: async (req, res) => {
+    try {
+      const data = await User.findOne({
+        where: { archived: false, id: req.user.id },
+        include: {
+          model: Position,
+          as: "position",
+          attributes: ["position_name"],
+        },
+        attributes: { exclude: ["password"] },
+      });
+      if (data == null) return handleFailed(res, 404, "User tidak ditemukan");
+
+      res.status(200).json({
+        status: "sukses",
+        data: data,
+      });
+    } catch (error) {
+      console.log(error.message);
+      handleError(res, 500, "Terjadi error pada server");
+    }
+  },
+
   update: async (req, res) => {
     try {
       const optionalUserValidator = userValidator.fork(
@@ -185,6 +208,7 @@ const userController = {
         value.profile_picture = `uploads/users/${req.file.filename}`;
       }
 
+      if (req.user.role == "employee") delete value.position_id;
       const data = await User.update(
         {
           ...value,

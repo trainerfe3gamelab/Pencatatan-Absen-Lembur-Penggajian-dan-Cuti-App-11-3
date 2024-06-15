@@ -13,6 +13,7 @@ import axios from "axios";
 import { API_URL } from "../../helpers/networt";
 
 const RecapGaji = () => {
+  const [errorMessage, setErrorMessage] = useState("");
   const [records, setRecords] = useState([]);
   const [positions, setPositions] = useState([]);
   const [users, setUsers] = useState([]);
@@ -186,7 +187,8 @@ const RecapGaji = () => {
     });
   };
 
-  const handleSaveAdd = async () => {
+  const handleSaveAdd = async (e) => {
+    e.preventDefault();
     try {
       const token = localStorage.getItem("token");
       const requestData = selectAll
@@ -214,6 +216,7 @@ const RecapGaji = () => {
     } catch (error) {
       console.error("Error adding attendance data:", error);
       handleCloseAdd();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -237,6 +240,7 @@ const RecapGaji = () => {
     } catch (error) {
       console.error("Error adding attendance data:", error);
       handleCloseReset();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -351,6 +355,8 @@ const RecapGaji = () => {
       setRecords(records.filter((record) => record.id !== id));
     } catch (error) {
       console.error("Error deleting data:", error);
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+      handleShowFailed();
     }
   };
 
@@ -464,7 +470,7 @@ const RecapGaji = () => {
           <Modal.Title>Tambah Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
+          <Form onSubmit={handleSaveAdd}>
             <Form.Group controlId="formNama">
               <Form.Label>Nama</Form.Label>
               <Form.Check
@@ -479,6 +485,7 @@ const RecapGaji = () => {
                 value={newData.user_id}
                 onChange={handleNewInputChange}
                 disabled={selectAll}
+                required
               >
                 <option value="">Pilih nama Pegawai</option>
                 {users.map((user) => (
@@ -525,13 +532,13 @@ const RecapGaji = () => {
                 ))}
               </Form.Control>
             </Form.Group>
+            <Modal.Footer>
+              <Button variant="success" type="submit">
+                Simpan
+              </Button>
+            </Modal.Footer>
           </Form>
         </Modal.Body>
-        <Modal.Footer>
-          <Button variant="success" onClick={handleSaveAdd}>
-            Simpan
-          </Button>
-        </Modal.Footer>
       </Modal>
 
       {/* Filter Modal */}
@@ -624,7 +631,7 @@ const RecapGaji = () => {
         <Modal.Body className="text-center mt-5">
           <img src={Failed} alt="Failed" width={70} />
           <h5 className="mt-3">Gagal</h5>
-          <p>Data gagal disimpan</p>
+          <p>{errorMessage}</p>
         </Modal.Body>
         <Modal.Footer style={{ borderTop: "none" }}>
           <Button variant="primary" onClick={handleCloseFailed}>
