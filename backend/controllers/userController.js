@@ -208,6 +208,7 @@ const userController = {
         value.profile_picture = `uploads/users/${req.file.filename}`;
       }
 
+      if (req.user.role == "employee") delete value.position_id;
       const data = await User.update(
         {
           ...value,

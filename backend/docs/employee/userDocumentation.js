@@ -128,10 +128,6 @@ const userDocumentation = {
           type: "string",
           example: "08987654321",
         },
-        position_id: {
-          type: "string",
-          example: "tes",
-        },
         profile_picture: {
           type: "string",
           format: "binary",
