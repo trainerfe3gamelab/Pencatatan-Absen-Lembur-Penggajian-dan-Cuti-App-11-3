@@ -7,11 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const leaveController = {
   // Create a new leave
   create: async (req, res) => {
-    // Validate request body
-    const optionalLeaveValidator = leaveValidator.fork(["status"], (schema) =>
-      schema.forbidden()
-    );
-    const { error, value } = optionalLeaveValidator.validate(req.body);
+    const { error, value } = leaveValidator.validate(req.body);
     if (error) return handleFailed(res, 400, error.details[0].message);
 
     // Check if the user exists
