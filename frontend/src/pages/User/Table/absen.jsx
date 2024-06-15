@@ -1,13 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // Pastikan ini ada
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import './absen.css';
+import { API_URL } from "../../../helpers/networt";
+import axios from "axios";
 import { useMediaQuery } from '@mui/material';
 
 const Absen = () => {
+
+    const [initialData, setInitialData] = useState([]);
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+    
+        try {
+          const response = await axios.get(`${API_URL}/api/employee/attendances/`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          });
+    
+          const fetchedData = response.data.data.attendances; // Pastikan ini sesuai dengan struktur data dari API Anda
+    
+          if (Array.isArray(fetchedData)) {
+            setInitialData(fetchedData); // Mengatur data yang akan digunakan untuk tabel
+          } else {
+            console.error("Data yang diambil bukan array:", fetchedData);
+          }
+    
+          console.log(fetchedData);
+        } catch (error) {
+          console.error("Kesalahan saat mengambil data", error);
+        }
+      };
+    
+      useEffect(() => {
+        koneksi();
+      }, []);
+
+
+
     const isMobile = window.innerWidth <= 600;
     const columns = [
         {
@@ -17,17 +53,22 @@ const Absen = () => {
         },
         {
             name: "Tanggal",
-            selector: row => row.tanggal,
+            selector: row => row.date,
             sortable: true
         },
         {
             name: "Presensi Masuk",
-            selector: row => row.presensimasuk,
+            selector: row => row.time_in,
             sortable: true
         },
         {
             name: "Presensi Keluar",
-            selector: row => row.presensikeluar,
+            selector: row => row.time_out,
+            sortable: true
+        },
+        {
+            name: "Status",
+            selector: row => row.status,
             sortable: true
         },
     ];
@@ -72,20 +113,20 @@ const Absen = () => {
     };
     
 
-    const initialData = [
-        { id: 1, tanggal: '01/01/2023', presensimasuk: '01/02/2023', presensikeluar: 'staf admin' },
-        { id: 2, tanggal: '02/03/2023', presensimasuk: '01/04/2023', presensikeluar: 'manager' },
-        { id: 3, tanggal: '01/05/2023', presensimasuk: '01/06/2023', presensikeluar: 'security' },
-        { id: 4, tanggal: '01/07/2023', presensimasuk: '01/08/2023', presensikeluar: 'staf IT' },
-        { id: 5, tanggal: '01/09/2023', presensimasuk: '01/10/2023', presensikeluar: 'staf HR' },
-        { id: 6, tanggal: '01/11/2023', presensimasuk: '01/12/2023', presensikeluar: 'sekretaris' },
-        { id: 7, tanggal: '01/01/2024', presensimasuk: '01/02/2024', presensikeluar: 'staf keuangan' },
-        { id: 8, tanggal: '01/03/2024', presensimasuk: '01/04/2024', presensikeluar: 'kasir' },
-        { id: 9, tanggal: '01/05/2024', presensimasuk: '01/06/2024', presensikeluar: 'driver' },
-        { id: 10, tanggal: '01/07/2024', presensimasuk: '01/08/2024', presensikeluar: 'staf marketing', },
-        { id: 11, tanggal: '01/09/2024', presensimasuk: '01/10/2024', presensikeluar: 'staf produksi', },
-        { id: 12, tanggal: '01/11/2024', presensimasuk: '01/12/2024', presensikeluar: 'staf gudang', },
-    ];
+    // const initialData = [
+    //     { id: 1, tanggal: '01/01/2023', presensimasuk: '01/02/2023', presensikeluar: 'staf admin' },
+    //     { id: 2, tanggal: '02/03/2023', presensimasuk: '01/04/2023', presensikeluar: 'manager' },
+    //     { id: 3, tanggal: '01/05/2023', presensimasuk: '01/06/2023', presensikeluar: 'security' },
+    //     { id: 4, tanggal: '01/07/2023', presensimasuk: '01/08/2023', presensikeluar: 'staf IT' },
+    //     { id: 5, tanggal: '01/09/2023', presensimasuk: '01/10/2023', presensikeluar: 'staf HR' },
+    //     { id: 6, tanggal: '01/11/2023', presensimasuk: '01/12/2023', presensikeluar: 'sekretaris' },
+    //     { id: 7, tanggal: '01/01/2024', presensimasuk: '01/02/2024', presensikeluar: 'staf keuangan' },
+    //     { id: 8, tanggal: '01/03/2024', presensimasuk: '01/04/2024', presensikeluar: 'kasir' },
+    //     { id: 9, tanggal: '01/05/2024', presensimasuk: '01/06/2024', presensikeluar: 'driver' },
+    //     { id: 10, tanggal: '01/07/2024', presensimasuk: '01/08/2024', presensikeluar: 'staf marketing', },
+    //     { id: 11, tanggal: '01/09/2024', presensimasuk: '01/10/2024', presensikeluar: 'staf produksi', },
+    //     { id: 12, tanggal: '01/11/2024', presensimasuk: '01/12/2024', presensikeluar: 'staf gudang', },
+    // ];
     
 
     const [data, setData] = useState(initialData);
@@ -178,7 +219,7 @@ const Absen = () => {
             <div className='table-container'>
                 <DataTable
                     columns={columns}
-                    data={data}
+                    data={initialData}
                     fixedHeader
                     pagination
                     customStyles={customStyle}

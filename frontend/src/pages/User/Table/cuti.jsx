@@ -1,11 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { API_URL } from "../../../helpers/networt";
+import axios from "axios";
 
 const Cuti = () => {
+
+  const koneksi = async () => {
+    const token = localStorage.getItem('token');
+
+    try {
+      const response = await axios.get(`${API_URL}/api/employee/leaves`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      const fetchedData = response.data.data.leaves;
+
+      if (Array.isArray(fetchedData)) {
+        setInitialData(fetchedData); // Mengatur data yang akan digunakan untuk tabel
+      } else {
+        console.error("Data yang diambil bukan array:", fetchedData);
+      }
+
+      console.log(fetchedData);
+    } catch (error) {
+      console.error("Kesalahan saat mengambil data", error);
+    }
+  };
+
+  useEffect(() => {
+    koneksi();
+  }, []);
 
   const isMobile = window.innerWidth <= 600;
 
@@ -15,11 +46,7 @@ const Cuti = () => {
   const [keterangan, setKeterangan] = useState('');
   const [pertimbangan, setPertimbangan] = useState('');
   const [selectedRow, setSelectedRow] = useState(null);
-  const [initialData, setInitialData] = useState([
-    { id: 1, mulaicuti: '01/01/2024', berakhircuti: '01/02/2023', keterangan: 'staf admin', pertimbangan: 'alasan 1' },
-    { id: 2, mulaicuti: '01/03/2023', berakhircuti: '01/04/2023', keterangan: 'manager', pertimbangan: 'alasan 2' },
-    // ...data lainnya...
-  ]);
+  const [initialData, setInitialData] = useState([]);
   const [month, setMonth] = useState('');
   const [year, setYear] = useState('');
   const [date, setDate] = useState('');
@@ -96,7 +123,7 @@ const Cuti = () => {
   };
   
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let updatedData;
 
     if (selectedRow) {
@@ -108,21 +135,46 @@ const Cuti = () => {
         toast.success('Berhasil Diupdate!');
     } else {
         // Add new data
-        const newData = {
-            id: initialData.length + 1,
-            mulaicuti: mulaicuti,
-            berakhircuti: berakhircuti,
-            keterangan: keterangan,
-            pertimbangan: pertimbangan
+        const requestData = {
+            user_id: "tes1",
+            type: "sakit",
+            reasoning: keterangan,
+            start_date: mulaicuti,
+            end_date: berakhircuti
         };
-        updatedData = [...initialData, newData];
-        console.log('Adding new data:', newData);
-        setInitialData(updatedData);
-        toast.success('Berhasil Tersimpan!');
+
+        console.log('Request data being sent to API:', requestData);
+
+        try {
+            const response = await fetch('http://localhost:9000/api/employee/leaves', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlczEiLCJyb2xlIjoiZW1wbG95ZWUiLCJpYXQiOjE3MTg0MzkzMjksImV4cCI6MTcxODUyNTcyOX0.ZH8s9xyYn-ccxT8_SfvG8x1EW4CwY8PUwHdxoNaaCIo'
+                },
+                body: JSON.stringify(requestData)
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                updatedData = [...initialData, { ...requestData, id: result.id }];
+                setInitialData(updatedData);
+                toast.success('Berhasil Tersimpan!');
+            } else {
+                const errorResponse = await response.json();
+                console.error('Failed to add new data:', errorResponse);
+                toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            toast.error('Terjadi kesalahan saat menyimpan data!');
+        }
     }
 
     handleClose();
 };
+
+
 
     const columns = [
         {
@@ -132,22 +184,22 @@ const Cuti = () => {
         },
         {
             name: "Mulai Cuti",
-            selector: row => row.mulaicuti,
+            selector: row => row.start_date,
             sortable: true
         },
         {
             name: "Berakhir Cuti",
-            selector: row => row.berakhircuti,
+            selector: row => row.end_date,
             sortable: true
         },
         {
             name: "Keterangan",
-            selector: row => row.keterangan,
+            selector: row => row.reasoning,
             sortable: true
         },
         {
             name: "Pertimbangan",
-            selector: row => row.pertimbangan,
+            selector: row => row.status,
             sortable: true
         },
         {
@@ -229,42 +281,54 @@ const Cuti = () => {
               Tambah
             </button>
             <Modal show={show} onHide={handleClose}>
-              <Modal.Header closeButton>
-                <Modal.Title>{selectedRow ? 'Edit Data' : 'Tambah Data Baru'}</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form>
-                  <Form.Group controlId="formWaktuMasuk">
-                    <Form.Label>Waktu Masuk :</Form.Label>
-                    <Form.Control type="date" value={mulaicuti || ''} onChange={e => setMulaiCuti(e.target.value)} />
-                  </Form.Group>
-                  <Form.Group controlId="formWaktuKeluar">
-                    <Form.Label>Waktu Keluar :</Form.Label>
-                    <Form.Control type="date" value={berakhircuti || ''} onChange={e => setBerakhirCuti(e.target.value)} />
-                  </Form.Group>
-                  <Form.Group controlId="formKeterangan">
-                    <Form.Label>Keterangan :</Form.Label>
-                    <Form.Control type="input" value={keterangan || ''} onChange={e => setKeterangan(e.target.value)} />
-                  </Form.Group>
-                  <Form.Group controlId="formPertimbangan">
-                    <Form.Label>Pertimbangan :</Form.Label>
-                    <Form.Control
-                      type="input"
-                      value={pertimbangan || ''}
-                      onChange={e => setPertimbangan(e.target.value)}
-                    />
-                  </Form.Group>
-                </Form>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>
-                  Tutup
-                </Button>
-                <Button variant="primary" onClick={handleSubmit}>
-                  Simpan
-                </Button>
-              </Modal.Footer>
-            </Modal>
+                <Modal.Header closeButton>
+                    <Modal.Title>{selectedRow ? 'Edit Data' : 'Tambah Data Baru'}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="formWaktuMasuk">
+                            <Form.Label>Waktu Masuk :</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={mulaicuti || ''}
+                                onChange={e => setMulaiCuti(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formWaktuKeluar">
+                            <Form.Label>Waktu Keluar :</Form.Label>
+                            <Form.Control
+                                type="date"
+                                value={berakhircuti || ''}
+                                onChange={e => setBerakhirCuti(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formKeterangan">
+                            <Form.Label>Keterangan :</Form.Label>
+                            <Form.Control
+                                type="input"
+                                value={keterangan || ''}
+                                onChange={e => setKeterangan(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="formPertimbangan">
+                            <Form.Label>Pertimbangan :</Form.Label>
+                            <Form.Control
+                                type="input"
+                                value={pertimbangan || ''}
+                                onChange={e => setPertimbangan(e.target.value)}
+                            />
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={handleClose}>
+                        Tutup
+                    </Button>
+                    <Button variant="primary" onClick={handleSubmit}>
+                        Simpan
+                    </Button>
+                </Modal.Footer>
+              </Modal>
 
             <button className="btn btn-filter" onClick={handleShowFilter}>
               <i className="bi bi-filter"></i>
@@ -320,7 +384,7 @@ const Cuti = () => {
             <div className='table-container'>
                 <DataTable
                     columns={columns}
-                    data={data}
+                    data={initialData}
                     fixedHeader
                     pagination
                     customStyles={customStyle}

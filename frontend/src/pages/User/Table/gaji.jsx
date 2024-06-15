@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import DataTable from 'react-data-table-component'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import jsPDF from 'jspdf';
@@ -6,9 +6,42 @@ import { Button } from 'react-bootstrap';
 import 'jspdf-autotable';
 import './gaji.css';
 import { Modal } from 'react-bootstrap'; 
+import { API_URL } from "../../../helpers/networt";
+import axios from "axios";
 import { useMediaQuery } from '@mui/material';
 
 const Gaji = () => {
+
+    const [initialData, setInitialData] = useState([]);
+
+    const koneksi = async () => {
+        const token = localStorage.getItem('token');
+    
+        try {
+          const response = await axios.get(`${API_URL}/api/employee/wages`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Accept': 'application/json'
+            }
+          });
+    
+          const fetchedData = response.data.data.wages; // Pastikan ini sesuai dengan struktur data dari API Anda
+    
+          if (Array.isArray(fetchedData)) {
+            setInitialData(fetchedData); // Mengatur data yang akan digunakan untuk tabel
+          } else {
+            console.error("Data yang diambil bukan array:", fetchedData);
+          }
+    
+          console.log(fetchedData);
+        } catch (error) {
+          console.error("Kesalahan saat mengambil data", error);
+        }
+      };
+    
+      useEffect(() => {
+        koneksi();
+      }, []);
     
     const isMobile = window.innerWidth <= 600;
 
@@ -51,18 +84,18 @@ const Gaji = () => {
             sortable: true
         },
         {
-            name: "Bulan",
-            selector: row => row.bulan,
+            name: "Tanggal",
+            selector: row => row.tanggal,
             sortable: true
         },
         {
-            name: "Tahun",
-            selector: row => row.tahun,
+            name: "Jumlah",
+            selector: row => row.amount,
             sortable: true
         },
         {
-            name: "Gaji Pokok",
-            selector: row => row.gajipokok,
+            name: "Status",
+            selector: row => row.status,
             sortable: true
         },
         {
@@ -132,21 +165,21 @@ const Gaji = () => {
         },
     };
 
-    const initialData = [
-        { id: 1, bulan: '2', tahun: '2016', gajipokok: 'staf admin', uangtransport: 'mei', uanglembur: '2023', potogangaji: '1.000.000', totalgaji:'1.000.000' },
-        { id: 2, bulan: '2', tahun: '2014', gajipokok: 'manager', uangtransport: 'juni', uanglembur: '2023', potogangaji: '1.800.000', totalgaji:'1.000.000' },
-        { id: 3, bulan: '2', tahun: '2016', gajipokok: 'security', uangtransport: 'juli', uanglembur: '2023', potogangaji: '1.500.000', totalgaji:'1.000.000' },
-        { id: 4, bulan: '2', tahun: '2017', gajipokok: 'staf IT', uangtransport: 'agustus', uanglembur: '2023', potogangaji: '2.200.000', totalgaji:'1.000.000' },
-        { id: 5, bulan: '12', tahun: '2022', gajipokok: 'staf HR', uangtransport: 'september', uanglembur: '2023', potogangaji: '1.900.000', totalgaji:'1.000.000' },
-        { id: 6, bulan: '2', tahun: '2020', gajipokok: 'sekretaris', uangtransport: 'oktober', uanglembur: '2023', potogangaji: '2.100.000', totalgaji:'1.000.000' },
-        { id: 7, bulan: '1', tahun: '2021', gajipokok: 'staf keuangan', uangtransport: 'november', uanglembur: '2023', potogangaji: '2.000.000', totalgaji:'1.000.000' },
-        { id: 8, bulan: '1', tahun: '2016', gajipokok: 'kasir', uangtransport: 'desember', uanglembur: '2023', potogangaji: '1.700.000', totalgaji:'1.000.000' },
-        { id: 9, bulan: '1', tahun: '2012', gajipokok: 'driver', uangtransport: 'januari', uanglembur: '2024', potogangaji: '1.600.000', totalgaji:'1.000.000' },
-        { id: 10, bulan: '1', tahun: '2014', gajipokok: 'staf marketing', uangtransport: 'februari', uanglembur: '2024', potogangaji: '2.300.000', totalgaji:'1.000.000' },
-        { id: 11, bulan: '2', tahun: '2014', gajipokok: 'staf produksi', uangtransport: 'maret', uanglembur: '2024', potogangaji: '2.100.000', totalgaji:'1.000.000' },
-        { id: 12, bulan: '1', tahun: '2014', gajipokok: 'staf admin', uangtransport: 'april', uanglembur: '2024', potogangaji: '1.800.000', totalgaji:'1.000.000' },
-        { id: 13, bulan: '1', tahun: '2014', gajipokok: 'staf gudang', uangtransport: 'mei', uanglembur: '2024', potogangaji: '2.200.000', totalgaji:'1.000.000' },
-    ];
+    // const initialData = [
+    //     { id: 1, bulan: '2', tahun: '2016', gajipokok: 'staf admin', uangtransport: 'mei', uanglembur: '2023', potogangaji: '1.000.000', totalgaji:'1.000.000' },
+    //     { id: 2, bulan: '2', tahun: '2014', gajipokok: 'manager', uangtransport: 'juni', uanglembur: '2023', potogangaji: '1.800.000', totalgaji:'1.000.000' },
+    //     { id: 3, bulan: '2', tahun: '2016', gajipokok: 'security', uangtransport: 'juli', uanglembur: '2023', potogangaji: '1.500.000', totalgaji:'1.000.000' },
+    //     { id: 4, bulan: '2', tahun: '2017', gajipokok: 'staf IT', uangtransport: 'agustus', uanglembur: '2023', potogangaji: '2.200.000', totalgaji:'1.000.000' },
+    //     { id: 5, bulan: '12', tahun: '2022', gajipokok: 'staf HR', uangtransport: 'september', uanglembur: '2023', potogangaji: '1.900.000', totalgaji:'1.000.000' },
+    //     { id: 6, bulan: '2', tahun: '2020', gajipokok: 'sekretaris', uangtransport: 'oktober', uanglembur: '2023', potogangaji: '2.100.000', totalgaji:'1.000.000' },
+    //     { id: 7, bulan: '1', tahun: '2021', gajipokok: 'staf keuangan', uangtransport: 'november', uanglembur: '2023', potogangaji: '2.000.000', totalgaji:'1.000.000' },
+    //     { id: 8, bulan: '1', tahun: '2016', gajipokok: 'kasir', uangtransport: 'desember', uanglembur: '2023', potogangaji: '1.700.000', totalgaji:'1.000.000' },
+    //     { id: 9, bulan: '1', tahun: '2012', gajipokok: 'driver', uangtransport: 'januari', uanglembur: '2024', potogangaji: '1.600.000', totalgaji:'1.000.000' },
+    //     { id: 10, bulan: '1', tahun: '2014', gajipokok: 'staf marketing', uangtransport: 'februari', uanglembur: '2024', potogangaji: '2.300.000', totalgaji:'1.000.000' },
+    //     { id: 11, bulan: '2', tahun: '2014', gajipokok: 'staf produksi', uangtransport: 'maret', uanglembur: '2024', potogangaji: '2.100.000', totalgaji:'1.000.000' },
+    //     { id: 12, bulan: '1', tahun: '2014', gajipokok: 'staf admin', uangtransport: 'april', uanglembur: '2024', potogangaji: '1.800.000', totalgaji:'1.000.000' },
+    //     { id: 13, bulan: '1', tahun: '2014', gajipokok: 'staf gudang', uangtransport: 'mei', uanglembur: '2024', potogangaji: '2.200.000', totalgaji:'1.000.000' },
+    // ];
 
     const [show, setShow] = useState(false);
     const [month, setMonth] = useState('');
@@ -219,7 +252,7 @@ const Gaji = () => {
             <div className='table-container'>
                 <DataTable
                     columns={columns}
-                    data={data}
+                    data={initialData}
                     fixedHeader
                     pagination
                     customStyles={customStyle}
