@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Profil.css';
 import Col from 'react-bootstrap/Col';
 import Image from 'react-bootstrap/Image';
@@ -7,10 +7,18 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { API_URL } from "../../helpers/networt";
 import axios from "axios";
+import { API_URL } from "../../helpers/networt";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const Profil = () => {
+
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState({});
+  const [decodedToken, setDecodedToken] = useState("");
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(false);
   const [show, setShow] = useState(false);
   const [nama, setNama] = useState('Nama Lengkap');
   const [jabatan, setJabatan] = useState('HRD');
@@ -60,33 +68,110 @@ const Profil = () => {
   
   const notify = () => toast.success("Berhasil Tersimpan!");
   
+
+  const handleImageChange = (event) => {
+    const file = event.target.files[0];
+    const { name } = event.target;
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setProfilePicture(reader.result);
+      };
+      reader.readAsDataURL(file);
+      setProfile({
+        ...profile,
+        profile_picture: file,
+      });
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setProfile({
+      ...profile,
+      [name]: value,
+    });
+  };
+
+  const koneksi = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        setDecodedToken(decoded);
+        const response = await axios.get(
+          `${API_URL}/api/employee/users/`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const {
+          email,
+          password,
+          gender,
+          name,
+          address,
+          phone_number,
+          profile_picture,
+        } = response.data.data;
+        setProfile({
+          email,
+          password,
+          gender,
+          name,
+          address,
+          phone_number,
+          profile_picture,
+          password: "",
+        });
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    koneksi();
+  }, []);
   
 
   return (
     <div className="profil-container">
       <div className="card">
-        <h4>My Profil</h4>
+        <h4 className='mt-5'>My Profil</h4>
         <Col xs={6} md={4} className="image-container">
-          <Image src={foto} roundedCircle style={{ width: '201px', height: '121px' }} />
+          <Image  src={
+              profilePicture !== false
+                ? profilePicture
+                : profile.profile_picture
+                ? `${API_URL}/${profile.profile_picture}`
+                : profilePicture
+            } roundedCircle style={{ width: '201px', height: '121px' }} />
         </Col>
         <div className="card-content">
-          <h3>{nama}</h3>
+          <h3>{profile.name}</h3>
           <p>Deskripsi singkat atau detail profil.</p>
           <div className='sub-content'>
-            <h6>Jabatan</h6>
-            <p>{jabatan}</p>
+            <h6>Alamat</h6>
+            <p>{profile.address}</p>
           </div>
           <div className='sub-content'>
             <h6>Nomor Telepon</h6>
-            <p>{telepon}</p>
+            <p>{profile.phone_number}</p>
           </div>
           <div className='sub-content'>
             <h6>Email</h6>
-            <p>{email}</p>
+            <p>{profile.email}</p>
           </div>
           <div className="button-profil">
             <Button className="custom-button-profil" onClick={handleShow}>Edit Profil</Button>
           </div>
+          <div>
+          <button className='btn ' onClick={() => navigate('/Login')}>Log Out</button>
+          </div>
+          
         </div>
       </div>
 
