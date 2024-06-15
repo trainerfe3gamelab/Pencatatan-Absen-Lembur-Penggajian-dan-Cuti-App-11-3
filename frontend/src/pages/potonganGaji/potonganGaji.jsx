@@ -63,7 +63,7 @@ const PotonganGaji = () => {
     ];
 
 
-
+    const [errorMessage, setErrorMessage] = useState("");
     const [records, setRecords] = useState([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -81,7 +81,7 @@ const PotonganGaji = () => {
     const handleCloseSuccess = () => setShowSuccessModal(false);
     const handleShowSuccess = () => setShowSuccessModal(true);
 
-
+    const handleCloseFailed = () => setShowFailedModal(false);
     const handleShowFailed = () => setShowFailedModal(true);
 
     const handleEdit = (row) => {
@@ -111,6 +111,7 @@ const PotonganGaji = () => {
         } catch (error) {
             console.error("Error updating user data:", error);
             handleCloseAdd();
+            setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
             handleShowFailed();
         }
     };
@@ -132,6 +133,8 @@ const PotonganGaji = () => {
             console.log(`Data with ID ${id} deleted successfully.`);
         } catch (error) {
             console.error("Error deleting data:", error);
+            setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+            handleShowFailed();
         }
     };
 
@@ -169,6 +172,7 @@ const PotonganGaji = () => {
         } catch (error) {
             console.error("Error adding position:", error);
             handleCloseAdd();
+            setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
             handleShowFailed();
         }
     };
@@ -288,6 +292,19 @@ const PotonganGaji = () => {
                 </Modal.Body>
                 <Modal.Footer style={{ borderTop: 'none' }}>
                     <Button variant="primary" onClick={handleCloseSuccess}>
+                        Tutup
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+             {/* Failed Modal */}
+             <Modal show={showFailedModal} onHide={handleCloseFailed}>
+                <Modal.Body className="text-center mt-5">
+                    <img src={Failed} alt="Failed" width={70} />
+                    <h5 className="mt-3">Gagal</h5>
+                    <p>{errorMessage}</p>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleCloseFailed}>
                         Tutup
                     </Button>
                 </Modal.Footer>

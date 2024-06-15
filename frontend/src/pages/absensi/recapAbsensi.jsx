@@ -7,10 +7,12 @@ import "jspdf-autotable";
 import * as XLSX from "xlsx";
 import Excel from "../../image/Excel.png";
 import Pdf from "../../image/PDF.png";
+import Failed from "../../image/failed.png";
 import axios from "axios";
 import { API_URL } from "../../helpers/networt";
 
 const RecapAbsensi = () => {
+  const [errorMessage, setErrorMessage] = useState("");
   const [records, setRecords] = useState([]);
   const [positions, setPositions] = useState([]);
   const [users, setUsers] = useState([]);
@@ -18,6 +20,7 @@ const RecapAbsensi = () => {
   const [showResetModal, setShowResetModal] = useState(false);
   const [showFilterModal, setShowFilterModal] = useState(false);
   const [filteredRecords, setFilteredRecords] = useState(null);
+  const [showFailedModal, setShowFailedModal] = useState(false);
   const [filterCriteria, setFilterCriteria] = useState({
     type: "",
     status: "",
@@ -28,6 +31,7 @@ const RecapAbsensi = () => {
     month: new Date().getMonth() + 1,
     year: new Date().getFullYear(),
   });
+
 
   const koneksi = async () => {
     const token = localStorage.getItem("token");
@@ -92,6 +96,8 @@ const RecapAbsensi = () => {
       koneksi();
     } catch (error) {
       console.error("Error adding attendance report:", error);
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+      handleShowFailed();
     }
   };
 
@@ -113,6 +119,8 @@ const RecapAbsensi = () => {
       koneksi();
     } catch (error) {
       console.error("Error resetting attendance report:", error);
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+      handleShowFailed();
     }
   };
 
@@ -182,6 +190,10 @@ const RecapAbsensi = () => {
 
   const handleCloseReset = () => setShowResetModal(false);
   const handleShowReset = () => setShowResetModal(true);
+
+  const handleCloseFailed = () => setShowFailedModal(false);
+  const handleShowFailed = () => setShowFailedModal(true);
+
 
   const handleFilter = (event) => {
     const searchTerm = event.target.value.toLowerCase();
@@ -556,6 +568,21 @@ const RecapAbsensi = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
+
+       {/* Failed Modal */}
+       <Modal show={showFailedModal} onHide={handleCloseFailed}>
+                <Modal.Body className="text-center mt-5">
+                    <img src={Failed} alt="Failed" width={70} />
+                    <h5 className="mt-3">Gagal</h5>
+                    <p>{errorMessage}</p>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleCloseFailed}>
+                        Tutup
+                    </Button>
+                </Modal.Footer>
+            </Modal>
     </div>
   );
 };

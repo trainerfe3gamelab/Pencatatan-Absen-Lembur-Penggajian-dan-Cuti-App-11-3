@@ -8,6 +8,7 @@ import { API_URL } from "../../helpers/networt";
 import { jwtDecode } from "jwt-decode";
 
 const Pengaturan = () => {
+  const [errorMessage, setErrorMessage] = useState("");
   const [profile, setProfile] = useState({});
   const [decodedToken, setDecodedToken] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -85,6 +86,7 @@ const Pengaturan = () => {
       window.location.reload();
     } catch (error) {
       console.error("Error submitting form:", error);
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -311,7 +313,7 @@ const Pengaturan = () => {
         <Modal.Body className="text-center mt-5">
           <img src={Failed} alt="Failed" width={70} />
           <h5 className="mt-3">Gagal</h5>
-          <p>Data gagal disimpan</p>
+          <p>{errorMessage}</p>
         </Modal.Body>
         <Modal.Footer style={{ borderTop: "none" }}>
           <Button variant="primary" onClick={handleCloseFailed}>
