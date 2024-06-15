@@ -1,11 +1,15 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Modal, Button, Form } from 'react-bootstrap';
 import axios from "axios";
 import "./Login.css";
 import logo from "../../image/logo-login.png";
+import Failed from "../../image/failed.png";
 import { API_URL } from "../../helpers/networt";
 
 const Login = () => {
+  const [errorMessage, setErrorMessage] = useState("");
+  const [showFailedModal, setShowFailedModal] = useState(false);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -14,6 +18,10 @@ const Login = () => {
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
+  const handleCloseFailed = () => setShowFailedModal(false);
+  const handleShowFailed = () => setShowFailedModal(true);
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +43,8 @@ const Login = () => {
       }
     } catch (error) {
       console.error("Login failed:", error);
-      alert("Login failed!");
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+      handleShowFailed();
     }
   };
 
@@ -91,6 +100,19 @@ const Login = () => {
           </form>
         </div>
       </div>
+       {/* Failed Modal */}
+       <Modal show={showFailedModal} onHide={handleCloseFailed}>
+                <Modal.Body className="text-center mt-5">
+                    <img src={Failed} alt="Failed" width={70} />
+                    <h5 className="mt-3">Gagal</h5>
+                    <p>{errorMessage}</p>
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none' }}>
+                    <Button variant="primary" onClick={handleCloseFailed}>
+                        Tutup
+                    </Button>
+                </Modal.Footer>
+            </Modal>
     </div>
   );
 };
