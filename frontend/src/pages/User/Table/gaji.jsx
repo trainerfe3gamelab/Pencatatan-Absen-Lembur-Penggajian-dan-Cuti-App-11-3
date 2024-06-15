@@ -60,13 +60,13 @@ const Gaji = () => {
             startY: 30,
             head: [['Keterangan', 'Nilai']],
             body: [
-                ['Bulan', row.bulan],
-                ['Tahun', row.tahun],
-                ['Gaji Pokok', row.gajipokok],
-                ['Uang Transport', row.uangtransport],
-                ['Uang Lembur', row.uanglembur],
-                ['Potongan Gaji', row.potogangaji],
-                ['Total Gaji', row.totalgaji],
+                ['Bulan', row.month],
+                ['Tahun', row.year],
+                ['Gaji Pokok', row.base_salary],
+                ['Uang Transport', row.transport_allowance],
+                ['Uang Lembur', row.overtimes],
+                ['Potongan Gaji', row.cuts],
+                ['Total Gaji', row.net_salary],
             ],
             theme: 'grid',
             styles: { fontSize: 12 },
@@ -84,38 +84,43 @@ const Gaji = () => {
             sortable: true
         },
         {
-            name: "Tanggal",
-            selector: row => row.tanggal,
+            name: "Bulan",
+            selector: row => row.month,
             sortable: true
         },
         {
-            name: "Jumlah",
-            selector: row => row.amount,
+            name: "Tahun",
+            selector: row => row.year,
             sortable: true
         },
         {
-            name: "Status",
-            selector: row => row.status,
+            name: "gaji pokok",
+            selector: row => row.base_salary,
             sortable: true
         },
         {
-            name: "Uang Transport",
-            selector: row => row.uangtransport,
+            name: "Transport",
+            selector: row => row.transport_allowance,
             sortable: true
         },
         {
-            name: "Uang Lembur",
-            selector: row => row.uanglembur,
+            name: "Uang Makan",
+            selector: row => row.meal_allowance,
             sortable: true
         },
         {
-            name: "Potongan Gaji",
-            selector: row => row.potogangaji,
+            name: "lembur",
+            selector: row => row.overtimes,
             sortable: true
         },
         {
-            name: "Total Gaji",
-            selector: row => row.totalgaji,
+            name: "Potongan",
+            selector: row => row.cuts,
+            sortable: true
+        },
+        {
+            name: "Total",
+            selector: row => row.net_salary,
             sortable: true
         },
         {
@@ -135,7 +140,7 @@ const Gaji = () => {
         table: {
             style: {
                 width: '100%', // Atur lebar tabel
-                height: '140px', // Atur tinggi tabel jika diperlukan
+                height: '130px', // Atur tinggi tabel jika diperlukan
             },
         },
         headRow: {
@@ -165,45 +170,26 @@ const Gaji = () => {
         },
     };
 
-    // const initialData = [
-    //     { id: 1, bulan: '2', tahun: '2016', gajipokok: 'staf admin', uangtransport: 'mei', uanglembur: '2023', potogangaji: '1.000.000', totalgaji:'1.000.000' },
-    //     { id: 2, bulan: '2', tahun: '2014', gajipokok: 'manager', uangtransport: 'juni', uanglembur: '2023', potogangaji: '1.800.000', totalgaji:'1.000.000' },
-    //     { id: 3, bulan: '2', tahun: '2016', gajipokok: 'security', uangtransport: 'juli', uanglembur: '2023', potogangaji: '1.500.000', totalgaji:'1.000.000' },
-    //     { id: 4, bulan: '2', tahun: '2017', gajipokok: 'staf IT', uangtransport: 'agustus', uanglembur: '2023', potogangaji: '2.200.000', totalgaji:'1.000.000' },
-    //     { id: 5, bulan: '12', tahun: '2022', gajipokok: 'staf HR', uangtransport: 'september', uanglembur: '2023', potogangaji: '1.900.000', totalgaji:'1.000.000' },
-    //     { id: 6, bulan: '2', tahun: '2020', gajipokok: 'sekretaris', uangtransport: 'oktober', uanglembur: '2023', potogangaji: '2.100.000', totalgaji:'1.000.000' },
-    //     { id: 7, bulan: '1', tahun: '2021', gajipokok: 'staf keuangan', uangtransport: 'november', uanglembur: '2023', potogangaji: '2.000.000', totalgaji:'1.000.000' },
-    //     { id: 8, bulan: '1', tahun: '2016', gajipokok: 'kasir', uangtransport: 'desember', uanglembur: '2023', potogangaji: '1.700.000', totalgaji:'1.000.000' },
-    //     { id: 9, bulan: '1', tahun: '2012', gajipokok: 'driver', uangtransport: 'januari', uanglembur: '2024', potogangaji: '1.600.000', totalgaji:'1.000.000' },
-    //     { id: 10, bulan: '1', tahun: '2014', gajipokok: 'staf marketing', uangtransport: 'februari', uanglembur: '2024', potogangaji: '2.300.000', totalgaji:'1.000.000' },
-    //     { id: 11, bulan: '2', tahun: '2014', gajipokok: 'staf produksi', uangtransport: 'maret', uanglembur: '2024', potogangaji: '2.100.000', totalgaji:'1.000.000' },
-    //     { id: 12, bulan: '1', tahun: '2014', gajipokok: 'staf admin', uangtransport: 'april', uanglembur: '2024', potogangaji: '1.800.000', totalgaji:'1.000.000' },
-    //     { id: 13, bulan: '1', tahun: '2014', gajipokok: 'staf gudang', uangtransport: 'mei', uanglembur: '2024', potogangaji: '2.200.000', totalgaji:'1.000.000' },
-    // ];
+
 
     const [show, setShow] = useState(false);
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
-    const [data, setData] = useState(initialData); // State untuk menyimpan data yang ditampilkan
-
+    const [data, setData] = useState(initialData); 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const [filteredData, setFilteredData] = useState(initialData);
 
     const handleFilter = () => {
-        const filteredData = initialData.filter(item => {
-            if (month && year) {
-                return item.bulan === month && item.tahun === year;
-            } else if (month) {
-                return item.bulan === month;
-            } else if (year) {
-                return item.tahun === year;
-            }
-            return true; // Jika tidak ada filter, tampilkan semua data
+        const filtered = initialData.filter(row => {
+          return (
+            (month ? row.month === parseInt(month) : true) &&
+            (year ? row.year === parseInt(year) : true)
+          );
         });
-
-        setData(filteredData); // Simpan hasil filter di state data
-        handleClose(); // Tutup modal setelah filter diterapkan
-    };
+        setInitialData(filtered); // Menyimpan data yang difilter ke initialData
+        handleClose();
+      };
 
   return (
     <div className='table-container'>

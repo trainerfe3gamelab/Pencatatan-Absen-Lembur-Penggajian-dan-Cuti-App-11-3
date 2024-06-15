@@ -23,6 +23,8 @@
 
 
   .card h4{
+    position: relative;
+    top: -35px;
     color: #004E5E;
   }
   
@@ -33,6 +35,8 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
+    top: -35px;
   }
   
   .profile-image {
@@ -44,7 +48,8 @@
   
   
   .card-content h3 {
-    margin: 0;
+    position: relative;
+    top: -20px;
     font-size: 1.5em;
     color: rgba(6, 76, 86, 0.5);
   }
@@ -65,7 +70,7 @@
   }
 
   .sub-content {
-    padding-top: 15px;
+    padding-top: 8px;
     display: flex; /* Menggunakan display flex untuk mengatur posisi sejajar */
     justify-content: space-between;
     align-items: flex-start; /* Mengatur elemen untuk berada di sebelah kiri */
@@ -87,7 +92,7 @@
     text-align: center; /* Mengatur teks ke tengah */
     text-decoration: none; /* Menghapus garis bawah pada teks */
     display: inline-block; /* Mengatur tampilan inline-block */
-    font-size: 16px; /* Ukuran font */
+    font-size: 14px; /* Ukuran font */
     margin: 4px 2px; /* Margin untuk spasi */
     cursor: pointer; /* Mengubah kursor saat di-hover */
     border-radius: 5px; /* Membuat sudut tombol melengkung */
@@ -100,11 +105,27 @@
     transform: scale(1.05); /* Sedikit memperbesar tombol saat di-hover */
 }
 
-.custom-button-profil:active {
-    background: linear-gradient(135deg, #0CAD7F, #5AC9C3);  /* Warna latar belakang saat tombol ditekan */
-    transform: scale(1); /* Kembali ke ukuran semula saat ditekan */
+
+.btn-logout{
+    background: linear-gradient(135deg, #0CAD7F, #5AC9C3); /* Warna latar belakang */
+    border: none; /* Menghapus border default */
+    color: white; /* Warna teks */
+    padding: 10px 20px; /* Padding untuk memperbesar tombol */
+    text-align: center; /* Mengatur teks ke tengah */
+    text-decoration: none; /* Menghapus garis bawah pada teks */
+    display: inline-block; /* Mengatur tampilan inline-block */
+    font-size: 14px; /* Ukuran font */
+    font-weight: 800;
+    margin: 4px 2px; /* Margin untuk spasi */
+    cursor: pointer; /* Mengubah kursor saat di-hover */
+    border-radius: 5px; /* Membuat sudut tombol melengkung */
+    transition: background-color 0.3s, transform 0.2s; /* Animasi transisi */
 }
-  
+.btn-logout:hover{
+  background: #D9D9D9; /* Warna latar belakang saat di-hover */
+  color: #004E5E;
+  transform: scale(1.05);
+}
   /* Media Queries for Responsive Design */
   
   /* Tablet Portrait and Above */
@@ -138,13 +159,13 @@
       font-size: 12px;
       position: relative;
       right: 4.8rem;
-      top: 0.5rem;
+      top: -1rem;
     }
      .image-container{
       width: 68px !important;
       height: 60px;
       position: relative;
-      top: 0.5rem;
+      top: -1rem;
       right: 4.8rem;
       border-radius: 50%;
      }
@@ -184,12 +205,16 @@
       position: absolute;
       bottom: -1px; /* Atur ke bawah satu piksel dari border yang ada */
       left: 0;
-      width: 155%; /* Memanjangkan ke lebar kontainer */
+      width: 145%; /* Memanjangkan ke lebar kontainer */
       border-bottom: 1px solid #ccc; /* Atur border bottom */
     }
     .custom-button-profil {
       font-size: 12px !important; /* Menyesuaikan ukuran font button */
       padding: 5px 10px; /* Menyesuaikan padding button */
+    }
+    .btn-logout{
+      font-size: 12px;
+      font-weight: 600;
     }
 
     .card {

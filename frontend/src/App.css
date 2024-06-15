@@ -712,7 +712,7 @@ Navbar{
   .user-container {
     flex-direction: column;
     position: relative;
-    height: 860px !important;
+    height: 930px !important;
   }
 
   .image-rect146, .image-rect147, .image-rect148{
@@ -722,8 +722,8 @@ Navbar{
 
   .image-rect146 {
     width: 28%;
-    top: 80vh;
-    left: 38vw;
+    top: 81.5vh;
+    left: 37.5vw;
   }
 
   .image-rect147 {
@@ -740,7 +740,7 @@ Navbar{
 
   .image-rect150 {
     width: 45%;
-    bottom: 75vh;
+    bottom: 80vh;
     right: 30vw;
   }
   .header .logo{
@@ -757,7 +757,7 @@ Navbar{
     width: 280px !important;
     height: 40% !important;
     left: 1.7rem;
-    top: 27.5rem;
+    top: 30rem;
   }
   
 }

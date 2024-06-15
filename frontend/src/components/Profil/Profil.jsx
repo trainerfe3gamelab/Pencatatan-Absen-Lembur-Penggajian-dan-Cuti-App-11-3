@@ -211,9 +211,7 @@ const Profil = () => {
           </div>
           <div className="button-profil">
             <Button className="custom-button-profil" onClick={handleShow}>Edit Profil</Button>
-          </div>
-          <div>
-            <button className='btn ' onClick={() => navigate('/Login')}>Log Out</button>
+            <button className='btn-logout' onClick={() => navigate('/Login')}>Log Out</button>
           </div>
         </div>
       </div>

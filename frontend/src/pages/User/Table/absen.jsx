@@ -113,55 +113,23 @@ const Absen = () => {
     };
     
 
-    // const initialData = [
-    //     { id: 1, tanggal: '01/01/2023', presensimasuk: '01/02/2023', presensikeluar: 'staf admin' },
-    //     { id: 2, tanggal: '02/03/2023', presensimasuk: '01/04/2023', presensikeluar: 'manager' },
-    //     { id: 3, tanggal: '01/05/2023', presensimasuk: '01/06/2023', presensikeluar: 'security' },
-    //     { id: 4, tanggal: '01/07/2023', presensimasuk: '01/08/2023', presensikeluar: 'staf IT' },
-    //     { id: 5, tanggal: '01/09/2023', presensimasuk: '01/10/2023', presensikeluar: 'staf HR' },
-    //     { id: 6, tanggal: '01/11/2023', presensimasuk: '01/12/2023', presensikeluar: 'sekretaris' },
-    //     { id: 7, tanggal: '01/01/2024', presensimasuk: '01/02/2024', presensikeluar: 'staf keuangan' },
-    //     { id: 8, tanggal: '01/03/2024', presensimasuk: '01/04/2024', presensikeluar: 'kasir' },
-    //     { id: 9, tanggal: '01/05/2024', presensimasuk: '01/06/2024', presensikeluar: 'driver' },
-    //     { id: 10, tanggal: '01/07/2024', presensimasuk: '01/08/2024', presensikeluar: 'staf marketing', },
-    //     { id: 11, tanggal: '01/09/2024', presensimasuk: '01/10/2024', presensikeluar: 'staf produksi', },
-    //     { id: 12, tanggal: '01/11/2024', presensimasuk: '01/12/2024', presensikeluar: 'staf gudang', },
-    // ];
-    
-
     const [data, setData] = useState(initialData);
     const [month, setMonth] = useState('');
     const [year, setYear] = useState('');
     const [date, setDate] = useState('');
     const [show, setShow] = useState(false);
+    const [filteredData, setFilteredData] = useState(initialData);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
     const handleFilter = () => {
-        let filtered = initialData;
-
-        if (month) {
-            filtered = filtered.filter(item => {
-                const itemMonth = new Date(item.tanggal).getMonth() + 1; // Months are 0-based
-                return itemMonth === parseInt(month);
-            });
-        }
-
-        if (year) {
-            filtered = filtered.filter(item => {
-                const itemYear = new Date(item.tanggal).getFullYear();
-                return itemYear === parseInt(year);
-            });
-        }
-
-        if (date) {
-            filtered = filtered.filter(item => item.tanggal === date);
-        }
-
-        setData(filtered);
-        handleClose(); // Tutup modal setelah memfilter
-    };
+        const filtered = initialData.filter(row => {
+          return date ? row.date === date : true;
+        });
+        setInitialData(filtered);
+        handleClose();
+      };
 
     return (
         <div>
@@ -177,34 +145,13 @@ const Absen = () => {
                 <Modal.Body>
                     <div>
                         <label>
-                            Bulan:
+                            Date:
                             <input
-                                type="number"
-                                value={month}
-                                onChange={(e) => setMonth(e.target.value)}
-                                placeholder="MM"
-                                min="1"
-                                max="12"
-                            />
-                        </label>
-                        <label>
-                            Tahun:
-                            <input
-                                type="number"
-                                value={year}
-                                onChange={(e) => setYear(e.target.value)}
-                                placeholder="YYYY"
-                            />
-                        </label>
-                        <label>
-                            Tanggal:
-                            <input
-                                type="text"
+                                type="date"
                                 value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                placeholder="DD/MM/YYYY"
+                                onChange={e => setDate(e.target.value)}
                             />
-                        </label>
+                        </label>    
                     </div>
                 </Modal.Body>
                 <Modal.Footer>
