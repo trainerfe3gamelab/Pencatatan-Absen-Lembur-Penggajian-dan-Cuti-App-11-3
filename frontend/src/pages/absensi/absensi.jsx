@@ -8,6 +8,7 @@ import axios from "axios";
 import { API_URL } from "../../helpers/networt";
 
 const Absensi = () => {
+  const [errorMessage, setErrorMessage] = useState("");
   const [records, setRecords] = useState([]);
   const [positions, setPositions] = useState([]);
   const [users, setUsers] = useState([]);
@@ -206,6 +207,7 @@ const Absensi = () => {
     } catch (error) {
       console.error("Error updating user data:", error);
       handleCloseEdit();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -227,6 +229,8 @@ const Absensi = () => {
       console.log(`Data with ID ${id} deleted successfully.`);
     } catch (error) {
       console.error("Error deleting data:", error);
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+      handleShowFailed();
     }
   };
 
@@ -271,6 +275,7 @@ const Absensi = () => {
     } catch (error) {
       console.error("Error adding attendance data:", error);
       handleCloseAdd();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -553,7 +558,7 @@ const Absensi = () => {
         <Modal.Body className="text-center mt-5">
           <img src={Failed} alt="Failed" width={70} />
           <h5 className="mt-3">Gagal</h5>
-          <p>Data gagal disimpan</p>
+          <p>{errorMessage}</p>
         </Modal.Body>
         <Modal.Footer style={{ borderTop: "none" }}>
           <Button variant="primary" onClick={handleCloseFailed}>

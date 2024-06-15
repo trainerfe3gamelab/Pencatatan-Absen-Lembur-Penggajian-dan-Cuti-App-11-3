@@ -68,6 +68,7 @@ const HariLibur = () => {
         { id: 1, name: 'hari raya', dateStart: '11-03-2024', dateFinis: '25-04-2024' },
     ];
 
+    const [errorMessage, setErrorMessage] = useState("");
     const [records, setRecords] = useState([]);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -116,6 +117,7 @@ const HariLibur = () => {
         } catch (error) {
             console.error("Error updating user data:", error);
             handleCloseAdd();
+            setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
             handleShowFailed();
         }
     };
@@ -137,6 +139,8 @@ const HariLibur = () => {
             console.log(`Data with ID ${id} deleted successfully.`);
         } catch (error) {
             console.error("Error deleting data:", error);
+            setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+            handleShowFailed();
         }
     };
 
@@ -175,6 +179,7 @@ const HariLibur = () => {
         } catch (error) {
             console.error("Error adding position:", error);
             handleCloseAdd();
+            setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
             handleShowFailed();
         }
     };
@@ -316,7 +321,7 @@ const HariLibur = () => {
                 <Modal.Body className="text-center mt-5">
                     <img src={Failed} alt="Failed" width={70} />
                     <h5 className="mt-3">Gagal</h5>
-                    <p>Data gagal disimpan</p>
+                    <p>{errorMessage}</p>
                 </Modal.Body>
                 <Modal.Footer style={{ borderTop: 'none' }}>
                     <Button variant="primary" onClick={handleCloseFailed}>

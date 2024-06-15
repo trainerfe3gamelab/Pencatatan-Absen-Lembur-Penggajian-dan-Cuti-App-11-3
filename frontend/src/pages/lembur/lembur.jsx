@@ -13,6 +13,7 @@ import axios from "axios";
 import { API_URL } from "../../helpers/networt";
 
 const Lembur = () => {
+  const [errorMessage, setErrorMessage] = useState("");
   const [records, setRecords] = useState([]);
   const [positions, setPositions] = useState([]);
   const [users, setUsers] = useState([]);
@@ -170,6 +171,7 @@ const Lembur = () => {
     } catch (error) {
       console.error("Error updating user data:", error);
       handleCloseEdit();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -186,6 +188,8 @@ const Lembur = () => {
       setRecords(records.filter((record) => record.id !== id));
     } catch (error) {
       console.error("Error deleting data:", error);
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+      handleShowFailed();
     }
   };
 
@@ -207,7 +211,7 @@ const Lembur = () => {
         date: newData.date,
         time_in: newData.time_in,
         time_out: newData.time_out,
-        status: newData.status,
+       
       };
       await axios.post(`${API_URL}/api/admin/overtimes`, requestData, {
         headers: {
@@ -221,6 +225,7 @@ const Lembur = () => {
     } catch (error) {
       console.error("Error adding attendance data:", error);
       handleCloseAdd();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -300,6 +305,7 @@ const Lembur = () => {
         row.date,
         row.time_in,
         row.time_out,
+        row.status,
       ]),
     });
     doc.save("table.pdf");
@@ -519,20 +525,7 @@ const Lembur = () => {
                 onChange={handleNewInputChange}
               />
             </Form.Group>
-            <Form.Group controlId="formPertimbanganEdit">
-              <Form.Label>Pertimbangan</Form.Label>
-              <Form.Control
-                as="select"
-                name="status"
-                value={newData.status}
-                onChange={handleNewInputChange}
-              >
-                <option value="">Pilih</option>
-                <option value="diproses">diproses</option>
-                <option value="disetujui">disetujui</option>
-                <option value="ditolak">ditolak</option>
-              </Form.Control>
-            </Form.Group>
+            
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -561,7 +554,7 @@ const Lembur = () => {
         <Modal.Body className="text-center mt-5">
           <img src={Failed} alt="Failed" width={70} />
           <h5 className="mt-3">Gagal</h5>
-          <p>Data gagal disimpan</p>
+          <p>{errorMessage}</p>
         </Modal.Body>
         <Modal.Footer style={{ borderTop: "none" }}>
           <Button variant="primary" onClick={handleCloseFailed}>

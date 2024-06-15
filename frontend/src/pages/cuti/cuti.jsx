@@ -13,6 +13,7 @@ import axios from "axios";
 import { API_URL } from "../../helpers/networt";
 
 const Cuti = () => {
+  const [errorMessage, setErrorMessage] = useState("");
   const [records, setRecords] = useState([]);
   const [positions, setPositions] = useState([]);
   const [users, setUsers] = useState([]);
@@ -206,6 +207,7 @@ const Cuti = () => {
     } catch (error) {
       console.error("Error updating user data:", error);
       handleCloseEdit();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -222,6 +224,8 @@ const Cuti = () => {
       setRecords(records.filter((record) => record.id !== id));
     } catch (error) {
       console.error("Error deleting data:", error);
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
+      handleShowFailed();
     }
   };
 
@@ -257,6 +261,7 @@ const Cuti = () => {
     } catch (error) {
       console.error("Error adding attendance data:", error);
       handleCloseAdd();
+      setErrorMessage(error.response?.data?.message || "Terjadi kesalahan");
       handleShowFailed();
     }
   };
@@ -640,7 +645,7 @@ const Cuti = () => {
         <Modal.Body className="text-center mt-5">
           <img src={Failed} alt="Failed" width={70} />
           <h5 className="mt-3">Gagal</h5>
-          <p>Data gagal disimpan</p>
+          <p>{errorMessage}</p>
         </Modal.Body>
         <Modal.Footer style={{ borderTop: "none" }}>
           <Button variant="primary" onClick={handleCloseFailed}>
