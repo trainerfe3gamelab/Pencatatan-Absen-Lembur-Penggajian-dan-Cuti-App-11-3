@@ -223,6 +223,173 @@ const leaveDocumentation = {
           },
         },
       },
+      put: {
+        tags: ["Employee"],
+        summary: "Update a leave",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "ID cuti",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/LeaveInput",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Data cuti berhasil diupdate",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "sukses",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Data cuti berhasil diupdate.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Validasi gagal atau data cuti gagal diupdate",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example:
+                        "Pesan error validasi atau data cuti gagal diupdate",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ["Employee"],
+        summary: "Delete a leave",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "ID cuti",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Data cuti berhasil dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "sukses",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Data cuti berhasil dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Data cuti gagal dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Data cuti gagal dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   },
   schemas: {
@@ -278,6 +445,10 @@ const leaveDocumentation = {
     LeaveInput: {
       type: "object",
       properties: {
+        user_id: {
+          type: "string",
+          example: "tes1",
+        },
         type: {
           type: "string",
           example: "sakit",

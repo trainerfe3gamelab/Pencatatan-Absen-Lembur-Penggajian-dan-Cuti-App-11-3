@@ -222,6 +222,173 @@ const overtimeDocumentation = {
           },
         },
       },
+      put: {
+        tags: ["Employee"],
+        summary: "Update an overtime",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "ID lembur",
+          },
+        ],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                $ref: "#/components/schemas/OvertimeInput",
+              },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: "Data lembur berhasil diupdate",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "sukses",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Data lembur berhasil diupdate.",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Validasi gagal atau data lembur gagal diupdate",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example:
+                        "Pesan error validasi atau data lembur gagal diupdate",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ["Employee"],
+        summary: "Delete an overtime",
+        security: [{ bearerAuth: [] }],
+        parameters: [
+          {
+            name: "id",
+            in: "path",
+            required: true,
+            schema: {
+              type: "string",
+            },
+            description: "ID lembur",
+          },
+        ],
+        responses: {
+          200: {
+            description: "Data lembur berhasil dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "sukses",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Data lembur berhasil dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Data lembur gagal dihapus",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Data lembur gagal dihapus",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Terjadi error pada server",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    status: {
+                      type: "string",
+                      example: "error",
+                    },
+                    message: {
+                      type: "string",
+                      example: "Terjadi error pada server",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
   },
   schemas: {
@@ -273,6 +440,10 @@ const overtimeDocumentation = {
     OvertimeInput: {
       type: "object",
       properties: {
+        user_id: {
+          type: "string",
+          example: "tes1",
+        },
         date: {
           type: "string",
           example: "2024-06-01",

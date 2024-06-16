@@ -164,9 +164,34 @@ const overtimeController = {
       );
       const { error, value } = optionalOvertimeValidator.validate(req.body);
       if (error) return handleFailed(res, 400, error.details[0].message);
+
+      const existingOvertime = await Overtime.findOne({
+        where: {
+          id: req.params.id,
+          user_id: value.user_id,
+          archived: false,
+        },
+      });
+
+      if (!existingOvertime) {
+        return handleFailed(res, 404, "Data lembur tidak ditemukan");
+      }
+
+      if (
+        existingOvertime.status === "disetujui" &&
+        req.user.role === "employee"
+      ) {
+        return handleFailed(
+          res,
+          403,
+          "Karyawan tidak dapat mengupdate data lembur yang telah disetujui"
+        );
+      }
+
       const updateData = await Overtime.update(
         {
           ...value,
+          user_id: req.user.role == "employee" ? req.user.id : value.user_id,
           update_time: moment()
             .tz("Asia/Jakarta")
             .format("YYYY-MM-DD HH:mm:ss"),
@@ -175,7 +200,7 @@ const overtimeController = {
         {
           where: {
             id: req.params.id,
-            user_id: value.user_id,
+            user_id: req.user.role == "employee" ? req.user.id : value.user_id,
             archived: false,
           },
         }
@@ -196,6 +221,28 @@ const overtimeController = {
   // Delete a overtime
   delete: async (req, res) => {
     try {
+      const existingOvertime = await Overtime.findOne({
+        where: {
+          id: req.params.id,
+          archived: false,
+        },
+      });
+
+      if (!existingOvertime) {
+        return handleFailed(res, 404, "Data lembur tidak ditemukan");
+      }
+
+      if (
+        existingOvertime.status === "disetujui" &&
+        req.user.role === "employee"
+      ) {
+        return handleFailed(
+          res,
+          403,
+          "Karyawan tidak dapat menghapus data lembur yang telah disetujui"
+        );
+      }
+
       const data = await Overtime.update(
         {
           archived: true,

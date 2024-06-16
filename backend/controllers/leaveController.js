@@ -185,9 +185,34 @@ const leaveController = {
       if (error) {
         return handleFailed(res, 400, error.details[0].message);
       }
+
+      const existingLeave = await Leave.findOne({
+        where: {
+          id: req.params.id,
+          user_id: value.user_id,
+          archived: false,
+        },
+      });
+
+      if (!existingLeave) {
+        return handleFailed(res, 404, "Data cuti tidak ditemukan");
+      }
+
+      if (
+        existingLeave.status === "disetujui" &&
+        req.user.role === "employee"
+      ) {
+        return handleFailed(
+          res,
+          403,
+          "Karyawan tidak dapat mengupdate data cuti yang telah disetujui"
+        );
+      }
+
       const updateData = await Leave.update(
         {
           ...value,
+          user_id: req.user.role == "employee" ? req.user.id : value.user_id,
           update_time: moment()
             .tz("Asia/Jakarta")
             .format("YYYY-MM-DD HH:mm:ss"),
@@ -196,7 +221,7 @@ const leaveController = {
         {
           where: {
             id: req.params.id,
-            user_id: value.user_id,
+            user_id: req.user.role == "employee" ? req.user.id : value.user_id,
             archived: false,
           },
         }
@@ -217,6 +242,28 @@ const leaveController = {
   // Delete a leave
   delete: async (req, res) => {
     try {
+      const existingLeave = await Leave.findOne({
+        where: {
+          id: req.params.id,
+          archived: false,
+        },
+      });
+
+      if (!existingLeave) {
+        return handleFailed(res, 404, "Data cuti tidak ditemukan");
+      }
+
+      if (
+        existingLeave.status === "disetujui" &&
+        req.user.role === "employee"
+      ) {
+        return handleFailed(
+          res,
+          403,
+          "Karyawan tidak dapat menghapus data cuti yang telah disetujui"
+        );
+      }
+
       const data = await Leave.update(
         {
           archived: true,
@@ -229,7 +276,7 @@ const leaveController = {
         }
       );
       if (data[0] == 0)
-        return handleFailed(res, 400, "Data cuti gagal diupdate");
+        return handleFailed(res, 400, "Data cuti gagal dihapus");
 
       res.status(200).json({
         status: "sukses",
