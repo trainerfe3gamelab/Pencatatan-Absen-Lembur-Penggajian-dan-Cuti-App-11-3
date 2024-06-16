@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import './Profil.css';
-import Col from 'react-bootstrap/Col';
-import Image from 'react-bootstrap/Image';
-import Modal from 'react-bootstrap/Modal';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useState, useEffect } from "react";
+import "./Profil.css";
+import Col from "react-bootstrap/Col";
+import Image from "react-bootstrap/Image";
+import Modal from "react-bootstrap/Modal";
+import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { API_URL } from "../../helpers/networt";
-import {jwtDecode} from "jwt-decode";  // Perbaikan import
+import { jwtDecode } from "jwt-decode"; // Perbaikan import
 import { useNavigate } from "react-router-dom";
 import Success from "../../image/success.png";
 import Failed from "../../image/failed.png";
@@ -33,12 +33,6 @@ const Profil = () => {
 
   const handleCloseFailed = () => setShowFailedModal(false);
   const handleShowFailed = () => setShowFailedModal(true);
-
-
-
-  
-
-  
 
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -70,20 +64,16 @@ const Profil = () => {
       try {
         const decoded = jwtDecode(token);
         setDecodedToken(decoded);
-  
+
         // Get user data
-        const userResponse = await axios.get(
-          `${API_URL}/api/employee/users/`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-  
+        const userResponse = await axios.get(`${API_URL}/api/employee/users/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         const user = userResponse.data.data;
-        
-  
+
         // Get position data
         const positionResponse = await axios.get(
           `${API_URL}/api/employee/positions`,
@@ -93,11 +83,13 @@ const Profil = () => {
             },
           }
         );
-  
+
         setPositions(positionResponse.data.data);
         const positions = positionResponse.data.data;
-        const userPosition = positions.find(position => position.id === user.position_id);
-  
+        const userPosition = positions.find(
+          (position) => position.id === user.position_id
+        );
+
         // Set profile state
         setProfile({
           email: user.email,
@@ -106,8 +98,6 @@ const Profil = () => {
           address: user.address,
           phone_number: user.phone_number,
           profile_picture: user.profile_picture,
-          position_name: userPosition ? userPosition.position_name : "Unknown Position",
-          position_id: userPosition ? userPosition.id : "Unknown id",
           password: "",
         });
       } catch (error) {
@@ -115,32 +105,26 @@ const Profil = () => {
       }
     }
   };
-  
 
   useEffect(() => {
     koneksi();
   }, []);
-  
 
   const updateProfile = async (data) => {
     try {
       const formData = new FormData();
-  
-      // Append email, password, gender, name, address, phone_number
-      formData.append('email', data.email);
-      formData.append('password', data.password);
-      formData.append('gender', data.gender);
-      formData.append('name', data.name);
-      formData.append('address', data.address);
-      formData.append('phone_number', data.phone_number);
-  
-      // Check if profile_picture is a file and append it
-      if (data.profile_picture instanceof File) {
-        formData.append('profile_picture', data.profile_picture);
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          if (data[key] instanceof File) {
+            formData.append(key, data[key]);
+          } else {
+            formData.append(key, data[key]);
+          }
+        }
       }
-  
+
       const token = localStorage.getItem("token");
-  
+
       const response = await axios.put(
         `${API_URL}/api/employee/users/`,
         formData,
@@ -151,9 +135,9 @@ const Profil = () => {
           },
         }
       );
-  
+
       console.log(response.data.data);
-  
+
       // Handle success modal and reload page
       handleShowSuccess();
       window.location.reload(); // You may consider using React state to update UI instead of reloading the entire page
@@ -163,8 +147,6 @@ const Profil = () => {
       handleShowFailed(); // Show failed modal
     }
   };
-  
-  
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -184,45 +166,58 @@ const Profil = () => {
   return (
     <div className="profil-container">
       <div className="card">
-        <h4 className='mt-5'>My Profil</h4>
+        <h4 className="mt-5">My Profil</h4>
         <Col xs={6} md={4} className="image-container">
-          <Image  src={
+          <Image
+            src={
               profilePicture !== false
                 ? profilePicture
                 : profile.profile_picture
                 ? `${API_URL}/${profile.profile_picture}`
                 : profilePicture
-            } roundedCircle style={{ width: '201px', height: '121px' }} />
+            }
+            roundedCircle
+            style={{ width: "201px", height: "121px" }}
+          />
         </Col>
         <div className="card-content">
           <h3>{profile.name}</h3>
           <p>Deskripsi singkat atau detail profil.</p>
-          <div className='sub-content'>
+          <div className="sub-content">
             <h6>Jabatan</h6>
             <p>{profile.position_name}</p>
           </div>
-          <div className='sub-content'>
+          <div className="sub-content">
             <h6>Nomor Telepon</h6>
             <p>{profile.phone_number}</p>
           </div>
-          <div className='sub-content'>
+          <div className="sub-content">
             <h6>Email</h6>
             <p>{profile.email}</p>
           </div>
           <div className="button-profil">
-            <Button className="custom-button-profil" onClick={handleShow}>Edit Profil</Button>
-            <button className='btn-logout' onClick={() => navigate('/Login')}>Log Out</button>
+            <Button className="custom-button-profil" onClick={handleShow}>
+              Edit Profil
+            </Button>
+            <button
+              className="btn-logout"
+              onClick={() => {
+                localStorage.removeItem("token");
+                navigate("/Login");
+              }}
+            >
+              Log Out
+            </button>
           </div>
         </div>
       </div>
 
       <Modal show={show} onHide={handleClose}>
-      <Form onSubmit={handleSubmit} encType="multipart/form-data">
-        <Modal.Header closeButton>
-          <Modal.Title>Edit Profil</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-         
+        <Form onSubmit={handleSubmit} encType="multipart/form-data">
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Profil</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <Form.Group controlId="formFoto">
               <Form.Label>Foto Profil</Form.Label>
               <Form.Control
@@ -288,17 +283,15 @@ const Profil = () => {
                 onChange={handleChange}
               />
             </Form.Group>
-           
-         
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleClose}>
-            Close
-          </Button>
-          <Button variant="primary" type="submit">
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>
+              Close
+            </Button>
+            <Button variant="primary" type="submit">
               Save Changes
             </Button>
-        </Modal.Footer>
+          </Modal.Footer>
         </Form>
       </Modal>
 
@@ -327,6 +320,6 @@ const Profil = () => {
       </Modal>
     </div>
   );
-}
+};
 
 export default Profil;
