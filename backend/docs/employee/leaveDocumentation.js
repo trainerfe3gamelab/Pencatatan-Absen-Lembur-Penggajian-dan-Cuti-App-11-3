@@ -76,7 +76,7 @@ const leaveDocumentation = {
           content: {
             "application/json": {
               schema: {
-                $ref: "#/components/schemas/LeaveInput",
+                $ref: "#/components/schemas/LeaveInputPost",
               },
             },
           },
@@ -441,6 +441,28 @@ const leaveDocumentation = {
           example: "uuidv4()",
         },
       },
+    },
+    LeaveInputPost: {
+      type: "object",
+      properties: {
+        type: {
+          type: "string",
+          example: "sakit",
+        },
+        reasoning: {
+          type: "string",
+          example: "Medical reason",
+        },
+        start_date: {
+          type: "string",
+          example: "2024-06-01",
+        },
+        end_date: {
+          type: "string",
+          example: "2024-06-10",
+        },
+      },
+      required: ["user_id", "type", "reasoning", "start_date", "end_date"],
     },
     LeaveInput: {
       type: "object",

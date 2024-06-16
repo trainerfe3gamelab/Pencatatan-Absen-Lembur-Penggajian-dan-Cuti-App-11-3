@@ -76,7 +76,7 @@ const overtimeDocumentation = {
           content: {
             "application/json": {
               schema: {
-                $ref: "#/components/schemas/OvertimeInput",
+                $ref: "#/components/schemas/OvertimeInputPost",
               },
             },
           },
@@ -444,6 +444,24 @@ const overtimeDocumentation = {
           type: "string",
           example: "tes1",
         },
+        date: {
+          type: "string",
+          example: "2024-06-01",
+        },
+        time_in: {
+          type: "string",
+          example: "08:00:00",
+        },
+        time_out: {
+          type: "string",
+          example: "17:00:00",
+        },
+      },
+      required: ["user_id", "date", "time_in", "time_out"],
+    },
+    OvertimeInputPost: {
+      type: "object",
+      properties: {
         date: {
           type: "string",
           example: "2024-06-01",
