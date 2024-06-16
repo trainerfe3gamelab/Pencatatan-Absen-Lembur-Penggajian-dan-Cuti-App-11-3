@@ -23,6 +23,24 @@ app.get("/", (_, res) => {
   res.send("Hello World");
 });
 
+app.get("/env", (_, res) => {
+  res.json({
+    nodemailerhost: process.env.NODEMAILERHOST,
+    nodemailerport: process.env.NODEMAILERPORT,
+    nodemaileruser: process.env.NODEMAILERUSER,
+    nodemailerpass: process.env.NODEMAILERPASS,
+    jwtsecret: process.env.JWTSECRET,
+    port: (process.env.PORT = 9000),
+    origin: process.env.ORIGIN,
+    dbusername: process.env.DBUSERNAME,
+    dbname: process.env.DBNAME,
+    dbhost: process.env.DBHOST,
+    dbport: process.env.DBPORT,
+    dbpass: process.env.DBPASSWORD,
+    nodeenv: process.env.NODE_ENV,
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is listening on port ${PORT}`);
