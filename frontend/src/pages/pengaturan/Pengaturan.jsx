@@ -58,7 +58,6 @@ const Pengaturan = () => {
     try {
       const formDataToSend = new FormData();
       for (const key in data) {
-        console.log(key);
         if (data.hasOwnProperty(key)) {
           if (data[key] instanceof File) {
             formDataToSend.append(key, data[key]);
@@ -67,7 +66,6 @@ const Pengaturan = () => {
           }
         }
       }
-      console.log(formDataToSend);
       const token = localStorage.getItem("token");
 
       const response = await axios.put(
