@@ -122,7 +122,7 @@ function Cuti  ()  {
           if (selectedRow) {
               // Edit existing data
               requestData = {
-                  // user_id: selectedRow.user_id,
+                  user_id: selectedRow.user_id,
                   date,
                   time_in: formatTime(time_in),
                   time_out: formatTime(time_out),
