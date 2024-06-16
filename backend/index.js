@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-require("dotenv").config();
+// require("dotenv").config();
 const index = require("./routes/index");
 const swaggerDocs = require("./config/swagger");
 const app = express();
