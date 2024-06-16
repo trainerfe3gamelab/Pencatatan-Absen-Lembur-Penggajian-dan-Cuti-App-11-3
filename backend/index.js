@@ -30,7 +30,7 @@ app.get("/env", (_, res) => {
     nodemaileruser: process.env.NODEMAILERUSER,
     nodemailerpass: process.env.NODEMAILERPASS,
     jwtsecret: process.env.JWTSECRET,
-    port: (process.env.PORT = 9000),
+    port: process.env.PORT,
     origin: process.env.ORIGIN,
     dbusername: process.env.DBUSERNAME,
     dbname: process.env.DBNAME,
