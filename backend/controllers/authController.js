@@ -115,7 +115,8 @@ const resetPassword = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    handleError(res, 500, "Terjadi error pada server");
+    // handleError(res, 500, "Terjadi error pada server");
+    res.send(error.message);
   }
 };
 
