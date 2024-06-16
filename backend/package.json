@@ -7,7 +7,10 @@
     "start": "pm2 start index.js",
     "stop": "pm2 stop index.js",
     "delete": "pm2 delete index.js",
-    "force-stop" : "killall node"
+    "force-stop": "killall node",
+    "restart": "pm2 restart index.js",
+    "migrate": "npx sequelize-cli db:migrate",
+    "seed": "npx sequelize-cli db:seed:all"
   },
   "author": "",
   "license": "ISC",
