@@ -111,74 +111,87 @@ function Cuti  ()  {
 
     const handleSubmit = async () => {
       let updatedData;
-      const requestData = {
-        date,
-        time_in: formatTime(time_in),
-        time_out: formatTime(time_out),
-      };
+      let token = localStorage.getItem('token');
+      let requestData;
   
-      if (selectedRow) {
-        // Mengedit data yang sudah ada
-        console.log('Request data being sent to API for update:', requestData);
-  
-        try {
-          const response = await fetch(`http://localhost:9000/api/employee/overtimes/${selectedRow.id}`, {
-            method: 'PUT', // Gunakan PUT atau PATCH sesuai API Anda
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlczEiLCJyb2xlIjoiZW1wbG95ZWUiLCJpYXQiOjE3MTg0NTEyMDksImV4cCI6MTcxODUzNzYwOX0.QJu8vK6tEAnZHomjdU6FDYVUdEdOQbzIWVdyOEF4sQg'
-            },
-            body: JSON.stringify(requestData)
-          });
-  
-          if (response.ok) {
-            const result = await response.json();
-            updatedData = initialData.map(row =>
-              row.id === selectedRow.id ? { ...row, ...requestData } : row
-            );
-            setInitialData(updatedData);
-            toast.success('Berhasil Diupdate!');
-          } else {
-            const errorResponse = await response.json();
-            console.error('Failed to update data:', errorResponse);
-            toast.error(`Gagal mengupdate data! ${errorResponse.message}`);
+      try {
+          if (!token) {
+              throw new Error('Token tidak tersedia.');
           }
-        } catch (error) {
-          console.error('Error:', error);
-          toast.error('Terjadi kesalahan saat mengupdate data!');
-        }
-      } else {
-        // Menambah data baru
-        console.log('Request data being sent to API:', requestData);
   
-        try {
-          const response = await fetch('http://localhost:9000/api/employee/overtimes', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlczEiLCJyb2xlIjoiZW1wbG95ZWUiLCJpYXQiOjE3MTg0NTEyMDksImV4cCI6MTcxODUzNzYwOX0.QJu8vK6tEAnZHomjdU6FDYVUdEdOQbzIWVdyOEF4sQg'
-            },
-            body: JSON.stringify(requestData)
-          });
+          if (selectedRow) {
+              // Edit existing data
+              requestData = {
+                  // user_id: selectedRow.user_id,
+                  date,
+                  time_in: formatTime(time_in),
+                  time_out: formatTime(time_out),
+              };
   
-          if (response.ok) {
-            const result = await response.json();
-            updatedData = [...initialData, { ...requestData, id: result.id }];
-            setInitialData(updatedData);
-            toast.success('Berhasil Tersimpan!');
+              console.log('Request data being sent to API for update:', requestData);
+  
+              const response = await fetch(`http://localhost:9000/api/employee/overtimes/${selectedRow.id}`, {
+                  method: 'PUT',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${token}`
+                  },
+                  body: JSON.stringify(requestData)
+              });
+  
+              if (response.ok) {
+                  const result = await response.json();
+                  updatedData = initialData.map(row =>
+                      row.id === selectedRow.id ? { ...row, ...requestData } : row
+                  );
+                  setInitialData(updatedData);
+                  toast.success('Berhasil Diupdate!');
+              } else {
+                  const errorResponse = await response.json();
+                  console.error('Gagal mengupdate data:', errorResponse);
+                  toast.error(`Gagal mengupdate data! ${errorResponse.message}`);
+              }
           } else {
-            const errorResponse = await response.json();
-            console.error('Failed to add new data:', errorResponse);
-            toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
+              // Add new data
+              requestData = {
+                date,
+                time_in: formatTime(time_in),
+                time_out: formatTime(time_out),
+            };
+            
+            console.log('Request data being sent to API:', requestData);
+            
+            const response = await fetch('http://localhost:9000/api/employee/overtimes', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(requestData)
+            });
+            
+  
+              if (response.ok) {
+                  const result = await response.json();
+                  updatedData = [...initialData, { ...requestData, id: result.id }];
+                  setInitialData(updatedData);
+                  toast.success('Berhasil Tersimpan!');
+              } else {
+                  const errorResponse = await response.json();
+                  console.error('Gagal menambah data baru:', errorResponse);
+                  toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
+              }
           }
-        } catch (error) {
-          console.error('Error:', error);
-          toast.error('Terjadi kesalahan saat menyimpan data!');
-        }
+      } catch (error) {
+          console.error('Terjadi kesalahan:', error);
+          toast.error('Terjadi kesalahan saat mengakses server!');
       }
   
       handleClose();
-    };
+  };
+  
+  
+  
 
 
       const columns = [

@@ -87,10 +87,7 @@ const Cuti = () => {
     setInitialData(filteredData);
     handleCloseFilter();
   };
-  
-  
-  
-  
+
 
   const handleClose = () => {
     setShow(false);
@@ -119,92 +116,119 @@ const Cuti = () => {
   };
   
 
-  const handleDelete = (id) => {
-    const updatedData = initialData.filter(row => row.id !== id);
-    setInitialData(updatedData);
-    setData(updatedData); // Perbarui data juga
-  };
-  
-
-  const handleSubmit = async () => {
-    let updatedData;
-
-    if (selectedRow) {
-        // Edit existing data
-        const requestData = {
-            type: type,
-            reasoning: keterangan,
-            start_date: mulaicuti,
-            end_date: berakhircuti
-        };
-
-        console.log('Request data being sent to API for update:', requestData);
-
-        try {
-            const response = await fetch(`http://localhost:9000/api/employee/leaves/${selectedRow.id}`, {
-                method: 'PUT', // Use PUT or PATCH based on your API
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlczEiLCJyb2xlIjoiZW1wbG95ZWUiLCJpYXQiOjE3MTg0NTEyMDksImV4cCI6MTcxODUzNzYwOX0.QJu8vK6tEAnZHomjdU6FDYVUdEdOQbzIWVdyOEF4sQg'
-                },
-                body: JSON.stringify(requestData)
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                updatedData = initialData.map(row =>
-                    row.id === selectedRow.id ? { ...row, ...requestData } : row
-                );
-                setInitialData(updatedData);
-                toast.success('Berhasil Diupdate!');
-            } else {
-                const errorResponse = await response.json();
-                console.error('Failed to update data:', errorResponse);
-                toast.error(`Gagal mengupdate data! ${errorResponse.message}`);
+  const handleDelete = async (id) => {
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`http://localhost:9000/api/employee/leaves/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
             }
-        } catch (error) {
-            console.error('Error:', error);
-            toast.error('Terjadi kesalahan saat mengupdate data!');
+        });
+
+        if (response.ok) {
+            // Hapus data dari state lokal
+            const updatedData = initialData.filter(row => row.id !== id);
+            setInitialData(updatedData);
+            setData(updatedData);
+            toast.success('Data berhasil dihapus!');
+        } else {
+            const errorResponse = await response.json();
+            console.error('Gagal menghapus data:', errorResponse);
+            toast.error(`Gagal menghapus data! ${errorResponse.message}`);
         }
-    } else {
-        // Add new data
-        const requestData = {
-            type: type,
-            reasoning: keterangan,
-            start_date: mulaicuti,
-            end_date: berakhircuti
-        };
-
-        console.log('Request data being sent to API:', requestData);
-
-        try {
-            const response = await fetch('http://localhost:9000/api/employee/leaves', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InRlczEiLCJyb2xlIjoiZW1wbG95ZWUiLCJpYXQiOjE3MTg0NTEyMDksImV4cCI6MTcxODUzNzYwOX0.QJu8vK6tEAnZHomjdU6FDYVUdEdOQbzIWVdyOEF4sQg'
-                },
-                body: JSON.stringify(requestData)
-            });
-
-            if (response.ok) {
-                const result = await response.json();
-                updatedData = [...initialData, { ...requestData, id: result.id }];
-                setInitialData(updatedData);
-                toast.success('Berhasil Tersimpan!');
-            } else {
-                const errorResponse = await response.json();
-                console.error('Failed to add new data:', errorResponse);
-                toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            toast.error('Terjadi kesalahan saat menyimpan data!');
-        }
+    } catch (error) {
+        console.error('Error:', error);
+        toast.error('Terjadi kesalahan saat menghapus data!');
     }
-
-    handleClose();
 };
+
+
+const handleSubmit = async () => {
+  let updatedData;
+
+  if (selectedRow) {
+      // Edit existing data
+      const requestData = {
+          user_id: selectedRow.user_id, // Memasukkan user_id dari selectedRow
+          type: type,
+          reasoning: keterangan,
+          start_date: mulaicuti,
+          end_date: berakhircuti
+      };
+
+      console.log('Request data being sent to API for update:', requestData);
+
+      try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`http://localhost:9000/api/employee/leaves/${selectedRow.id}`, {
+              method: 'PUT',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(requestData)
+          });
+
+          if (response.ok) {
+              const result = await response.json();
+              updatedData = initialData.map(row =>
+                  row.id === selectedRow.id ? { ...row, ...requestData } : row
+              );
+              setInitialData(updatedData);
+              toast.success('Berhasil Diupdate!');
+          } else {
+              const errorResponse = await response.json();
+              console.error('Failed to update data:', errorResponse);
+              toast.error(`Gagal mengupdate data! ${errorResponse.message}`);
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          toast.error('Terjadi kesalahan saat mengupdate data!');
+      }
+  } else {
+      // Add new data
+      const requestData = {
+          type: type,
+          reasoning: keterangan,
+          start_date: mulaicuti,
+          end_date: berakhircuti
+      };
+
+      console.log('Request data being sent to API:', requestData);
+
+      try {
+          const token = localStorage.getItem('token');
+          const response = await fetch('http://localhost:9000/api/employee/leaves', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify(requestData)
+          });
+
+          if (response.ok) {
+              const result = await response.json();
+              updatedData = [...initialData, { ...requestData, id: result.id }];
+              setInitialData(updatedData);
+              toast.success('Berhasil Tersimpan!');
+          } else {
+              const errorResponse = await response.json();
+              console.error('Failed to add new data:', errorResponse);
+              toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
+          }
+      } catch (error) {
+          console.error('Error:', error);
+          toast.error('Terjadi kesalahan saat menyimpan data!');
+      }
+  }
+
+  handleClose();
+};
+
+
+
 
 
     const columns = [
