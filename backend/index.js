@@ -2,7 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const path = require("path");
-// require("dotenv").config();
+require("dotenv").config();
 const index = require("./routes/index");
 const swaggerDocs = require("./config/swagger");
 const app = express();
@@ -30,7 +30,7 @@ app.get("/env", (_, res) => {
     nodemaileruser: process.env.NODEMAILERUSER,
     nodemailerpass: process.env.NODEMAILERPASS,
     jwtsecret: process.env.JWTSECRET,
-    port: (process.env.PORT = 9000),
+    port: process.env.PORT,
     origin: process.env.ORIGIN,
     dbusername: process.env.DBUSERNAME,
     dbname: process.env.DBNAME,
