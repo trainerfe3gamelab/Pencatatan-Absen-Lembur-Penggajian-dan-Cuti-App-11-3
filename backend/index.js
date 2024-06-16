@@ -20,7 +20,7 @@ swaggerDocs(app);
 app.use("/api", index);
 
 app.get("/", (_, res) => {
-  res.send("Hello World");
+  res.send(process.env);
 });
 
 const PORT = process.env.PORT || 3000;
