@@ -4,25 +4,24 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { API_URL } from "../../../helpers/networt";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
+import {jwtDecode} from "jwt-decode";
 
 const Presensi = () => {
- // // Waktu presensi masuk yang diizinkan (misalnya pukul 09:00 pagi)
-  // const waktuPresensiMasuk = new Date();
-  // waktuPresensiMasuk.setHours(12, 42, 0, 0); // 09:00:00
-
-  // // Waktu presensi keluar yang diizinkan (misalnya pukul 17:00 sore)
-  // const waktuPresensiKeluar = new Date();
-  // waktuPresensiKeluar.setHours(17, 0, 0, 0); // 17:00:00
-
-
+  const token = localStorage.getItem("token");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [userName, setUserName] = useState('');
 
   // Mendekode token untuk mendapatkan userId
   let userId = null;
   if (token) {
-    const decodedToken = jwtDecode(token);
-    userId = decodedToken.id;
-    console.log("Decoded user ID:", userId);
+    try {
+      const decodedToken = jwtDecode(token);
+      userId = decodedToken.id;
+      console.log("Decoded user ID:", userId);
+    } catch (error) {
+      console.error("Token tidak valid", error);
+      toast.error("Token tidak valid!");
+    }
   }
 
   const fetchUserProfile = async () => {
@@ -46,15 +45,9 @@ const Presensi = () => {
           },
         }),
       ]);
+
       if (responseUser.data.status === "sukses") {
         setUserName(responseUser.data.data.name);
-        responseWaktuAbsensi.data.data.forEach((v) => {
-          if (v.name === "waktu masuk") {
-            setWaktuMasuk(v);
-          } else if (v.name === "waktu keluar") {
-            setWaktuKeluar(v);
-          }
-        });
       } else {
         toast.error("Gagal memuat profil pengguna!");
       }
@@ -74,12 +67,16 @@ const Presensi = () => {
 
   const handlePresensiMasuk = async () => {
     try {
-
-      const response = await axios.post(`${API_URL}/api/employee/attendances/in`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(
+        `${API_URL}/api/employee/attendances/in`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
 
       toast.success("Anda telah absen masuk tepat waktu!");
     } catch (error) {
@@ -87,18 +84,21 @@ const Presensi = () => {
       setErrorMessage(message);
       toast.error(message);
       console.log(error);
-
     }
   };
 
   const handlePresensiKeluar = async () => {
     try {
-
-      const response = await axios.post(`${API_URL}/api/employee/attendances/out`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.post(
+        `${API_URL}/api/employee/attendances/out`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }
+      );
 
       toast.success("Anda telah absen keluar tepat waktu!");
     } catch (error) {
@@ -106,10 +106,8 @@ const Presensi = () => {
       setErrorMessage(message);
       toast.error(message);
       console.log(error);
-
     }
   };
-
 
   return (
     <div className="card-presensi">

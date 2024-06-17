@@ -98,8 +98,12 @@ const Profil = () => {
           address: user.address,
           phone_number: user.phone_number,
           profile_picture: user.profile_picture,
+          // position_name: userPosition.position_name,
           password: "",
         });
+
+        setPositions({position_name: userPosition.position_name});
+
       } catch (error) {
         console.error("Error fetching data", error);
       }
@@ -185,7 +189,7 @@ const Profil = () => {
           <p>Deskripsi singkat atau detail profil.</p>
           <div className="sub-content">
             <h6>Jabatan</h6>
-            <p>{profile.position_name}</p>
+            <p>{positions.position_name}</p>
           </div>
           <div className="sub-content">
             <h6>Nomor Telepon</h6>
