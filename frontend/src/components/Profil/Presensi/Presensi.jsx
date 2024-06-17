@@ -7,6 +7,8 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const Presensi = () => {
+  const [waktuMasuk, setWaktuMasuk] = useState({});
+  const [waktuKeluar, setWaktuKeluar] = useState({});
   const [userName, setUserName] = useState("");
   const token = localStorage.getItem("token"); // Asumsi token disimpan di local storage
 
@@ -25,15 +27,29 @@ const Presensi = () => {
     }
 
     try {
-      const response = await axios.get(`${API_URL}/api/employee/users/`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/json",
-        },
-      });
-
-      if (response.data.status === "sukses") {
-        setUserName(response.data.data.name);
+      const [responseUser, responseWaktuAbsensi] = await Promise.all([
+        axios.get(`${API_URL}/api/employee/users/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }),
+        axios.get(`${API_URL}/api/employee/attendance-times/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }),
+      ]);
+      if (responseUser.data.status === "sukses") {
+        setUserName(responseUser.data.data.name);
+        responseWaktuAbsensi.data.data.forEach((v) => {
+          if (v.name === "waktu masuk") {
+            setWaktuMasuk(v);
+          } else if (v.name === "waktu keluar") {
+            setWaktuKeluar(v);
+          }
+        });
       } else {
         toast.error("Gagal memuat profil pengguna!");
       }
@@ -63,8 +79,10 @@ const Presensi = () => {
           },
         }
       );
-      console.log(response);
-      toast.success(response.data.message);
+      toast.success(
+        "Berhasil melakukan presensi masuk dengan status : " +
+          response.data.data.status
+      );
     } catch (error) {
       toast.error(error.response.data.message);
     }
@@ -83,14 +101,12 @@ const Presensi = () => {
           },
         }
       );
-
-      if (response.data.status === "sukses") {
-        toast.success("Anda telah absen keluar tepat waktu!");
-      } else {
-        toast.error("Gagal melakukan presensi keluar!");
-      }
+      toast.success(
+        "Berhasil melakukan presensi masuk dengan status : " +
+          response.data.data.status
+      );
     } catch (error) {
-      toast.error("Terjadi kesalahan saat melakukan presensi keluar!");
+      toast.error(error.response.data.message);
     }
   };
 
@@ -105,12 +121,16 @@ const Presensi = () => {
         </div>
         <div className="card-button">
           <h6>Silahkan Presensi </h6>
-          <button className="button" onClick={handlePresensiMasuk}>
-            Presensi Masuk
-          </button>
-          <button className="button" onClick={handlePresensiKeluar}>
-            Presensi Keluar
-          </button>
+          <div>
+            <button className="button" onClick={handlePresensiMasuk}>
+              Presensi Masuk
+            </button>
+          </div>
+          <div>
+            <button className="button" onClick={handlePresensiKeluar}>
+              Presensi Keluar
+            </button>
+          </div>
           <ToastContainer />
         </div>
       </div>
