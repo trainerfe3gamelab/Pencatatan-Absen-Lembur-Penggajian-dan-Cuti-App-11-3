@@ -125,7 +125,7 @@ const attendanceController = {
 
       const value = {
         user_id: req.user.id,
-        time_out: null,
+        time_out: currentTime,
         date: currentDate,
         status:
           (attendanceCheck && attendanceCheck.status == "alpha") ||
