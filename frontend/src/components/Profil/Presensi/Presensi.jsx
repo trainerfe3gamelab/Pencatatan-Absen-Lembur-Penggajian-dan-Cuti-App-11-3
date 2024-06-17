@@ -7,10 +7,15 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const Presensi = () => {
-  const [waktuMasuk, setWaktuMasuk] = useState({});
-  const [waktuKeluar, setWaktuKeluar] = useState({});
-  const [userName, setUserName] = useState("");
-  const token = localStorage.getItem("token"); // Asumsi token disimpan di local storage
+ // // Waktu presensi masuk yang diizinkan (misalnya pukul 09:00 pagi)
+  // const waktuPresensiMasuk = new Date();
+  // waktuPresensiMasuk.setHours(12, 42, 0, 0); // 09:00:00
+
+  // // Waktu presensi keluar yang diizinkan (misalnya pukul 17:00 sore)
+  // const waktuPresensiKeluar = new Date();
+  // waktuPresensiKeluar.setHours(17, 0, 0, 0); // 17:00:00
+
+
 
   // Mendekode token untuk mendapatkan userId
   let userId = null;
@@ -69,46 +74,42 @@ const Presensi = () => {
 
   const handlePresensiMasuk = async () => {
     try {
-      const response = await axios.post(
-        `${API_URL}/api/employee/attendances/in`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            accept: "application/json",
-          },
-        }
-      );
-      toast.success(
-        "Berhasil melakukan presensi masuk dengan status : " +
-          response.data.data.status
-      );
+
+      const response = await axios.post(`${API_URL}/api/employee/attendances/in`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success("Anda telah absen masuk tepat waktu!");
     } catch (error) {
-      toast.error(error.response.data.message);
+      const message = error.response?.data?.message || "Terjadi kesalahan";
+      setErrorMessage(message);
+      toast.error(message);
+      console.log(error);
+
     }
   };
 
   const handlePresensiKeluar = async () => {
     try {
-      const response = await axios.post(
-        `${API_URL}/api/employee/attendances/out`,
-        {},
 
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            accept: "application/json",
-          },
-        }
-      );
-      toast.success(
-        "Berhasil melakukan presensi masuk dengan status : " +
-          response.data.data.status
-      );
+      const response = await axios.post(`${API_URL}/api/employee/attendances/out`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      toast.success("Anda telah absen keluar tepat waktu!");
     } catch (error) {
-      toast.error(error.response.data.message);
+      const message = error.response?.data?.message || "Terjadi kesalahan";
+      setErrorMessage(message);
+      toast.error(message);
+      console.log(error);
+
     }
   };
+
 
   return (
     <div className="card-presensi">
