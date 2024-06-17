@@ -7,8 +7,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
 const Presensi = () => {
-
-  // // Waktu presensi masuk yang diizinkan (misalnya pukul 09:00 pagi)
+ // // Waktu presensi masuk yang diizinkan (misalnya pukul 09:00 pagi)
   // const waktuPresensiMasuk = new Date();
   // waktuPresensiMasuk.setHours(12, 42, 0, 0); // 09:00:00
 
@@ -110,6 +109,7 @@ const Presensi = () => {
 
     }
   };
+
 
   return (
     <div className="card-presensi">
