@@ -759,6 +759,10 @@ Navbar{
     left: 1.7rem;
     top: 30rem;
   }
+
+  .card-navbar{
+    margin-top: 140px;
+  }
   
 }
 
@@ -797,7 +801,7 @@ Navbar{
   border-radius: 5px;
 }
 .header-overlay.right span{
-  margin-left: 15px;
+  /* margin-left: 15px; */
   color: black;
 }
 

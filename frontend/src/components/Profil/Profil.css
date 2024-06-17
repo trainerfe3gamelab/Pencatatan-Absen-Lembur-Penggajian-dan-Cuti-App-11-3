@@ -172,14 +172,14 @@
      .card-content h3{
       font-size: 14px;
       position: absolute;
-      left: 9rem;
-      top: 3rem;
+      left: 11rem;
+      top: 5rem;
      }
      .card-content p{
       font-size: 9px;
       position: absolute;
-      left: 8rem;
-      top: 3.5rem;
+      left: 11rem;
+      top: 5.5rem;
      }
      .sub-content p {
       font-size: 11px; /* Menyesuaikan ukuran font yang diinginkan */

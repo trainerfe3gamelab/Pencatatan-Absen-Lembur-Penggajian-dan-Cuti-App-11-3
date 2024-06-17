@@ -73,9 +73,9 @@
 @media(max-width: 640px){
   .card-presensi{
     top: -230px;
-    right: 20.2rem;
-    height: 3rem;
-    width: 17.5rem;
+    right: 27.2rem;
+    height: 5rem;
+    width: 23rem;
     position: relative;
   }
   .card-text{
@@ -89,7 +89,7 @@
   }
   .card-button h6{
     position: absolute;
-    left: 11rem;
+    left: 15rem;
     top: 0.5rem;
     font-size: 7px;
   }
@@ -97,7 +97,7 @@
     font-size: 5px;
     font-weight: 600;
     position: relative;
-    left: 6.2rem;
+    left: 8rem;
     bottom: 2.1rem;
   }
 }
