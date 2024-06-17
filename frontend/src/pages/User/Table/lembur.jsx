@@ -8,9 +8,25 @@ import "./lembur.css";
 import { API_URL } from "../../../helpers/networt";
 import axios from "axios";
 
-function Cuti() {
+function Overtime() {
+  const [show, setShow] = useState(false);
+  const [date, setDate] = useState("");
+  const [time_in, setTimeIn] = useState("");
+  const [time_out, setTimeOut] = useState("");
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [initialData, setInitialData] = useState([]);
+  const [data, setData] = useState([]);
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterMonth, setFilterMonth] = useState("");
+  const [filterYear, setFilterYear] = useState("");
+  const [filterDate, setFilterDate] = useState("");
+
   const koneksi = async () => {
     const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Token tidak tersedia.");
+      return;
+    }
 
     try {
       const response = await axios.get(`${API_URL}/api/employee/overtimes`, {
@@ -31,6 +47,7 @@ function Cuti() {
       console.log(data);
     } catch (error) {
       console.error("Error fetching data", error);
+      toast.error("Terjadi kesalahan saat mengambil data!");
     }
   };
 
@@ -39,23 +56,6 @@ function Cuti() {
   }, []);
 
   const isMobile = window.innerWidth <= 600;
-
-  const [show, setShow] = useState(false);
-  const [tanggal, setTanggal] = useState("");
-  const [waktumasuk, setWaktuMasuk] = useState("");
-  const [waktukeluar, setWaktuKeluar] = useState("");
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [initialData, setInitialData] = useState([]);
-  const [time_out, setTimeOut] = useState("");
-  const [time_in, setTimeIn] = useState("");
-  const [month, setMonth] = useState("");
-  const [year, setYear] = useState("");
-  const [date, setDate] = useState("");
-  const [data, setData] = useState(initialData);
-  const [showFilter, setShowFilter] = useState(false);
-  const [filterMonth, setFilterMonth] = useState("");
-  const [filterYear, setFilterYear] = useState("");
-  const [filterDate, setFilterDate] = useState("");
 
   const handleCloseFilter = () => setShowFilter(false);
   const handleShowFilter = () => setShowFilter(true);
@@ -78,7 +78,7 @@ function Cuti() {
       return isMonthMatch && isYearMatch && isDateMatch;
     });
 
-    setInitialData(filtered);
+    setData(filtered);
     handleCloseFilter();
   };
 
@@ -109,83 +109,77 @@ function Cuti() {
     return time.length === 5 ? `${time}:00` : time;
   };
 
-    const handleSubmit = async () => {
-      let updatedData;
-      let token = localStorage.getItem('token');
-      let requestData;
-  
-      try {
-          if (!token) {
-              throw new Error('Token tidak tersedia.');
-          }
-  
-          if (selectedRow) {
-              // Edit existing data
-              requestData = {
-                  user_id: selectedRow.user_id,
-                  date,
-                  time_in: formatTime(time_in),
-                  time_out: formatTime(time_out),
-              };
-  
-              console.log('Request data being sent to API for update:', requestData);
-  
-              const response = await fetch(`http://localhost:9000/api/employee/overtimes/${selectedRow.id}`, {
-                  method: 'PUT',
-                  headers: {
-                      'Content-Type': 'application/json',
-                      'Authorization': `Bearer ${token}`
-                  },
-                  body: JSON.stringify(requestData)
-              });
-  
-              if (response.ok) {
-                  const result = await response.json();
-                  updatedData = initialData.map(row =>
-                      row.id === selectedRow.id ? { ...row, ...requestData } : row
-                  );
-                  setInitialData(updatedData);
-                  toast.success('Berhasil Diupdate!');
-              } else {
-                  const errorResponse = await response.json();
-                  console.error('Gagal mengupdate data:', errorResponse);
-                  toast.error(`Gagal mengupdate data! ${errorResponse.message}`);
-              }
-          } else {
-              // Add new data
-              requestData = {
-                date,
-                time_in: formatTime(time_in),
-                time_out: formatTime(time_out),
-            };
-            
-            console.log('Request data being sent to API:', requestData);
-            
-            const response = await fetch('http://localhost:9000/api/employee/overtimes', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(requestData)
-            });
-            
-  
-              if (response.ok) {
-                  const result = await response.json();
-                  updatedData = [...initialData, { ...requestData, id: result.id }];
-                  setInitialData(updatedData);
-                  toast.success('Berhasil Tersimpan!');
-              } else {
-                  const errorResponse = await response.json();
-                  console.error('Gagal menambah data baru:', errorResponse);
-                  toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
-              }
-          }
-      } catch (error) {
-        console.error("Error:", error);
-        toast.error("Terjadi kesalahan saat menyimpan data!");
+  const handleSubmit = async () => {
+    let updatedData;
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("Token tidak tersedia.");
+      return;
+    }
+
+    const requestData = {
+      date,
+      time_in: formatTime(time_in),
+      time_out: formatTime(time_out),
+    };
+
+    try {
+      if (selectedRow) {
+        // Edit existing data
+        requestData.user_id = selectedRow.user_id;
+
+        console.log("Request data being sent to API for update:", requestData);
+
+        const response = await fetch(`${API_URL}/api/employee/overtimes/${selectedRow.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          updatedData = initialData.map((row) =>
+            row.id === selectedRow.id ? { ...row, ...requestData } : row
+          );
+          setInitialData(updatedData);
+          setData(updatedData);
+          toast.success("Berhasil Diupdate!");
+        } else {
+          const errorResponse = await response.json();
+          console.error("Gagal mengupdate data:", errorResponse);
+          toast.error(`Gagal mengupdate data! ${errorResponse.message}`);
+        }
+      } else {
+        // Add new data
+        console.log("Request data being sent to API:", requestData);
+
+        const response = await fetch(`${API_URL}/api/employee/overtimes`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          updatedData = [...initialData, { ...requestData, id: result.id }];
+          setInitialData(updatedData);
+          setData(updatedData);
+          toast.success("Berhasil Tersimpan!");
+        } else {
+          const errorResponse = await response.json();
+          console.error("Gagal menambah data baru:", errorResponse);
+          toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
+        }
       }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat menyimpan data!");
     }
 
     handleClose();
@@ -220,22 +214,20 @@ function Cuti() {
     {
       name: "Actions",
       cell: (row) => (
-        <>
-          <button
-            onClick={() => handleShow(row)}
-            style={{
-              background: "linear-gradient(135deg, #FFA726, #FF7043)",
-              color: "white",
-              border: "none",
-              padding: "5px 10px",
-              borderRadius: "5px",
-              cursor: "pointer",
-            }}
-            hidden={row.status == "disetujui"}
-          >
-            Edit
-          </button>
-        </>
+        <button
+          onClick={() => handleShow(row)}
+          style={{
+            background: "linear-gradient(135deg, #FFA726, #FF7043)",
+            color: "white",
+            border: "none",
+            padding: "5px 10px",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+          hidden={row.status === "disetujui"}
+        >
+          Edit
+        </button>
       ),
     },
   ];
@@ -325,8 +317,7 @@ function Cuti() {
       </Modal>
 
       <button className="btn btn-filter" onClick={handleShowFilter}>
-        <i className="bi bi-filter"></i>
-        FILTER
+        <i className="bi bi-filter"></i> FILTER
       </button>
 
       <Modal show={showFilter} onHide={handleCloseFilter}>
@@ -378,7 +369,7 @@ function Cuti() {
       <div className="table-container">
         <DataTable
           columns={columns}
-          data={initialData}
+          data={data}
           fixedHeader
           pagination
           customStyles={customStyle}
@@ -388,4 +379,4 @@ function Cuti() {
   );
 }
 
-export default Cuti;
+export default Overtime;
