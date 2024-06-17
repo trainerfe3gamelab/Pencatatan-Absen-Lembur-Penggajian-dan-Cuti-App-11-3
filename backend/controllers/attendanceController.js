@@ -8,6 +8,8 @@ const {
   checkHolidayAndLeave,
   handleAttendanceCheck,
   handleCreateOrUpdateAttendance,
+  getAttendanceTime,
+  isAfterCompareTime,
 } = require("../utils/attendance");
 
 const attendanceController = {
@@ -38,6 +40,14 @@ const attendanceController = {
   //in attendance
   in: async (req, res) => {
     try {
+      const currentTime = moment().tz("Asia/Jakarta").format("HH:mm:ss");
+
+      const checkTimeOut = await getAttendanceTime("keluar");
+
+      if (isAfterCompareTime(currentTime, checkTimeOut.start_time)) {
+        return handleFailed(res, 400, "Tidak bisa melakukan absensi masuk");
+      }
+
       if (checkWeekend()) {
         return handleFailed(res, 400, "Hari ini adalah hari weekend");
       }
@@ -60,7 +70,6 @@ const attendanceController = {
         return handleFailed(res, 400, holidayAndLeaveCheck);
       }
 
-      const currentTime = moment().tz("Asia/Jakarta").format("HH:mm:ss");
       const { status, attendanceTime } = await handleAttendanceCheck(
         "masuk",
         currentTime,
@@ -118,20 +127,27 @@ const attendanceController = {
         currentTime,
         currentDate
       );
-
       if (status === "Belum waktunya melakukan absensi keluar") {
         return handleFailed(res, 400, status);
+      }
+
+      let outStatus = "";
+      if (
+        (attendanceCheck && attendanceCheck.status == "alpha") ||
+        (attendanceCheck && attendanceCheck.status == "telat")
+      ) {
+        outStatus = attendanceCheck.status;
+      } else if (attendanceCheck == null) {
+        outStatus = "alpha";
+      } else {
+        outStatus = status;
       }
 
       const value = {
         user_id: req.user.id,
         time_out: currentTime,
         date: currentDate,
-        status:
-          (attendanceCheck && attendanceCheck.status == "alpha") ||
-          attendanceCheck.status == "telat"
-            ? attendanceCheck.status
-            : status,
+        status: outStatus,
         time_in: attendanceCheck ? attendanceCheck.time_in : null,
       };
 
