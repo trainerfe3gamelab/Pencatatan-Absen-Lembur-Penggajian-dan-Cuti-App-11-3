@@ -1,32 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import './Presensi.css'; 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState } from "react";
+import "./Presensi.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { API_URL } from "../../../helpers/networt";
 import axios from "axios";
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 const Presensi = () => {
-  // Waktu presensi masuk yang diizinkan (misalnya pukul 09:00 pagi)
-  const waktuPresensiMasuk = new Date();
-  waktuPresensiMasuk.setHours(12, 42, 0, 0); // 09:00:00
-
-  // Waktu presensi keluar yang diizinkan (misalnya pukul 17:00 sore)
-  const waktuPresensiKeluar = new Date();
-  waktuPresensiKeluar.setHours(17, 0, 0, 0); // 17:00:00
-
-  const [userName, setUserName] = useState('');
-  const token = localStorage.getItem('token'); // Asumsi token disimpan di local storage
+  const [userName, setUserName] = useState("");
+  const token = localStorage.getItem("token"); // Asumsi token disimpan di local storage
 
   // Mendekode token untuk mendapatkan userId
   let userId = null;
   if (token) {
     const decodedToken = jwtDecode(token);
     userId = decodedToken.id;
-    console.log('Decoded user ID:', userId);
+    console.log("Decoded user ID:", userId);
   }
-  
-
 
   const fetchUserProfile = async () => {
     if (!userId) {
@@ -37,9 +27,9 @@ const Presensi = () => {
     try {
       const response = await axios.get(`${API_URL}/api/employee/users/`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+        },
       });
 
       if (response.data.status === "sukses") {
@@ -62,52 +52,45 @@ const Presensi = () => {
   }, []);
 
   const handlePresensiMasuk = async () => {
-    const sekarang = new Date();
-
-    if (sekarang <= waktuPresensiMasuk) {
-      try {
-        const response = await axios.post(`${API_URL}/employee/attendances/in`, {}, {
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/employee/attendances/in`,
+        {},
+        {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'accept': 'application/json'
-          }
-        });
-        
-        if (response.data.status === "sukses") {
-          toast.success("Anda telah absen masuk tepat waktu!");
-        } else {
-          toast.error("Gagal melakukan presensi masuk!");
+            Authorization: `Bearer ${token}`,
+            accept: "application/json",
+          },
         }
-      } catch (error) {
-        toast.error("Terjadi kesalahan saat melakukan presensi masuk!");
-      }
-    } else {
-      toast.error("Anda terlambat absen masuk!");
+      );
+      console.log(response);
+      toast.success(response.data.message);
+    } catch (error) {
+      toast.error(error.response.data.message);
     }
   };
 
   const handlePresensiKeluar = async () => {
-    const sekarang = new Date();
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/employee/attendances/out`,
+        {},
 
-    if (sekarang >= waktuPresensiKeluar) {
-      try {
-        const response = await axios.post(`${API_URL}/employee/attendances/out`, {}, {
+        {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'accept': 'application/json'
-          }
-        });
-        
-        if (response.data.status === "sukses") {
-          toast.success("Anda telah absen keluar tepat waktu!");
-        } else {
-          toast.error("Gagal melakukan presensi keluar!");
+            Authorization: `Bearer ${token}`,
+            accept: "application/json",
+          },
         }
-      } catch (error) {
-        toast.error("Terjadi kesalahan saat melakukan presensi keluar!");
+      );
+
+      if (response.data.status === "sukses") {
+        toast.success("Anda telah absen keluar tepat waktu!");
+      } else {
+        toast.error("Gagal melakukan presensi keluar!");
       }
-    } else {
-      toast.error("Anda terlalu cepat absen keluar!");
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat melakukan presensi keluar!");
     }
   };
 
@@ -118,19 +101,21 @@ const Presensi = () => {
           <div>
             Selamat datang <span>{userName}</span> anda
           </div>
-          <div>
-            telah login sebagai pegawai
-          </div>
+          <div>telah login sebagai pegawai</div>
         </div>
-        <div className='card-button'>
+        <div className="card-button">
           <h6>Silahkan Presensi </h6>
-          <button className="button" onClick={handlePresensiMasuk}>Presensi Masuk</button>
-          <button className="button" onClick={handlePresensiKeluar}>Presensi Keluar</button>
+          <button className="button" onClick={handlePresensiMasuk}>
+            Presensi Masuk
+          </button>
+          <button className="button" onClick={handlePresensiKeluar}>
+            Presensi Keluar
+          </button>
           <ToastContainer />
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Presensi;

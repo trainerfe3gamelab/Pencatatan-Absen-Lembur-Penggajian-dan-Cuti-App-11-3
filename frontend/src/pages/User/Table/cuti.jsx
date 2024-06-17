@@ -107,10 +107,31 @@ const Cuti = () => {
     setShow(true);
   };
 
-  const handleDelete = (id) => {
-    const updatedData = initialData.filter((row) => row.id !== id);
-    setInitialData(updatedData);
-    setData(updatedData); // Perbarui data juga
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/api/employee/leaves/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const updatedData = initialData.filter((row) => row.id !== id);
+        setInitialData(updatedData);
+        setData(updatedData); // Perbarui data juga
+        toast.success("Berhasil Dihapus!");
+      } else {
+        const errorResponse = await response.json();
+        console.error("Failed to add new data:", errorResponse);
+        toast.error(`Gagal menyimpan data! ${errorResponse.message}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("Terjadi kesalahan saat menyimpan data!");
+    }
   };
 
   const handleSubmit = async () => {
@@ -119,6 +140,7 @@ const Cuti = () => {
     if (selectedRow) {
       // Edit existing data
       const requestData = {
+        user_id: selectedRow.user_id,
         type: type,
         reasoning: keterangan,
         start_date: mulaicuti,
@@ -251,7 +273,7 @@ const Cuti = () => {
               borderRadius: "5px",
               cursor: "pointer",
             }}
-            hidden={row.status == "disetujui"}
+            hidden={row.status == "disetujui" || row.status == "ditolak"}
           >
             Edit
           </button>
