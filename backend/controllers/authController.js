@@ -43,8 +43,7 @@ const login = async (req, res) => {
     res.json({ token, user: userData });
   } catch (error) {
     console.log(error.message);
-    // handleError(res, 500, "Terjadi error pada server");
-    res.send(error.message);
+    handleError(res, 500, "Terjadi error pada server");
   }
 };
 
@@ -70,8 +69,7 @@ const resetPasswordToken = async (req, res) => {
     res.status(200).json({ status: "sukses", pesan: "Token Berhasil dikirim" });
   } catch (error) {
     console.log(error.message);
-    // handleError(res, 500, "Terjadi error pada server");
-    res.send(error.message);
+    handleError(res, 500, "Terjadi error pada server");
   }
 };
 
@@ -115,8 +113,7 @@ const resetPassword = async (req, res) => {
     });
   } catch (error) {
     console.log(error.message);
-    // handleError(res, 500, "Terjadi error pada server");
-    res.send(error.message);
+    handleError(res, 500, "Terjadi error pada server");
   }
 };
 

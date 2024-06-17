@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import './Presensi.css'; 
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import React, { useEffect, useState } from "react";
+import "./Presensi.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { API_URL } from "../../../helpers/networt";
 import axios from "axios";
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from "jwt-decode";
 
 const Presensi = () => {
+
   // // Waktu presensi masuk yang diizinkan (misalnya pukul 09:00 pagi)
   // const waktuPresensiMasuk = new Date();
   // waktuPresensiMasuk.setHours(12, 42, 0, 0); // 09:00:00
@@ -15,19 +16,15 @@ const Presensi = () => {
   // const waktuPresensiKeluar = new Date();
   // waktuPresensiKeluar.setHours(17, 0, 0, 0); // 17:00:00
 
-  const [userName, setUserName] = useState('');
-  const token = localStorage.getItem("token"); // Asumsi token disimpan di local storage
-  const [errorMessage, setErrorMessage] = useState("");
+
 
   // Mendekode token untuk mendapatkan userId
   let userId = null;
   if (token) {
     const decodedToken = jwtDecode(token);
     userId = decodedToken.id;
-    console.log('Decoded user ID:', userId);
+    console.log("Decoded user ID:", userId);
   }
-  
-
 
   const fetchUserProfile = async () => {
     if (!userId) {
@@ -36,15 +33,29 @@ const Presensi = () => {
     }
 
     try {
-      const response = await axios.get(`${API_URL}/api/employee/users/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
-        }
-      });
-
-      if (response.data.status === "sukses") {
-        setUserName(response.data.data.name);
+      const [responseUser, responseWaktuAbsensi] = await Promise.all([
+        axios.get(`${API_URL}/api/employee/users/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }),
+        axios.get(`${API_URL}/api/employee/attendance-times/`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            Accept: "application/json",
+          },
+        }),
+      ]);
+      if (responseUser.data.status === "sukses") {
+        setUserName(responseUser.data.data.name);
+        responseWaktuAbsensi.data.data.forEach((v) => {
+          if (v.name === "waktu masuk") {
+            setWaktuMasuk(v);
+          } else if (v.name === "waktu keluar") {
+            setWaktuKeluar(v);
+          }
+        });
       } else {
         toast.error("Gagal memuat profil pengguna!");
       }
@@ -64,6 +75,7 @@ const Presensi = () => {
 
   const handlePresensiMasuk = async () => {
     try {
+
       const response = await axios.post(`${API_URL}/api/employee/attendances/in`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -76,11 +88,13 @@ const Presensi = () => {
       setErrorMessage(message);
       toast.error(message);
       console.log(error);
+
     }
   };
 
   const handlePresensiKeluar = async () => {
     try {
+
       const response = await axios.post(`${API_URL}/api/employee/attendances/out`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -93,6 +107,7 @@ const Presensi = () => {
       setErrorMessage(message);
       toast.error(message);
       console.log(error);
+
     }
   };
 
@@ -103,19 +118,25 @@ const Presensi = () => {
           <div>
             Selamat datang <span>{userName}</span> anda
           </div>
-          <div>
-            telah login sebagai pegawai
-          </div>
+          <div>telah login sebagai pegawai</div>
         </div>
-        <div className='card-button'>
+        <div className="card-button">
           <h6>Silahkan Presensi </h6>
-          <button className="button" onClick={handlePresensiMasuk}>Presensi Masuk</button>
-          <button className="button" onClick={handlePresensiKeluar}>Presensi Keluar</button>
+          <div>
+            <button className="button" onClick={handlePresensiMasuk}>
+              Presensi Masuk
+            </button>
+          </div>
+          <div>
+            <button className="button" onClick={handlePresensiKeluar}>
+              Presensi Keluar
+            </button>
+          </div>
           <ToastContainer />
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default Presensi;

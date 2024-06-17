@@ -130,14 +130,17 @@ function Overtime() {
 
         console.log("Request data being sent to API for update:", requestData);
 
-        const response = await fetch(`${API_URL}/api/employee/overtimes/${selectedRow.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(requestData),
-        });
+        const response = await fetch(
+          `${API_URL}/api/employee/overtimes/${selectedRow.id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify(requestData),
+          }
+        );
 
         if (response.ok) {
           const result = await response.json();
