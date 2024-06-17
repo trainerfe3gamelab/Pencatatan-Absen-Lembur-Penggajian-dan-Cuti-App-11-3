@@ -3,6 +3,13 @@ const moment = require("moment-timezone");
 const { Op } = require("sequelize");
 const { v4: uuidv4 } = require("uuid");
 
+const isAfterCompareTime = (currentTime, compareTime) => {
+  const currentMoment = moment(currentTime, "HH:mm:ss");
+  const compareMoment = moment(compareTime, "HH:mm:ss");
+
+  return currentMoment.isAfter(compareMoment);
+};
+
 const getAttendanceTime = async (attendanceName) => {
   return await AttendanceTime.findOne({
     where: { archived: false, name: { [Op.like]: `%${attendanceName}` } },
@@ -113,4 +120,5 @@ module.exports = {
   checkHolidayAndLeave,
   handleAttendanceCheck,
   handleCreateOrUpdateAttendance,
+  isAfterCompareTime,
 };
