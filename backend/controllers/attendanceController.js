@@ -54,7 +54,7 @@ const attendanceController = {
 
       const currentDate = moment().tz("Asia/Jakarta").format("YYYY-MM-DD");
       const attendanceCheck = await Attendance.findOne({
-        where: { archived: false, date: currentDate },
+        where: {user_id: req.user.id, archived: false, date: currentDate },
       });
 
       if (attendanceCheck) {
@@ -105,7 +105,7 @@ const attendanceController = {
 
       const currentDate = moment().tz("Asia/Jakarta").format("YYYY-MM-DD");
       const attendanceCheck = await Attendance.findOne({
-        where: { archived: false, date: currentDate },
+        where: {user_id: req.user.id, archived: false, date: currentDate },
       });
 
       if (attendanceCheck && attendanceCheck.time_out) {
